@@ -69,7 +69,7 @@ export default function Footer() {
           <div className="md:pr-4">
             <div className="flex items-center space-x-2 mb-6">
               <img 
-                src="/whiteAbleLogo.png" 
+                src="/whiteAbleLogo.png?v=2" 
                 alt="Able Technologies Logo" 
                 className="h-14 object-contain" 
               />

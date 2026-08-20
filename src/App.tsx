@@ -47,7 +47,7 @@ export default function App() {
             <Menu size={28} />
           </button>
           <img 
-            src="/whiteAbleLogo.png" 
+            src="/whiteAbleLogo.png?v=2" 
             alt="Able Technologies Logo" 
             className="h-14 object-contain" 
           />
@@ -102,7 +102,7 @@ export default function App() {
         {/* Logo Area */}
         <div className="flex items-center">
           <img 
-            src="/ableLogo.png" 
+            src="/ableLogo.png?v=2" 
             alt="Able Technologies Logo" 
             className="h-20 md:h-24 w-auto object-contain" 
           />
@@ -195,7 +195,7 @@ export default function App() {
             <motion.img 
               animate={{ y: [0, -15, 0] }}
               transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-              src="/Tool.png" 
+              src="/Tool.png?v=2" 
               alt="Industrial Robotic Arm" 
               className="h-full w-auto object-contain relative z-10 drop-shadow-[-25px_15px_25px_rgba(0,0,0,0.6)]"
             />
