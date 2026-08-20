@@ -1,0 +1,6 @@
+{
+  "name": "Able Technologies Store",
+  "description": "An industrial machinery e-commerce store layout.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
