@@ -26,6 +26,11 @@ import WhyChooseUs from './components/WhyChooseUs';
 import NewsletterCTA from './components/NewsletterCTA';
 import Footer from './components/Footer';
 
+import whiteAbleLogo from './assets/whiteAbleLogo.png';
+import ableLogo from './assets/ableLogo.png';
+import toolImg from './assets/Tool.png';
+import heroBg from './assets/heroBg.webp';
+
 export default function App() {
   return (
     <div className="min-h-screen bg-gray-50 font-sans overflow-x-hidden">
@@ -47,7 +52,7 @@ export default function App() {
             <Menu size={28} />
           </button>
           <img 
-            src="/whiteAbleLogo.png?v=2" 
+            src={whiteAbleLogo} 
             alt="Able Technologies Logo" 
             className="h-14 object-contain" 
           />
@@ -102,7 +107,7 @@ export default function App() {
         {/* Logo Area */}
         <div className="flex items-center">
           <img 
-            src="/ableLogo.png?v=2" 
+            src={ableLogo} 
             alt="Able Technologies Logo" 
             className="h-20 md:h-24 w-auto object-contain" 
           />
@@ -179,7 +184,7 @@ export default function App() {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
         className="relative w-full min-h-[550px] md:h-[600px] bg-[#0b1042] overflow-hidden flex flex-col justify-center bg-cover bg-center bg-no-repeat pb-10 md:pb-0"
-        style={{ backgroundImage: "url('/heroBg.webp')" }}
+        style={{ backgroundImage: `url(${heroBg})` }}
       >
         {/* Dark Navy Faded Overlay for Text Highlight */}
         <div className="absolute inset-0 bg-gradient-to-r from-[#060a2b] via-[#0b1042]/90 md:via-[#0b1042]/95 to-transparent z-0 w-full md:w-[75%]"></div>
@@ -195,7 +200,7 @@ export default function App() {
             <motion.img 
               animate={{ y: [0, -15, 0] }}
               transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-              src="/Tool.png?v=2" 
+              src={toolImg} 
               alt="Industrial Robotic Arm" 
               className="h-full w-auto object-contain relative z-10 drop-shadow-[-25px_15px_25px_rgba(0,0,0,0.6)]"
             />
