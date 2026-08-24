@@ -1,35 +1,86 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import FloatingControls from './components/FloatingControls';
 import Home from './pages/Home';
+import Shop from './pages/Shop';
+import ProductDetails from './pages/ProductDetails';
+import Checkout from './pages/Checkout';
 import Contact from './pages/Contact';
+import Profile from './pages/Profile';
+import { CartProvider } from './context/CartContext';
+import CartDrawer from './components/cart/CartDrawer';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import AdminRoute from './components/auth/AdminRoute';
+import AdminLayout from './components/layout/AdminLayout';
+import Dashboard from './pages/admin/Dashboard';
+import AdminLogin from './pages/admin/AdminLogin';
+
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated } = useAuth();
+  if (!isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
+  return <>{children}</>;
+}
+
+function StorefrontLayout() {
+  return (
+    <div className="min-h-screen bg-gray-50 font-sans overflow-x-hidden">
+      {/* SVG Gradient Defs */}
+      <svg width="0" height="0" className="absolute">
+        <defs>
+          <linearGradient id="metal-red" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#ff4b4b" />
+            <stop offset="45%" stopColor="#d41414" />
+            <stop offset="100%" stopColor="#7a0000" />
+          </linearGradient>
+        </defs>
+      </svg>
+      <Header />
+      
+      <Outlet />
+      
+      <Footer />
+      <FloatingControls />
+      <CartDrawer />
+    </div>
+  );
+}
 
 export default function App() {
   return (
-    <Router>
-      <div className="min-h-screen bg-gray-50 font-sans overflow-x-hidden">
-        {/* SVG Gradient Defs */}
-        <svg width="0" height="0" className="absolute">
-          <defs>
-            <linearGradient id="metal-red" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#ff4b4b" />
-              <stop offset="45%" stopColor="#d41414" />
-              <stop offset="100%" stopColor="#7a0000" />
-            </linearGradient>
-          </defs>
-        </svg>
+    <AuthProvider>
+      <CartProvider>
+        <Router>
+          <Routes>
+            {/* Storefront Routes */}
+            <Route element={<StorefrontLayout />}>
+              <Route path="/" element={<Home />} />
+              <Route path="/shop" element={<Shop />} />
+              <Route path="/product/:id" element={<ProductDetails />} />
+              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/profile" element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              } />
+            </Route>
 
-        <Header />
-        
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/contact" element={<Contact />} />
-        </Routes>
-        
-        <Footer />
-        <FloatingControls />
-      </div>
-    </Router>
+            {/* Admin Routes */}
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/admin" element={
+              <AdminRoute>
+                <AdminLayout />
+              </AdminRoute>
+            }>
+              <Route index element={<Dashboard />} />
+              {/* Additional admin routes will go here in future steps */}
+            </Route>
+          </Routes>
+        </Router>
+      </CartProvider>
+    </AuthProvider>
   );
 }

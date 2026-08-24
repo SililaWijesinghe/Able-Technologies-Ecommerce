@@ -1,14 +1,28 @@
 import { ShoppingCart, Heart, ArrowRight } from 'lucide-react';
 import { motion } from 'motion/react';
+import { useEffect, useState } from 'react';
+import { fetchProducts } from '../services/api';
 
 export default function BestSellers() {
-  const products = [
+  const fallbackProducts = [
     { name: 'Pneumatic Pad Printing Machine', oldPrice: 'Rs. 570,000.00', newPrice: 'Rs. 485,000.00', discount: '-15%' },
     { name: 'Industrial Robotic Arm 6 Axis', oldPrice: 'Rs. 2,050,000.00', newPrice: 'Rs. 1,850,000.00', discount: '-10%' },
     { name: 'Air Cylinder ISO 15552', oldPrice: 'Rs. 14,200.00', newPrice: 'Rs. 12,500.00', discount: '-12%' },
     { name: 'Pneumatic Fittings Set', oldPrice: 'Rs. 1,360.00', newPrice: 'Rs. 1,250.00', discount: '-8%' },
     { name: 'Pressure Gauge 0-10 Bar', oldPrice: 'Rs. 2,580.00', newPrice: 'Rs. 2,450.00', discount: '-5%' },
   ];
+
+  const [products, setProducts] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetchProducts().then(data => {
+      if (data && data.length > 0) {
+        setProducts(data.slice(0, 5));
+      } else {
+        setProducts(fallbackProducts);
+      }
+    });
+  }, []);
 
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-6 mb-12 md:mb-24 overflow-hidden">
@@ -24,9 +38,11 @@ export default function BestSellers() {
           View All <ArrowRight size={14} color="url(#metal-red)" className="ml-1 transition-transform group-hover:translate-x-1 md:w-4 md:h-4" />
         </a>
       </div>
-
       <div className="flex md:grid md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 md:mx-0 md:px-0 scrollbar-hide" style={{ scrollbarWidth: 'none' }}>
-        {products.map((product, idx) => (
+        {products.map((product, idx) => {
+          const mainImage = product.images?.[0]?.image_url || (product.image_urls && product.image_urls[0]);
+          const displayPrice = product.price ? `Rs. ${parseFloat(product.price).toLocaleString('en-US', {minimumFractionDigits: 2})}` : product.newPrice;
+          return (
           <motion.div 
             key={idx}
             initial={{ opacity: 0, y: 20 }}
@@ -35,30 +51,36 @@ export default function BestSellers() {
             transition={{ delay: idx * 0.1 }}
             className="bg-white rounded-xl border border-gray-100 p-3 md:p-4 shadow-sm hover:shadow-xl transition-all relative group flex flex-col h-full hover:-translate-y-1 min-w-[160px] sm:min-w-[200px] md:min-w-0 snap-start shrink-0"
           >
-            <div className="absolute top-2 left-2 md:top-4 md:left-4 metallic-red-bg border-none text-white text-[9px] md:text-[10px] font-bold px-1.5 md:px-2 py-0.5 md:py-1 rounded z-10 shadow-sm">
-              {product.discount}
-            </div>
+            {product.discount && (
+              <div className="absolute top-2 left-2 md:top-4 md:left-4 metallic-red-bg border-none text-white text-[9px] md:text-[10px] font-bold px-1.5 md:px-2 py-0.5 md:py-1 rounded z-10 shadow-sm">
+                {product.discount}
+              </div>
+            )}
             <button className="absolute top-2 right-2 md:top-4 md:right-4 text-gray-300 hover:text-red-600 z-10 transition-colors bg-white rounded-full p-1 shadow-sm">
               <Heart size={14} className="md:w-4 md:h-4" />
             </button>
-            <div className="w-full h-32 md:h-48 bg-gray-50 rounded-lg mb-3 md:mb-4 flex items-center justify-center p-2 md:p-4 group-hover:bg-gray-100 transition-colors">
-               <div className="w-full h-full border-2 border-dashed border-gray-200 rounded flex items-center justify-center text-gray-400 text-[10px] md:text-xs text-center">
-                 Image
-               </div>
+            <div className="w-full h-32 md:h-48 bg-gray-50 rounded-lg mb-3 md:mb-4 flex items-center justify-center p-2 md:p-4 group-hover:bg-gray-100 transition-colors overflow-hidden">
+               {mainImage ? (
+                 <img src={mainImage} alt={product.name} className="w-full h-full object-contain mix-blend-multiply" />
+               ) : (
+                 <div className="w-full h-full border-2 border-dashed border-gray-200 rounded flex items-center justify-center text-gray-400 text-[10px] md:text-xs text-center">
+                   Image
+                 </div>
+               )}
             </div>
             <h3 className="text-xs md:text-sm font-semibold text-gray-800 mb-3 md:mb-4 line-clamp-2 leading-snug flex-1">{product.name}</h3>
             
             <div className="flex items-end justify-between mt-auto pt-3 md:pt-4 border-t border-gray-50">
               <div className="flex flex-col">
-                <span className="text-gray-400 text-[10px] md:text-xs line-through mb-0.5">{product.oldPrice}</span>
-                <span className="metallic-red-text font-bold text-sm md:text-[15px] leading-none">{product.newPrice}</span>
+                {product.oldPrice && <span className="text-gray-400 text-[10px] md:text-xs line-through mb-0.5">{product.oldPrice}</span>}
+                <span className="metallic-red-text font-bold text-sm md:text-[15px] leading-none">{displayPrice}</span>
               </div>
               <button className="bg-[#0b1042] hover:bg-[#a81414] text-white w-7 h-7 md:w-9 md:h-9 rounded-md flex items-center justify-center transition-colors shadow-sm shrink-0 ml-2">
                 <ShoppingCart size={14} className="md:w-4 md:h-4" />
               </button>
             </div>
           </motion.div>
-        ))}
+        )})}
       </div>
     </div>
   );

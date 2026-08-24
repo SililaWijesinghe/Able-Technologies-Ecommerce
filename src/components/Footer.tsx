@@ -1,7 +1,15 @@
 import { Shield, RefreshCw, Headphones, Award, Facebook, Linkedin, Instagram, MapPin, Phone, Mail, ArrowUp, MessageCircle } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import whiteAbleLogo from '../assets/whiteAbleLogo.png';
+import { fetchSettings } from '../services/api';
 
 export default function Footer() {
+  const [settings, setSettings] = useState<any>(null);
+
+  useEffect(() => {
+    fetchSettings().then(data => data && setSettings(data));
+  }, []);
+
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
   return (
@@ -116,13 +124,12 @@ export default function Footer() {
               <li className="flex items-start text-gray-400 text-xs md:text-sm">
                 <Phone size={16} color="url(#metal-red)" className="mr-3 flex-shrink-0 mt-0.5 md:w-[18px] md:h-[18px]" />
                 <div className="flex flex-col leading-relaxed">
-                  <span>038 222 1613</span>
-                  <span>077 785 2476</span>
+                  <span>{settings?.whatsapp_number || '077 785 2476'}</span>
                 </div>
               </li>
               <li className="flex items-center text-gray-400 text-xs md:text-sm">
                 <Mail size={16} color="url(#metal-red)" className="mr-3 flex-shrink-0 md:w-[18px] md:h-[18px]" />
-                <span>able@ablero.com</span>
+                <span>{settings?.support_email || 'able@ablero.com'}</span>
               </li>
             </ul>
           </div>

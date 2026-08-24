@@ -1,4 +1,9 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { fetchSettings, fetchCategories } from '../services/api';
+import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
+import LoginModal from './auth/LoginModal';
 import { 
   Facebook, 
   Linkedin, 
@@ -24,6 +29,26 @@ import whiteAbleLogo from '../assets/whiteAbleLogo.png';
 import ableLogo from '../assets/ableLogo.png';
 
 export default function Header() {
+  const [settings, setSettings] = useState<any>(null);
+  const [categories, setCategories] = useState<any[]>([]);
+  const { cartCount, cartTotal, setIsCartOpen } = useCart();
+  const { isAuthenticated, user, logout } = useAuth();
+  const navigate = useNavigate();
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+
+  useEffect(() => {
+    fetchSettings().then(data => data && setSettings(data));
+    fetchCategories().then(data => data && setCategories(data));
+  }, []);
+
+  const handleAccountClick = () => {
+    if (isAuthenticated) {
+      navigate('/profile');
+    } else {
+      setIsLoginModalOpen(true);
+    }
+  };
+
   return (
     <>
 
@@ -38,9 +63,9 @@ export default function Header() {
             alt="Able Technologies Logo" 
             className="h-14 object-contain" 
           />
-          <button className="relative">
+          <button className="relative" onClick={() => setIsCartOpen(true)}>
             <ShoppingCart size={28} className="text-white" />
-            <span className="absolute -top-1 -right-2 metallic-red-bg border-none text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">0</span>
+            <span className="absolute -top-1 -right-2 metallic-red-bg border-none text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">{cartCount}</span>
           </button>
         </div>
         <div className="flex w-full rounded-full bg-white overflow-hidden p-1">
@@ -69,13 +94,16 @@ export default function Header() {
         <div className="flex items-center space-x-6">
           <div className="flex items-center space-x-2">
             <Phone size={14} />
-            <span>Need Help? 038 222 1613 | 077 785 2476</span>
+            <span>Need Help? {settings?.whatsapp_number || '038 222 1613 | 077 785 2476'}</span>
           </div>
           <div className="flex items-center space-x-4">
             <a href="#" className="hover:text-blue-400"><Facebook size={14} /></a>
             <a href="#" className="hover:text-blue-400"><Linkedin size={14} /></a>
             <a href="#" className="hover:text-green-400"><MessageCircle size={14} /></a>
           </div>
+          {isAuthenticated && (
+            <button onClick={logout} className="hover:text-red-400 font-semibold border-l border-white/20 pl-4 ml-2">Logout</button>
+          )}
         </div>
       </motion.div>
 
@@ -111,23 +139,27 @@ export default function Header() {
 
         {/* Account & Cart */}
         <div className="flex items-center space-x-8">
-          <div className="flex items-center space-x-3 cursor-pointer group">
+          <div className="flex items-center space-x-3 cursor-pointer group" onClick={handleAccountClick}>
             <div className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center group-hover:border-blue-500 transition-colors">
-              <User size={20} className="text-gray-600" />
+              <User size={20} className={isAuthenticated ? "text-blue-600" : "text-gray-600"} />
             </div>
             <div className="flex flex-col">
-              <span className="text-xs text-gray-500">Login / Register</span>
-              <span className="text-sm font-semibold text-gray-800">My Account</span>
+              <span className="text-xs text-gray-500">{isAuthenticated ? 'Welcome back' : 'Login / Register'}</span>
+              <span className="text-sm font-semibold text-gray-800">
+                {isAuthenticated 
+                  ? (user?.user_metadata?.full_name || user?.email || 'My Account')
+                  : 'My Account'}
+              </span>
             </div>
           </div>
-          <div className="flex items-center space-x-3 cursor-pointer group">
+          <div className="flex items-center space-x-3 cursor-pointer group" onClick={() => setIsCartOpen(true)}>
             <div className="relative">
               <ShoppingCart size={28} className="text-gray-700" />
-              <span className="absolute -top-1 -right-2 metallic-red-bg border-none text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">0</span>
+              <span className="absolute -top-1 -right-2 metallic-red-bg border-none text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">{cartCount}</span>
             </div>
             <div className="flex flex-col">
               <span className="text-xs text-gray-500">My Cart</span>
-              <span className="text-sm font-bold text-gray-800">Rs. 0.00</span>
+              <span className="text-sm font-bold text-gray-800">Rs. {cartTotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
             </div>
           </div>
         </div>
@@ -138,16 +170,31 @@ export default function Header() {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
-        className="hidden md:flex bg-[#0b1042] text-white items-center"
+        className="hidden md:flex bg-[#0b1042] text-white items-center relative z-40"
       >
-        <div className="metallic-red-bg border-none px-6 py-4 flex items-center space-x-2 cursor-pointer w-64 shadow-none">
-          <Menu size={20} />
-          <span className="font-semibold text-sm">All Categories</span>
+        <div className="group relative">
+          <div className="metallic-red-bg border-none px-6 py-4 flex items-center space-x-2 cursor-pointer w-64 shadow-none">
+            <Menu size={20} />
+            <span className="font-semibold text-sm">All Categories</span>
+          </div>
+          {/* Dropdown Menu */}
+          <div className="absolute left-0 top-full w-64 bg-white shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 flex flex-col py-2 border border-gray-100">
+            {categories.length > 0 ? (
+              categories.map((cat, idx) => (
+                <a key={idx} href={`/category/${cat.id || cat.slug}`} className="px-6 py-3 text-gray-700 hover:text-red-600 hover:bg-red-50 text-sm font-medium transition-colors border-b border-gray-50 last:border-none flex items-center space-x-3">
+                  {cat.icon_url && <img src={cat.icon_url} alt={cat.name} className="w-5 h-5 object-contain" />}
+                  <span>{cat.name}</span>
+                </a>
+              ))
+            ) : (
+              <span className="px-6 py-3 text-gray-500 text-sm">Loading categories...</span>
+            )}
+          </div>
         </div>
         <div className="flex-1 px-8 flex items-center space-x-8 text-sm font-medium">
           <Link to="/" className="text-blue-400 border-b-2 border-blue-400 pb-1">Home</Link>
           <a href="#" className="hover:text-gray-300 transition-colors">About Us</a>
-          <a href="#" className="hover:text-gray-300 transition-colors">Shop</a>
+          <Link to="/shop" className="hover:text-gray-300 transition-colors">Shop</Link>
           <a href="#" className="hover:text-gray-300 transition-colors">Machines</a>
           <a href="#" className="hover:text-gray-300 transition-colors">Spare Parts</a>
           <a href="#" className="hover:text-gray-300 transition-colors">Gauges</a>
@@ -160,7 +207,7 @@ export default function Header() {
         </button>
       </motion.nav>
 
-
+      <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
     </>
   );
 }
