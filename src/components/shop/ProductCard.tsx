@@ -7,13 +7,13 @@ import { useCart } from '../../context/CartContext';
 const ProductCard: React.FC<{ product: any }> = ({ product }) => {
   const { addToCart } = useCart();
   
-  const mainImage = product.images?.[0]?.image_url || (product.image_urls && product.image_urls[0]) || '';
-  const displayPrice = product.price ? `Rs. ${parseFloat(product.price).toLocaleString('en-US', { minimumFractionDigits: 2 })}` : (product.newPrice || '');
+  const mainImage = product.image_urls?.[0] || product.image_url || product.images?.[0]?.image_url || '';
+  const displayPrice = (product.price || product.base_price) ? `Rs. ${parseFloat(product.price || product.base_price).toLocaleString('en-US', { minimumFractionDigits: 2 })}` : (product.newPrice || '');
   
   // Calculate discount or use existing oldPrice if available
   // To match the UI precisely, if there's an oldPrice string, use it. 
   // We can mock oldPrice for now if not available to match the visual.
-  const oldPrice = product.oldPrice || (product.price ? `Rs. ${(parseFloat(product.price) * 1.15).toLocaleString('en-US', { minimumFractionDigits: 2 })}` : '');
+  const oldPrice = product.oldPrice || ((product.price || product.base_price) ? `Rs. ${(parseFloat(product.price || product.base_price) * 1.15).toLocaleString('en-US', { minimumFractionDigits: 2 })}` : '');
   const discountLabel = product.discount || (product.price ? '-15%' : 'New');
   const badgeColor = discountLabel === 'New' ? 'bg-[#0b1042]' : 'metallic-red-bg';
 
@@ -73,7 +73,7 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
             addToCart({
               productId: product.id,
               name: product.name,
-              price: parseFloat(product.price || 0),
+              price: parseFloat(product.price || product.base_price || 0),
               image: mainImage,
               quantity: 1,
             });

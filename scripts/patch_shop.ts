@@ -1,19 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { fetchProducts } from '../services/api';
-import { useLocation } from 'react-router-dom';
-import { motion } from 'motion/react';
-import { 
-  ChevronRight, Grid, List, X, ChevronLeft, 
-  Settings, ArrowRight
-} from 'lucide-react';
-import FilterSidebar from '../components/shop/FilterSidebar';
-import ProductCard from '../components/shop/ProductCard';
-import TrustBar from '../components/TrustBar';
+import fs from 'fs';
 
-import heroBg from '../assets/heroBg.webp';
+let content = fs.readFileSync('src/pages/Shop.tsx', 'utf8');
 
-export default function Shop() {
-    const location = useLocation();
+// Replace the imports to include useLocation
+content = content.replace(
+  "import { fetchProducts } from '../services/api';",
+  "import { fetchProducts } from '../services/api';\nimport { useLocation } from 'react-router-dom';"
+);
+
+// Replace state block
+const newStateBlock = `  const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const initialCategory = searchParams.get('category');
 
@@ -92,55 +88,17 @@ export default function Shop() {
     if (filter.type === 'category') setSelectedCategories(selectedCategories.filter(c => c !== filter.label));
     if (filter.type === 'brand') setSelectedBrands(selectedBrands.filter(b => b !== filter.label));
     if (filter.type === 'availability') setAvailability('all');
-  };
+  };`;
 
-  return (
-    <div className="bg-gray-50 pb-16">
-      {/* Hero Banner */}
-      <section 
-        className="relative w-full h-[250px] md:h-[300px] bg-[#0b1042] overflow-hidden flex flex-col justify-center bg-cover bg-center"
-        style={{ backgroundImage: `url(${heroBg})` }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-r from-[#060a2b] via-[#0b1042]/90 to-transparent z-0"></div>
-        <div className="relative z-20 max-w-7xl mx-auto px-4 md:px-6 w-full pt-8">
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-3xl md:text-5xl font-black italic tracking-tight text-white uppercase mb-2"
-          >
-            Shop
-          </motion.h1>
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-gray-300 text-sm md:text-base mb-6"
-          >
-            Browse our wide range of machines, spare parts, gauges & more.
-          </motion.p>
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="flex items-center text-xs font-semibold text-gray-400 space-x-2"
-          >
-            <a href="/" className="hover:text-white transition-colors">Home</a>
-            <ChevronRight size={14} />
-            <span className="text-white">Shop</span>
-          </motion.div>
-        </div>
-      </section>
+content = content.replace(
+  /const \[products, setProducts\].*?  ];/s,
+  newStateBlock
+);
 
-      {/* Trust Badges - positioned to overlap banner slightly, or just right below */}
-      <div className="-mt-8 relative z-30">
-        <TrustBar />
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 md:px-6 flex flex-col lg:flex-row gap-8">
-        
-        {/* Sidebar */}
-        <aside className="w-full lg:w-1/4 shrink-0">
-          <FilterSidebar 
+// Update sidebar props
+content = content.replace(
+  "<FilterSidebar filters={filters} setFilters={setFilters} />",
+  `<FilterSidebar 
             allProducts={allProducts}
             selectedCategories={selectedCategories}
             setSelectedCategories={setSelectedCategories}
@@ -150,29 +108,13 @@ export default function Shop() {
             setPriceRange={setPriceRange}
             availability={availability}
             setAvailability={setAvailability}
-          />
-        </aside>
+          />`
+);
 
-        {/* Main Content */}
-        <div className="flex-1 flex flex-col">
-          
-          {/* Top Bar */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 bg-white p-3 rounded-lg border border-gray-100">
-            <span className="text-sm text-gray-500 font-medium mb-3 md:mb-0">
-              Showing {Math.min((currentPage - 1) * itemsPerPage + 1, filteredProducts.length)}–{Math.min(currentPage * itemsPerPage, filteredProducts.length)} of {filteredProducts.length} results
-            </span>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-1 border border-gray-200 rounded p-0.5">
-                <button className="p-1.5 bg-gray-100 text-[#0b1042] rounded shadow-sm">
-                  <Grid size={16} />
-                </button>
-                <button className="p-1.5 text-gray-400 hover:text-[#0b1042] rounded">
-                  <List size={16} />
-                </button>
-              </div>
-              <div className="flex items-center space-x-2">
-                <span className="text-sm text-gray-500 font-medium">Sort by:</span>
-                <select 
+// Update sorting select
+content = content.replace(
+  /<select className="text-sm border border-gray-200[^"]*"[^>]*>.*?<\/select>/s,
+  `<select 
                   className="text-sm border border-gray-200 rounded px-3 py-1.5 text-[#0b1042] font-semibold focus:outline-none"
                   value={sortOption}
                   onChange={(e) => setSortOption(e.target.value)}
@@ -181,44 +123,37 @@ export default function Shop() {
                   <option>Price: Low to High</option>
                   <option>Price: High to Low</option>
                   <option>Newest Arrivals</option>
-                </select>
-              </div>
-            </div>
-          </div>
+                </select>`
+);
 
-          {/* Active Filters */}
-          <div className="flex flex-wrap items-center gap-2 mb-6">
-            {activeFilters.map((filter, idx) => (
+// Update active filters
+content = content.replace(
+  /\{activeFilters\.map\(\(filter, idx\) => \(.*?<\/div>\s*\)\)\}/s,
+  `{activeFilters.map((filter, idx) => (
               <div key={idx} className="bg-white border border-gray-200 text-gray-600 text-xs font-semibold px-3 py-1.5 rounded-full flex items-center shadow-sm capitalize">
                 {filter.label}
                 <button onClick={() => removeFilter(filter)} className="ml-2 text-gray-400 hover:text-red-500 transition-colors">
                   <X size={12} strokeWidth={3} />
                 </button>
               </div>
-            ))}
-          </div>
+            ))}`
+);
 
-          {/* Product Grid */}
-          {isLoading ? (
-            <div className="flex items-center justify-center py-20">
-              <div className="w-8 h-8 border-4 border-gray-200 border-t-[#0b1042] rounded-full animate-spin"></div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 mb-10">
-              {displayedProducts.length > 0 ? (
-                displayedProducts.map((product, idx) => (
-                  <ProductCard key={product.id || idx} product={product} />
-                ))
-              ) : (
-                <div className="col-span-full text-center py-12 text-gray-500">
-                  No products found matching your criteria.
-                </div>
-              )}
-            </div>
-          )}
+// Update Showing results
+content = content.replace(
+  "Showing 1–12 of 245 results",
+  `Showing {Math.min((currentPage - 1) * itemsPerPage + 1, filteredProducts.length)}–{Math.min(currentPage * itemsPerPage, filteredProducts.length)} of {filteredProducts.length} results`
+);
 
-          {/* Pagination */}
-          <div className="flex flex-col md:flex-row items-center justify-between mt-auto border-t border-gray-200 pt-6">
+// Update products.length to displayedProducts
+content = content.replace(
+  /products\.length > 0 \? \(\s*products\.map/g,
+  `displayedProducts.length > 0 ? (
+                displayedProducts.map`
+);
+
+// Update pagination
+const paginationBlock = `<div className="flex flex-col md:flex-row items-center justify-between mt-auto border-t border-gray-200 pt-6">
             <div className="flex items-center space-x-1 mb-4 md:mb-0">
               <button 
                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
@@ -238,7 +173,7 @@ export default function Shop() {
                   <button 
                     key={pageNum}
                     onClick={() => setCurrentPage(pageNum)}
-                    className={`w-8 h-8 rounded flex items-center justify-center font-semibold text-sm ${currentPage === pageNum ? 'bg-[#0b1042] text-white shadow-sm' : 'text-gray-600 hover:bg-gray-100 transition-colors'}`}
+                    className={\`w-8 h-8 rounded flex items-center justify-center font-semibold text-sm \${currentPage === pageNum ? 'bg-[#0b1042] text-white shadow-sm' : 'text-gray-600 hover:bg-gray-100 transition-colors'}\`}
                   >
                     {pageNum}
                   </button>
@@ -260,9 +195,11 @@ export default function Shop() {
                 <option>12 per page</option>
               </select>
             </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+          </div>`;
+
+content = content.replace(
+  /<div className="flex flex-col md:flex-row items-center justify-between mt-auto border-t border-gray-200 pt-6">.*<\/div>\s*<\/div>\s*<\/div>/s,
+  paginationBlock + "\n        </div>\n      </div>"
+);
+
+fs.writeFileSync('src/pages/Shop.tsx', content);
