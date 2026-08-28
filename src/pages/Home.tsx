@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { ArrowRight, Award, Headphones, LayoutGrid, ShieldCheck, Truck } from 'lucide-react';
 import { motion } from 'motion/react';
 import CategoryCards from '../components/CategoryCards';
@@ -124,15 +125,15 @@ export default function Home() {
             transition={{ duration: 0.6, delay: 0.8 }}
             className="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4"
           >
-            <button className="metallic-red-bg text-white rounded-full px-6 py-3 md:px-8 md:py-3.5 flex items-center justify-center space-x-3 font-semibold transition-transform hover:scale-105 shadow-lg shadow-red-900/40 text-sm md:text-base w-fit">
+            <Link to="/shop" className="metallic-red-bg text-white rounded-full px-6 py-3 md:px-8 md:py-3.5 flex items-center justify-center space-x-3 font-semibold transition-transform hover:scale-105 shadow-lg shadow-red-900/40 text-sm md:text-base w-fit">
               <span>Shop Now</span>
               <ArrowRight size={18} />
-            </button>
+            </Link>
             
-            <button className="bg-transparent border border-blue-400 text-white rounded-full px-6 py-3 md:px-8 md:py-3.5 flex items-center justify-center space-x-3 font-semibold hover:bg-blue-900/50 transition-colors backdrop-blur-sm text-sm md:text-base w-fit">
+            <Link to="/shop" className="bg-transparent border border-blue-400 text-white rounded-full px-6 py-3 md:px-8 md:py-3.5 flex items-center justify-center space-x-3 font-semibold hover:bg-blue-900/50 transition-colors backdrop-blur-sm text-sm md:text-base w-fit">
               <span>View Categories</span>
               <LayoutGrid size={18} />
-            </button>
+            </Link>
           </motion.div>
         </div>
       </motion.section>

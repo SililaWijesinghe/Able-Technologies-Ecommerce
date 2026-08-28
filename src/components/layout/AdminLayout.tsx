@@ -51,7 +51,7 @@ export default function AdminLayout() {
               <Link to="/admin/products" className={`flex items-center space-x-3 px-4 py-2 rounded-lg text-sm transition-colors ${isActive('/admin/products') ? 'text-white font-bold' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>
                 <Package size={16} /> <span>All Products</span>
               </Link>
-              <Link to="/admin/products/add" className={`flex items-center space-x-3 px-4 py-2 rounded-lg text-sm transition-colors ${isActive('/admin/products/add') ? 'text-white font-bold' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>
+              <Link to="/admin/products/new" className={`flex items-center space-x-3 px-4 py-2 rounded-lg text-sm transition-colors ${isActive('/admin/products/new') ? 'text-white font-bold' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>
                 <Plus size={16} /> <span>Add New Product</span>
               </Link>
               <Link to="/admin/categories" className={`flex items-center space-x-3 px-4 py-2 rounded-lg text-sm transition-colors ${isActive('/admin/categories') ? 'text-white font-bold' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>

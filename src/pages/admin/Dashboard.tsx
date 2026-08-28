@@ -1,16 +1,100 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   ShoppingBag, Package, Users, Clock, DollarSign, 
-  ArrowRight, Eye, Plus, Grid, ImageIcon, FileText, Settings
+  ArrowRight, Eye, Plus, Grid, ImageIcon, FileText, Settings, Loader2
 } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
 
 export default function Dashboard() {
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    totalOrders: 0,
+    totalProducts: 0,
+    totalCustomers: 0,
+    pendingOrders: 0,
+    totalRevenue: 0,
+  });
+  const [recentOrders, setRecentOrders] = useState<any[]>([]);
+  const [lowStock, setLowStock] = useState<any[]>([]);
+
+  useEffect(() => {
+    async function fetchDashboardData() {
+      try {
+        setLoading(true);
+        const [
+          { count: ordersCount },
+          { count: productsCount },
+          { count: customersCount },
+          { count: pendingCount },
+          { data: revenueData },
+          { data: recentOrdersData },
+          { data: lowStockData }
+        ] = await Promise.all([
+          supabase.from('orders').select('*', { count: 'exact', head: true }),
+          supabase.from('products').select('*', { count: 'exact', head: true }),
+          supabase.from('users').select('*', { count: 'exact', head: true }).eq('role', 'CUSTOMER'),
+          supabase.from('orders').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+          supabase.from('orders').select('total_amount').neq('status', 'cancelled'),
+          supabase.from('orders').select('*, users(full_name, email)').order('created_at', { ascending: false }).limit(5),
+          supabase.from('products').select('*').order('stock', { ascending: true }).limit(4)
+        ]);
+
+        const revenue = (revenueData || []).reduce((sum, order) => sum + (Number(order.total_amount) || 0), 0);
+
+        setStats({
+          totalOrders: ordersCount || 0,
+          totalProducts: productsCount || 0,
+          totalCustomers: customersCount || 0,
+          pendingOrders: pendingCount || 0,
+          totalRevenue: revenue,
+        });
+
+        const formattedOrders = (recentOrdersData || []).map(order => {
+          let customerName = 'Unknown Customer';
+          if (order.users?.full_name) {
+            customerName = order.users.full_name;
+          } else if (order.shipping_address?.fullName) {
+            customerName = order.shipping_address.fullName;
+          } else if (order.users?.email) {
+            customerName = order.users.email;
+          }
+
+          return {
+            id: `#AT-${order.id.substring(0, 6).toUpperCase()}`,
+            rawId: order.id,
+            customer: customerName,
+            date: new Date(order.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+            total: `Rs. ${Number(order.total_amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+            status: order.status
+          };
+        });
+        setRecentOrders(formattedOrders);
+
+        const formattedLowStock = (lowStockData || []).map(product => ({
+          name: product.name,
+          stock: product.stock,
+          type: 'pcs',
+          img: product.image_urls?.[0] || 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=200&h=200'
+        }));
+        setLowStock(formattedLowStock);
+
+      } catch (err) {
+        console.error('Error fetching dashboard data:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchDashboardData();
+  }, []);
+
   const metrics = [
-    { title: 'Total Orders', value: '248', link: 'View all orders', to: '/admin/orders', icon: ShoppingBag, color: 'blue' },
-    { title: 'Total Products', value: '356', link: 'View all products', to: '/admin/products', icon: Package, color: 'green' },
-    { title: 'Total Customers', value: '189', link: 'View all customers', to: '/admin/customers', icon: Users, color: 'purple' },
-    { title: 'Pending Orders', value: '78', link: 'View pending orders', to: '/admin/orders/pending', icon: Clock, color: 'orange' },
-    { title: 'Total Revenue', value: 'Rs. 3,752,680', link: 'View reports', to: '/admin/reports', icon: DollarSign, color: 'red' },
+    { title: 'Total Orders', value: stats.totalOrders.toString(), link: 'View all orders', to: '/admin/orders', icon: ShoppingBag, color: 'blue' },
+    { title: 'Total Products', value: stats.totalProducts.toString(), link: 'View all products', to: '/admin/products', icon: Package, color: 'green' },
+    { title: 'Total Customers', value: stats.totalCustomers.toString(), link: 'View all customers', to: '/admin/customers', icon: Users, color: 'purple' },
+    { title: 'Pending Orders', value: stats.pendingOrders.toString(), link: 'View pending orders', to: '/admin/orders/pending', icon: Clock, color: 'orange' },
+    { title: 'Total Revenue', value: `Rs. ${stats.totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`, link: 'View reports', to: '/admin/reports', icon: DollarSign, color: 'red' },
   ];
 
   const getColorClasses = (color: string) => {
@@ -25,37 +109,36 @@ export default function Dashboard() {
   };
 
   const getStatusStyle = (status: string) => {
+    if (!status) return 'bg-gray-100 text-gray-700';
     switch(status.toLowerCase()) {
+      case 'completed':
       case 'delivered': return 'bg-green-100 text-green-700';
       case 'shipped': return 'bg-blue-100 text-blue-700';
       case 'processing': return 'bg-orange-100 text-orange-700';
       case 'pending': return 'bg-yellow-100 text-yellow-700';
+      case 'cancelled': return 'bg-red-100 text-red-700';
       default: return 'bg-gray-100 text-gray-700';
     }
   };
 
-  const recentOrders = [
-    { id: '#AT-0001248', customer: 'Nimal Perera', date: 'May 26, 2024', total: 'Rs. 45,800.00', status: 'Delivered' },
-    { id: '#AT-0001247', customer: 'Saman Wijesinghe', date: 'May 26, 2024', total: 'Rs. 12,650.00', status: 'Shipped' },
-    { id: '#AT-0001246', customer: 'Tharindu Fernando', date: 'May 25, 2024', total: 'Rs. 78,900.00', status: 'Processing' },
-    { id: '#AT-0001245', customer: 'Industrial Solutions (Pvt) Ltd', date: 'May 25, 2024', total: 'Rs. 156,000.00', status: 'Pending' },
-    { id: '#AT-0001244', customer: 'Chamika Bandara', date: 'May 24, 2024', total: 'Rs. 8,750.00', status: 'Delivered' },
-  ];
-
-  const lowStock = [
-    { name: 'Air Cylinder ISO 15552', stock: 5, type: 'pcs', img: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=200&h=200' },
-    { name: 'Pneumatic Fittings Set', stock: 7, type: 'sets', img: 'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&q=80&w=200&h=200' },
-    { name: 'Pressure Gauge 0-10 Bar', stock: 6, type: 'pcs', img: 'https://images.unsplash.com/photo-1596700588647-758fa3910c25?auto=format&fit=crop&q=80&w=200&h=200' },
-    { name: 'Compact Cylinder SDA Series', stock: 4, type: 'pcs', img: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&q=80&w=200&h=200' },
-  ];
-
   const quickActions = [
-    { title: 'Add New Product', desc: 'Add a new product', to: '/admin/products/add', icon: Plus, color: 'blue' },
+    { title: 'Add New Product', desc: 'Add a new product', to: '/admin/products/new', icon: Plus, color: 'blue' },
     { title: 'Manage Categories', desc: 'Edit categories', to: '/admin/categories', icon: Grid, color: 'green' },
     { title: 'Manage Banners', desc: 'Update banners', to: '/admin/banners', icon: ImageIcon, color: 'orange' },
     { title: 'View Orders', desc: 'Manage all orders', to: '/admin/orders', icon: FileText, color: 'purple' },
     { title: 'Store Settings', desc: 'General settings', to: '/admin/settings', icon: Settings, color: 'red' },
   ];
+
+  if (loading) {
+    return (
+      <div className="flex h-full items-center justify-center min-h-[400px]">
+        <div className="flex flex-col items-center text-gray-400">
+          <Loader2 size={32} className="animate-spin mb-4 text-[#0b1042]" />
+          <p className="text-sm font-bold uppercase tracking-widest text-gray-500">Loading Dashboard Data...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -131,24 +214,30 @@ export default function Dashboard() {
                 </tr>
               </thead>
               <tbody>
-                {recentOrders.map((order, idx) => (
-                  <tr key={idx} className="border-b border-gray-50 hover:bg-gray-50/30 transition-colors">
-                    <td className="p-4 text-sm font-bold text-blue-600">{order.id}</td>
-                    <td className="p-4 text-sm font-medium text-gray-700">{order.customer}</td>
-                    <td className="p-4 text-sm text-gray-500 font-medium">{order.date}</td>
-                    <td className="p-4 text-sm font-black text-gray-900">{order.total}</td>
-                    <td className="p-4">
-                      <span className={`text-[10px] uppercase tracking-wider font-black px-2.5 py-1 rounded-md ${getStatusStyle(order.status)}`}>
-                        {order.status}
-                      </span>
-                    </td>
-                    <td className="p-4 text-center">
-                      <button className="text-gray-400 hover:text-gray-900 transition-colors p-1.5 border border-gray-200 rounded-lg hover:bg-white shadow-sm">
-                        <Eye size={14} />
-                      </button>
-                    </td>
+                {recentOrders.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="p-8 text-center text-gray-500 font-medium text-sm">No recent orders found.</td>
                   </tr>
-                ))}
+                ) : (
+                  recentOrders.map((order, idx) => (
+                    <tr key={idx} className="border-b border-gray-50 hover:bg-gray-50/30 transition-colors">
+                      <td className="p-4 text-sm font-bold text-blue-600">{order.id}</td>
+                      <td className="p-4 text-sm font-medium text-gray-700">{order.customer}</td>
+                      <td className="p-4 text-sm text-gray-500 font-medium">{order.date}</td>
+                      <td className="p-4 text-sm font-black text-gray-900">{order.total}</td>
+                      <td className="p-4">
+                        <span className={`text-[10px] uppercase tracking-wider font-black px-2.5 py-1 rounded-md ${getStatusStyle(order.status)}`}>
+                          {order.status || 'UNKNOWN'}
+                        </span>
+                      </td>
+                      <td className="p-4 text-center">
+                        <Link to={`/admin/orders/${order.rawId}`} className="inline-flex text-gray-400 hover:text-gray-900 transition-colors p-1.5 border border-gray-200 rounded-lg hover:bg-white shadow-sm">
+                          <Eye size={14} />
+                        </Link>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
@@ -163,22 +252,26 @@ export default function Dashboard() {
             </Link>
           </div>
           <div className="p-2">
-            {lowStock.map((item, idx) => (
-              <div key={idx} className="flex items-center justify-between p-4 hover:bg-gray-50/50 rounded-xl transition-colors border-b border-gray-50 last:border-0">
-                <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 rounded-lg bg-gray-100 border border-gray-200 overflow-hidden shrink-0">
-                    <img src={item.img} alt={item.name} className="w-full h-full object-cover mix-blend-multiply" />
+            {lowStock.length === 0 ? (
+              <div className="p-8 text-center text-gray-500 font-medium text-sm">No low stock alerts.</div>
+            ) : (
+              lowStock.map((item, idx) => (
+                <div key={idx} className="flex items-center justify-between p-4 hover:bg-gray-50/50 rounded-xl transition-colors border-b border-gray-50 last:border-0">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 rounded-lg bg-gray-100 border border-gray-200 overflow-hidden shrink-0">
+                      <img src={item.img} alt={item.name} className="w-full h-full object-cover mix-blend-multiply" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-gray-900 line-clamp-1">{item.name}</h4>
+                      <span className="text-xs font-bold text-red-500">Stock: {item.stock} {item.type}</span>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="text-sm font-bold text-gray-900 line-clamp-1">{item.name}</h4>
-                    <span className="text-xs font-bold text-red-500">Stock: {item.stock} {item.type}</span>
-                  </div>
+                  <Link to="/admin/inventory" className="text-xs font-bold border border-gray-200 px-3 py-1.5 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors shrink-0 whitespace-nowrap">
+                    Update Stock
+                  </Link>
                 </div>
-                <button className="text-xs font-bold border border-gray-200 px-3 py-1.5 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors shrink-0 whitespace-nowrap">
-                  Update Stock
-                </button>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
       </div>

@@ -1,9 +1,10 @@
+import React from 'react';
 import { ShoppingCart, Heart, CheckCircle2, BarChart2, Shuffle } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 
-export default function ProductCard({ product }: { product: any }) {
+const ProductCard: React.FC<{ product: any }> = ({ product }) => {
   const { addToCart } = useCart();
   
   const mainImage = product.images?.[0]?.image_url || (product.image_urls && product.image_urls[0]) || '';
@@ -91,4 +92,6 @@ export default function ProductCard({ product }: { product: any }) {
       </div>
     </motion.div>
   );
-}
+};
+
+export default ProductCard;

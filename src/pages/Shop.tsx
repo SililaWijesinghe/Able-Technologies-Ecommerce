@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { fetchProducts } from '../services/api';
 import { motion } from 'motion/react';
 import { 

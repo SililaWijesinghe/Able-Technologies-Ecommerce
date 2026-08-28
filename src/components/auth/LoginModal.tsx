@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Mail, Lock, Loader2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { supabase } from '../../lib/supabase';
 
 export default function LoginModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
@@ -21,29 +22,51 @@ export default function LoginModal({ isOpen, onClose }: { isOpen: boolean; onClo
     setSuccess('');
 
     try {
-      const endpoint = activeTab === 'login' ? '/api/auth/login' : '/api/auth/register';
-      const payload = activeTab === 'login' 
-        ? { email, password } 
-        : { email, password, fullName, phone };
-        
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
+      if (activeTab === 'login') {
+        const { data, error: authError } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
 
-      const data = await response.json();
+        if (authError) {
+          throw new Error(authError.message || 'Login failed.');
+        }
 
-      if (!response.ok) {
-        throw new Error(data.error || `${activeTab === 'login' ? 'Login' : 'Registration'} failed.`);
-      }
+        if (data.user) {
+          const { data: userData, error: userError } = await supabase
+            .from('users')
+            .select('role')
+            .eq('id', data.user.id)
+            .single();
 
-      if (activeTab === 'register') {
-        // Upon successful registration, we can automatically log them in
-        // Supabase register doesn't always return a session if email confirmation is required,
-        // but since we are mocking/assuming no email confirmation for now:
+          if (userData?.role === 'ADMIN') {
+            await supabase.auth.signOut();
+            setError("Admin accounts cannot log in here. Please use the /admin/login portal.");
+            setLoading(false);
+            return;
+          }
+
+          if (data.session) {
+            login(data.session.access_token, data.user);
+            setSuccess('Login successful!');
+            setTimeout(() => onClose(), 1000);
+          }
+        }
+      } else {
+        const response = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email, password, fullName, phone }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Registration failed.');
+        }
+
         const loginResponse = await fetch('/api/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -57,10 +80,8 @@ export default function LoginModal({ isOpen, onClose }: { isOpen: boolean; onClo
            return;
         }
         login(loginData.session.access_token, loginData.user);
-        onClose();
-      } else {
-        login(data.session.access_token, data.user);
-        onClose();
+        setSuccess('Account created successfully!');
+        setTimeout(() => onClose(), 1000);
       }
     } catch (err: any) {
       setError(err.message || 'An error occurred. Please try again.');

@@ -1,10 +1,14 @@
 import { Play, Expand } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function ProductGallery({ product }: { product: any }) {
-  const images = product.images?.map((img: any) => img.image_url) || product.image_urls || [];
+  const images = (product.images && product.images.length > 0) ? product.images.map((img: any) => img.image_url) : (product.image_urls || []);
   const mainImage = images[0] || '';
   const [activeImage, setActiveImage] = useState(mainImage);
+
+  useEffect(() => {
+    setActiveImage(mainImage);
+  }, [mainImage]);
 
   // Mock a video icon for the last thumbnail if we have enough images or just append it
   const galleryItems = [...images];

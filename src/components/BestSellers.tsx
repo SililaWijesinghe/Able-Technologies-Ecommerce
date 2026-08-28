@@ -1,23 +1,26 @@
 import { ShoppingCart, Heart, ArrowRight } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { fetchProducts } from '../services/api';
+import { useCart } from '../context/CartContext';
 
 export default function BestSellers() {
   const fallbackProducts = [
-    { name: 'Pneumatic Pad Printing Machine', oldPrice: 'Rs. 570,000.00', newPrice: 'Rs. 485,000.00', discount: '-15%' },
-    { name: 'Industrial Robotic Arm 6 Axis', oldPrice: 'Rs. 2,050,000.00', newPrice: 'Rs. 1,850,000.00', discount: '-10%' },
-    { name: 'Air Cylinder ISO 15552', oldPrice: 'Rs. 14,200.00', newPrice: 'Rs. 12,500.00', discount: '-12%' },
-    { name: 'Pneumatic Fittings Set', oldPrice: 'Rs. 1,360.00', newPrice: 'Rs. 1,250.00', discount: '-8%' },
-    { name: 'Pressure Gauge 0-10 Bar', oldPrice: 'Rs. 2,580.00', newPrice: 'Rs. 2,450.00', discount: '-5%' },
+    { id: '1', name: 'Pneumatic Pad Printing Machine', oldPrice: 'Rs. 570,000.00', newPrice: 'Rs. 485,000.00', discount: '-15%' },
+    { id: '2', name: 'Industrial Robotic Arm 6 Axis', oldPrice: 'Rs. 2,050,000.00', newPrice: 'Rs. 1,850,000.00', discount: '-10%' },
+    { id: '3', name: 'Air Cylinder ISO 15552', oldPrice: 'Rs. 14,200.00', newPrice: 'Rs. 12,500.00', discount: '-12%' },
+    { id: '4', name: 'Pneumatic Fittings Set', oldPrice: 'Rs. 1,360.00', newPrice: 'Rs. 1,250.00', discount: '-8%' },
   ];
 
   const [products, setProducts] = useState<any[]>([]);
+  const { addToCart } = useCart();
 
   useEffect(() => {
+    // Fetch 4 live products, if empty use fallback
     fetchProducts().then(data => {
       if (data && data.length > 0) {
-        setProducts(data.slice(0, 5));
+        setProducts(data.slice(0, 4));
       } else {
         setProducts(fallbackProducts);
       }
@@ -34,14 +37,16 @@ export default function BestSellers() {
           </div>
           <h2 className="text-2xl md:text-3xl font-black text-[#0b1042] tracking-tight">Best Sellers</h2>
         </div>
-        <a href="#" className="metallic-red-text text-xs md:text-sm font-semibold flex items-center hover:underline group">
+        <Link to="/shop" className="metallic-red-text text-xs md:text-sm font-semibold flex items-center hover:underline group">
           View All <ArrowRight size={14} color="url(#metal-red)" className="ml-1 transition-transform group-hover:translate-x-1 md:w-4 md:h-4" />
-        </a>
+        </Link>
       </div>
-      <div className="flex md:grid md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 md:mx-0 md:px-0 scrollbar-hide" style={{ scrollbarWidth: 'none' }}>
+
+      <div className="flex md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 md:mx-0 md:px-0 scrollbar-hide" style={{ scrollbarWidth: 'none' }}>
         {products.map((product, idx) => {
           const mainImage = product.images?.[0]?.image_url || (product.image_urls && product.image_urls[0]);
           const displayPrice = product.price ? `Rs. ${parseFloat(product.price).toLocaleString('en-US', {minimumFractionDigits: 2})}` : product.newPrice;
+
           return (
           <motion.div 
             key={idx}
@@ -59,23 +64,32 @@ export default function BestSellers() {
             <button className="absolute top-2 right-2 md:top-4 md:right-4 text-gray-300 hover:text-red-600 z-10 transition-colors bg-white rounded-full p-1 shadow-sm">
               <Heart size={14} className="md:w-4 md:h-4" />
             </button>
-            <div className="w-full h-32 md:h-48 bg-gray-50 rounded-lg mb-3 md:mb-4 flex items-center justify-center p-2 md:p-4 group-hover:bg-gray-100 transition-colors overflow-hidden">
-               {mainImage ? (
-                 <img src={mainImage} alt={product.name} className="w-full h-full object-contain mix-blend-multiply" />
-               ) : (
-                 <div className="w-full h-full border-2 border-dashed border-gray-200 rounded flex items-center justify-center text-gray-400 text-[10px] md:text-xs text-center">
-                   Image
-                 </div>
-               )}
-            </div>
-            <h3 className="text-xs md:text-sm font-semibold text-gray-800 mb-3 md:mb-4 line-clamp-2 leading-snug flex-1">{product.name}</h3>
+
+            <Link to={`/product/${product.id}`} className="flex-1 flex flex-col">
+              <div className="w-full h-32 md:h-48 bg-gray-50 rounded-lg mb-3 md:mb-4 flex items-center justify-center p-2 md:p-4 group-hover:bg-gray-100 transition-colors overflow-hidden">
+                 {mainImage ? (
+                   <img src={mainImage} alt={product.name} className="w-full h-full object-contain mix-blend-multiply" />
+                 ) : (
+                   <div className="w-full h-full border-2 border-dashed border-gray-200 rounded flex items-center justify-center text-gray-400 text-[10px] md:text-xs text-center">
+                     Image
+                   </div>
+                 )}
+              </div>
+              <h3 className="text-xs md:text-sm font-semibold text-gray-800 mb-3 md:mb-4 line-clamp-2 leading-snug flex-1">{product.name}</h3>
+            </Link>
             
             <div className="flex items-end justify-between mt-auto pt-3 md:pt-4 border-t border-gray-50">
               <div className="flex flex-col">
                 {product.oldPrice && <span className="text-gray-400 text-[10px] md:text-xs line-through mb-0.5">{product.oldPrice}</span>}
                 <span className="metallic-red-text font-bold text-sm md:text-[15px] leading-none">{displayPrice}</span>
               </div>
-              <button className="bg-[#0b1042] hover:bg-[#a81414] text-white w-7 h-7 md:w-9 md:h-9 rounded-md flex items-center justify-center transition-colors shadow-sm shrink-0 ml-2">
+              <button 
+                onClick={(e) => {
+                  e.preventDefault();
+                  addToCart(product, 1);
+                }}
+                className="bg-[#0b1042] hover:bg-[#a81414] text-white w-7 h-7 md:w-9 md:h-9 rounded-md flex items-center justify-center transition-colors shadow-sm shrink-0 ml-2"
+              >
                 <ShoppingCart size={14} className="md:w-4 md:h-4" />
               </button>
             </div>

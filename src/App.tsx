@@ -1,3 +1,4 @@
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -15,6 +16,12 @@ import AdminRoute from './components/auth/AdminRoute';
 import AdminLayout from './components/layout/AdminLayout';
 import Dashboard from './pages/admin/Dashboard';
 import AdminLogin from './pages/admin/AdminLogin';
+import Products from './pages/admin/Products';
+import AddProduct from './pages/admin/AddProduct';
+import EditProduct from './pages/admin/EditProduct';
+import Inventory from './pages/admin/Inventory';
+import Orders from './pages/admin/Orders';
+import Customers from './pages/admin/Customers';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -76,6 +83,12 @@ export default function App() {
               </AdminRoute>
             }>
               <Route index element={<Dashboard />} />
+              <Route path="products" element={<Products />} />
+              <Route path="products/new" element={<AddProduct />} />
+              <Route path="products/edit/:id" element={<EditProduct />} />
+              <Route path="inventory" element={<Inventory />} />
+              <Route path="orders" element={<Orders />} />
+              <Route path="customers" element={<Customers />} />
               {/* Additional admin routes will go here in future steps */}
             </Route>
           </Routes>

@@ -43,7 +43,11 @@ export default function Header() {
 
   const handleAccountClick = () => {
     if (isAuthenticated) {
-      navigate('/profile');
+      if (user?.role === 'ADMIN') {
+        navigate('/admin');
+      } else {
+        navigate('/profile');
+      }
     } else {
       setIsLoginModalOpen(true);
     }
@@ -140,14 +144,20 @@ export default function Header() {
         {/* Account & Cart */}
         <div className="flex items-center space-x-8">
           <div className="flex items-center space-x-3 cursor-pointer group" onClick={handleAccountClick}>
-            <div className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center group-hover:border-blue-500 transition-colors">
-              <User size={20} className={isAuthenticated ? "text-blue-600" : "text-gray-600"} />
+            <div className={`w-10 h-10 rounded-full border flex items-center justify-center transition-colors ${
+              isAuthenticated && user?.role === 'ADMIN' ? 'border-[#0b1042] group-hover:bg-[#0b1042]/5' : 'border-gray-200 group-hover:border-blue-500'
+            }`}>
+              {isAuthenticated && user?.role === 'ADMIN' ? (
+                <ShieldCheck size={20} className="text-[#0b1042]" />
+              ) : (
+                <User size={20} className={isAuthenticated ? "text-blue-600" : "text-gray-600"} />
+              )}
             </div>
             <div className="flex flex-col">
               <span className="text-xs text-gray-500">{isAuthenticated ? 'Welcome back' : 'Login / Register'}</span>
               <span className="text-sm font-semibold text-gray-800">
                 {isAuthenticated 
-                  ? (user?.user_metadata?.full_name || user?.email || 'My Account')
+                  ? (user?.role === 'ADMIN' ? 'Admin Panel' : (user?.full_name || user?.user_metadata?.full_name || user?.email || 'My Account'))
                   : 'My Account'}
               </span>
             </div>
@@ -181,10 +191,10 @@ export default function Header() {
           <div className="absolute left-0 top-full w-64 bg-white shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 flex flex-col py-2 border border-gray-100">
             {categories.length > 0 ? (
               categories.map((cat, idx) => (
-                <a key={idx} href={`/category/${cat.id || cat.slug}`} className="px-6 py-3 text-gray-700 hover:text-red-600 hover:bg-red-50 text-sm font-medium transition-colors border-b border-gray-50 last:border-none flex items-center space-x-3">
+                <Link key={idx} to={`/shop?category=${cat.slug || cat.name.toLowerCase().replace(/\\s+/g, '-')}`} className="px-6 py-3 text-gray-700 hover:text-red-600 hover:bg-red-50 text-sm font-medium transition-colors border-b border-gray-50 last:border-none flex items-center space-x-3">
                   {cat.icon_url && <img src={cat.icon_url} alt={cat.name} className="w-5 h-5 object-contain" />}
                   <span>{cat.name}</span>
-                </a>
+                </Link>
               ))
             ) : (
               <span className="px-6 py-3 text-gray-500 text-sm">Loading categories...</span>
@@ -193,12 +203,12 @@ export default function Header() {
         </div>
         <div className="flex-1 px-8 flex items-center space-x-8 text-sm font-medium">
           <Link to="/" className="text-blue-400 border-b-2 border-blue-400 pb-1">Home</Link>
-          <a href="#" className="hover:text-gray-300 transition-colors">About Us</a>
+          <Link to="/about" className="hover:text-gray-300 transition-colors">About Us</Link>
           <Link to="/shop" className="hover:text-gray-300 transition-colors">Shop</Link>
-          <a href="#" className="hover:text-gray-300 transition-colors">Machines</a>
-          <a href="#" className="hover:text-gray-300 transition-colors">Spare Parts</a>
-          <a href="#" className="hover:text-gray-300 transition-colors">Gauges</a>
-          <a href="#" className="hover:text-gray-300 transition-colors">Glue</a>
+          <Link to="/shop?category=machines" className="hover:text-gray-300 transition-colors">Machines</Link>
+          <Link to="/shop?category=spare-parts" className="hover:text-gray-300 transition-colors">Spare Parts</Link>
+          <Link to="/shop?category=gauges" className="hover:text-gray-300 transition-colors">Gauges</Link>
+          <Link to="/shop?category=glue" className="hover:text-gray-300 transition-colors">Glue</Link>
           <Link to="/contact" className="hover:text-gray-300 transition-colors">Contact Us</Link>
         </div>
         <button className="metallic-red-bg border-none px-8 py-4 flex items-center space-x-2 text-sm font-semibold transition-colors shadow-none rounded-none">

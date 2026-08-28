@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { Shield, RefreshCw, Headphones, Award, Facebook, Linkedin, Instagram, MapPin, Phone, Mail, ArrowUp, MessageCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import whiteAbleLogo from '../assets/whiteAbleLogo.png';
@@ -97,8 +98,17 @@ export default function Footer() {
           <div>
             <h4 className="text-white font-bold mb-4 md:mb-6 text-[13px] md:text-sm tracking-wider">QUICK LINKS</h4>
             <ul className="space-y-2 md:space-y-3">
-              {['Home', 'About Us', 'Shop', 'Machines', 'Spare Parts', 'Gauges', 'Glue', 'Contact Us'].map((link, i) => (
-                <li key={i}><a href="#" className="text-gray-400 hover:text-white text-xs md:text-sm transition-colors block py-1 md:py-0">{link}</a></li>
+              {[
+                { name: 'Home', path: '/' },
+                { name: 'About Us', path: '/about' },
+                { name: 'Shop', path: '/shop' },
+                { name: 'Machines', path: '/shop?category=machines' },
+                { name: 'Spare Parts', path: '/shop?category=spare-parts' },
+                { name: 'Gauges', path: '/shop?category=gauges' },
+                { name: 'Glue', path: '/shop?category=glue' },
+                { name: 'Contact Us', path: '/contact' }
+              ].map((link, i) => (
+                <li key={i}><Link to={link.path} className="text-gray-400 hover:text-white text-xs md:text-sm transition-colors block py-1 md:py-0">{link.name}</Link></li>
               ))}
             </ul>
           </div>
