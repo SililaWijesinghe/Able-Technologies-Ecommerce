@@ -1,95 +1,137 @@
-import React from 'react';
-import { ShoppingCart, Heart, CheckCircle2, BarChart2, Shuffle } from 'lucide-react';
+import React, { useState } from 'react';
+import { ShoppingCart, FileText } from 'lucide-react';
 import { motion } from 'motion/react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
+import { supabase } from '../../lib/supabase';
+import toast from 'react-hot-toast';
+import QuoteModal from './QuoteModal';
 
 const ProductCard: React.FC<{ product: any }> = ({ product }) => {
   const { addToCart } = useCart();
+  const navigate = useNavigate();
+  const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
   
   const mainImage = product.image_urls?.[0] || product.image_url || product.images?.[0]?.image_url || '';
-  const displayPrice = (product.price || product.base_price) ? `Rs. ${parseFloat(product.price || product.base_price).toLocaleString('en-US', { minimumFractionDigits: 2 })}` : (product.newPrice || '');
   
-  // Calculate discount or use existing oldPrice if available
-  // To match the UI precisely, if there's an oldPrice string, use it. 
-  // We can mock oldPrice for now if not available to match the visual.
-  const oldPrice = product.oldPrice || ((product.price || product.base_price) ? `Rs. ${(parseFloat(product.price || product.base_price) * 1.15).toLocaleString('en-US', { minimumFractionDigits: 2 })}` : '');
-  const discountLabel = product.discount || (product.price ? '-15%' : 'New');
-  const badgeColor = discountLabel === 'New' ? 'bg-[#0b1042]' : 'metallic-red-bg';
-
-  const brandName = product.brand_id ? 'SMC' : 'Local'; // Fallback for brand
-  const categoryName = product.category_id ? 'Pneumatic' : 'Machine'; // Fallback for category
+  // Data extraction based on new rich schema
+  const price = typeof product.price === 'number' ? product.price : parseFloat(product.base_price || product.price || 0);
+  const comparePrice = typeof product.compare_price === 'number' ? product.compare_price : parseFloat(product.compare_price || 0);
+  
+  const displayPrice = `Rs. ${price.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+  const displayComparePrice = `Rs. ${comparePrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+  
+  const hasDiscount = comparePrice > price;
+  const brandName = typeof product.brand === 'object' ? product.brand?.name : (product.brand || product.brand_id);
+  
+  const stockStatus = product.stock_status || (product.stock > 0 ? 'IN_STOCK' : 'OUT_OF_STOCK');
+  const description = product.short_description || product.description || '';
 
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm hover:shadow-xl transition-all relative flex flex-col h-full group"
+      className="bg-white/80 backdrop-blur-xl border border-white/60 rounded-3xl p-5 shadow-[8px_8px_20px_rgba(15,23,42,0.06),-8px_-8px_20px_rgba(255,255,255,1)] hover:-translate-y-2 hover:shadow-[12px_12px_24px_rgba(15,23,42,0.1),-12px_-12px_24px_rgba(255,255,255,1)] transition-all duration-300 flex flex-col group relative overflow-hidden h-full"
     >
       {/* Top Badges */}
-      <div className={`absolute top-4 left-4 ${badgeColor} border-none text-white text-[10px] font-bold px-2 py-1 rounded z-10 shadow-sm`}>
-        {discountLabel}
+      <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
+        {hasDiscount && (
+          <div className="bg-red-600/90 backdrop-blur-md text-white px-3 py-1 rounded-full text-xs font-bold w-fit">
+            Sale
+          </div>
+        )}
+        {product.is_oeko_tex && (
+          <div className="bg-emerald-500/80 backdrop-blur-md text-white px-3 py-1 rounded-full text-xs font-bold shadow-[0_4px_10px_rgba(16,185,129,0.4)] w-fit">
+            Oeko-Tex Certified
+          </div>
+        )}
       </div>
       
-      <button className="absolute top-4 right-4 text-gray-300 hover:text-red-600 z-10 transition-colors bg-white rounded-full p-1 shadow-sm">
-        <Heart size={16} />
-      </button>
+      {brandName && (
+        <div className="bg-blue-950/80 backdrop-blur-md text-white px-3 py-1 rounded-full text-xs absolute top-4 right-4 z-10 shadow-sm">
+          {brandName}
+        </div>
+      )}
 
-      <Link to={`/product/${product.id}`} className="flex-1 flex flex-col group/link">
+      <Link to={`/product/${product.id}`} className="flex-1 flex flex-col group/link mt-2">
         {/* Image */}
-        <div className="w-full h-48 bg-gray-50 rounded-lg mb-4 flex items-center justify-center p-4 group-hover/link:bg-gray-100 transition-colors overflow-hidden">
+        <div className="w-full h-48 bg-white/50 rounded-2xl mb-2 flex items-center justify-center p-4 group-hover/link:bg-white/80 transition-colors overflow-hidden mix-blend-multiply border border-white/50">
           {mainImage ? (
-            <img src={mainImage} alt={product.name} className="w-full h-full object-contain mix-blend-multiply" />
+            <img src={mainImage} alt={product.name} className="w-full h-full object-contain group-hover/link:scale-105 transition-transform duration-500" />
           ) : (
-            <div className="w-full h-full border-2 border-dashed border-gray-200 rounded flex items-center justify-center text-gray-400 text-xs text-center">
-              Image
+            <div className="w-full h-full border-2 border-dashed border-slate-200 rounded-xl flex items-center justify-center text-slate-400 text-xs text-center">
+              No Image
             </div>
           )}
         </div>
 
         {/* Details */}
         <div className="flex flex-col flex-1">
-          <h3 className="text-sm font-bold text-[#0b1042] mb-1 line-clamp-2 leading-snug group-hover/link:text-blue-600 transition-colors">{product.name}</h3>
-          <p className="text-[11px] text-gray-500 mb-2">{brandName} &bull; {categoryName}</p>
+          <h3 className="text-slate-800 font-bold text-lg leading-tight mt-4 group-hover/link:text-blue-600 transition-colors">{product.name}</h3>
           
-          <div className="flex items-center space-x-2 mb-2">
-            <span className="metallic-red-text font-black text-lg">{displayPrice}</span>
-            {oldPrice && <span className="text-gray-400 text-xs line-through">{oldPrice}</span>}
+          {description && (
+            <p className="text-slate-500 text-sm line-clamp-2 mt-2">{description}</p>
+          )}
+          
+          <div className="flex items-center mt-3">
+            <span className="text-red-600 font-extrabold text-xl">{displayPrice}</span>
+            {hasDiscount && (
+              <span className="text-slate-400 line-through text-sm ml-2">{displayComparePrice}</span>
+            )}
           </div>
 
-          <div className="flex items-center text-green-600 text-xs font-semibold mb-4 mt-auto">
-            <CheckCircle2 size={14} className="mr-1" />
-            In Stock
+          <div className={`text-xs font-semibold mt-1 ${stockStatus === 'IN_STOCK' ? 'text-green-600' : 'text-red-500'}`}>
+            {stockStatus === 'IN_STOCK' ? 'In Stock' : 'Out of Stock'}
           </div>
         </div>
       </Link>
 
       {/* Action Buttons */}
-      <div className="flex items-center space-x-2">
+      {(product.is_service || product.is_rentable) ? (
+        <button 
+          onClick={async (e) => {
+            e.preventDefault();
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+              toast.error("Please log in to request a rental or quote");
+              navigate('/login');
+              return;
+            }
+            setIsQuoteModalOpen(true);
+          }}
+          className="w-full mt-4 bg-[#0b1042] hover:bg-[#151c5c] text-white rounded-2xl py-3 shadow-md flex items-center justify-center gap-2 transition-colors relative overflow-hidden group/btn"
+        >
+          <FileText size={18} className="relative z-10" />
+          <span className="font-semibold relative z-10 text-[15px]">Request Quote / Rent</span>
+          <div className="absolute inset-0 bg-white/10 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300" />
+        </button>
+      ) : (
         <button 
           onClick={(e) => {
             e.preventDefault();
             addToCart({
               productId: product.id,
               name: product.name,
-              price: parseFloat(product.price || product.base_price || 0),
+              price: price,
               image: mainImage,
               quantity: 1,
             });
           }}
-          className="flex-1 bg-[#0b1042] hover:bg-[#a81414] text-white py-2 rounded-lg flex items-center justify-center transition-colors text-sm font-semibold shadow-sm"
+          className="w-full mt-4 bg-slate-800 hover:bg-slate-900 text-white rounded-2xl py-3 shadow-md flex items-center justify-center gap-2 transition-colors relative overflow-hidden group/btn"
         >
-          <ShoppingCart size={16} className="mr-2" />
-          Add to Cart
+          <ShoppingCart size={18} className="relative z-10" />
+          <span className="font-semibold relative z-10">Add to Cart</span>
+          <div className="absolute inset-0 bg-white/20 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300" />
         </button>
-        <button className="w-9 h-9 border border-gray-200 rounded-lg flex items-center justify-center text-gray-500 hover:text-[#0b1042] hover:bg-gray-50 transition-colors">
-          <Shuffle size={16} />
-        </button>
-        <button className="w-9 h-9 border border-gray-200 rounded-lg flex items-center justify-center text-gray-500 hover:text-[#0b1042] hover:bg-gray-50 transition-colors">
-          <BarChart2 size={16} />
-        </button>
-      </div>
+      )}
+
+      {/* Quote Modal */}
+      <QuoteModal 
+        isOpen={isQuoteModalOpen} 
+        onClose={() => setIsQuoteModalOpen(false)} 
+        product={product} 
+      />
     </motion.div>
   );
 };

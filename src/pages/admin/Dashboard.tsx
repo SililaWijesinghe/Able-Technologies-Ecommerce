@@ -132,7 +132,7 @@ export default function Dashboard() {
   if (loading) {
     return (
       <div className="flex h-full items-center justify-center min-h-[400px]">
-        <div className="flex flex-col items-center text-gray-400">
+        <div className="flex flex-col items-center text-slate-500">
           <Loader2 size={32} className="animate-spin mb-4 text-[#0b1042]" />
           <p className="text-sm font-bold uppercase tracking-widest text-gray-500">Loading Dashboard Data...</p>
         </div>
@@ -194,10 +194,10 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         
         {/* Recent Orders (60%) */}
-        <div className="lg:col-span-3 bg-white border border-gray-100 rounded-2xl shadow-sm">
+        <div className="lg:col-span-3 bg-white/50 border border-gray-100 rounded-2xl shadow-sm">
           <div className="p-6 flex justify-between items-center border-b border-gray-100">
             <h2 className="text-lg font-black text-gray-900">Recent Orders</h2>
-            <Link to="/admin/orders" className="text-xs font-bold px-4 py-2 border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
+            <Link to="/admin/orders" className="text-xs font-bold px-4 py-2 border border-white/60 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
               View All Orders
             </Link>
           </div>
@@ -231,7 +231,7 @@ export default function Dashboard() {
                         </span>
                       </td>
                       <td className="p-4 text-center">
-                        <Link to={`/admin/orders/${order.rawId}`} className="inline-flex text-gray-400 hover:text-gray-900 transition-colors p-1.5 border border-gray-200 rounded-lg hover:bg-white shadow-sm">
+                        <Link to={`/admin/orders/${order.rawId}`} className="inline-flex text-slate-500 hover:text-gray-900 transition-colors p-1.5 border border-white/60 rounded-lg hover:bg-white shadow-sm">
                           <Eye size={14} />
                         </Link>
                       </td>
@@ -244,10 +244,10 @@ export default function Dashboard() {
         </div>
 
         {/* Low Stock Products (40%) */}
-        <div className="lg:col-span-2 bg-white border border-gray-100 rounded-2xl shadow-sm">
+        <div className="lg:col-span-2 bg-white/50 border border-gray-100 rounded-2xl shadow-sm">
           <div className="p-6 flex justify-between items-center border-b border-gray-100">
             <h2 className="text-lg font-black text-gray-900">Low Stock Products</h2>
-            <Link to="/admin/products" className="text-xs font-bold px-4 py-2 border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
+            <Link to="/admin/products" className="text-xs font-bold px-4 py-2 border border-white/60 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
               View All Products
             </Link>
           </div>
@@ -258,7 +258,7 @@ export default function Dashboard() {
               lowStock.map((item, idx) => (
                 <div key={idx} className="flex items-center justify-between p-4 hover:bg-gray-50/50 rounded-xl transition-colors border-b border-gray-50 last:border-0">
                   <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 rounded-lg bg-gray-100 border border-gray-200 overflow-hidden shrink-0">
+                    <div className="w-12 h-12 rounded-lg bg-gray-100 border border-white/60 overflow-hidden shrink-0">
                       <img src={item.img} alt={item.name} className="w-full h-full object-cover mix-blend-multiply" />
                     </div>
                     <div>
@@ -266,7 +266,7 @@ export default function Dashboard() {
                       <span className="text-xs font-bold text-red-500">Stock: {item.stock} {item.type}</span>
                     </div>
                   </div>
-                  <Link to="/admin/inventory" className="text-xs font-bold border border-gray-200 px-3 py-1.5 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors shrink-0 whitespace-nowrap">
+                  <Link to="/admin/inventory" className="text-xs font-bold border border-white/60 px-3 py-1.5 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors shrink-0 whitespace-nowrap">
                     Update Stock
                   </Link>
                 </div>
@@ -297,7 +297,7 @@ export default function Dashboard() {
       </div>
       
       {/* Footer / Copyright */}
-      <div className="flex justify-between items-center text-xs font-medium text-gray-400 pt-8 pb-4">
+      <div className="flex justify-between items-center text-xs font-medium text-slate-500 pt-8 pb-4">
         <span>© 2024 Able Technologies (Pvt) Ltd. All rights reserved.</span>
         <span>Version 1.0.0</span>
       </div>

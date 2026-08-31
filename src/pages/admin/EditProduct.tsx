@@ -25,7 +25,10 @@ export default function EditProduct() {
     stock: '',
     low_stock_threshold: '5',
     image_url: '',
-    status: 'active'
+    status: 'active',
+    is_service: false,
+    is_rentable: false,
+    is_oeko_tex: false
   });
 
   useEffect(() => {
@@ -53,7 +56,10 @@ export default function EditProduct() {
             stock: data.stock?.toString() || '',
             low_stock_threshold: data.low_stock_threshold?.toString() || '5',
             image_url: data.image_urls?.[0] || '',
-            status: data.status || 'active'
+            status: data.status || 'active',
+            is_service: data.is_service || false,
+            is_rentable: data.is_rentable || false,
+            is_oeko_tex: data.is_oeko_tex || false
           });
         }
       } catch (err: any) {
@@ -68,8 +74,13 @@ export default function EditProduct() {
   }, [id]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    const { name, value, type } = e.target;
+    if (type === 'checkbox') {
+      const checked = (e.target as HTMLInputElement).checked;
+      setFormData(prev => ({ ...prev, [name]: checked }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleUpdate = async (e: React.FormEvent) => {
@@ -91,6 +102,9 @@ export default function EditProduct() {
         cost_price: formData.cost_price ? parseFloat(formData.cost_price) : null,
         low_stock_threshold: parseInt(formData.low_stock_threshold) || 5,
         image_urls: formData.image_url ? [formData.image_url] : [],
+        is_service: formData.is_service,
+        is_rentable: formData.is_rentable,
+        is_oeko_tex: formData.is_oeko_tex
       };
 
       const { error: updateError } = await supabase
@@ -116,7 +130,7 @@ export default function EditProduct() {
   if (loading) {
     return (
       <div className="flex h-full items-center justify-center min-h-[400px]">
-        <div className="flex flex-col items-center text-gray-400">
+        <div className="flex flex-col items-center text-slate-500">
           <Loader2 size={32} className="animate-spin mb-4 text-[#0b1042]" />
           <p className="text-sm font-bold uppercase tracking-widest text-gray-500">Loading Product...</p>
         </div>
@@ -129,7 +143,7 @@ export default function EditProduct() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-black text-gray-900 flex items-center">
-            <Link to="/admin/products" className="mr-3 text-gray-400 hover:text-gray-900 transition-colors">
+            <Link to="/admin/products" className="mr-3 text-slate-500 hover:text-gray-900 transition-colors">
               <ArrowLeft size={24} />
             </Link>
             Edit Product
@@ -143,7 +157,7 @@ export default function EditProduct() {
           </div>
         </div>
         <div className="flex items-center space-x-3">
-          <Link to="/admin/products" className="px-4 py-2 border border-gray-200 text-gray-700 font-bold rounded-lg text-sm hover:bg-gray-50 transition-colors">
+          <Link to="/admin/products" className="px-5 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-xl shadow-md transition-all font-bold text-sm">
             Cancel
           </Link>
           <button 
@@ -176,7 +190,7 @@ export default function EditProduct() {
         <div className="lg:col-span-2 space-y-6">
           
           {/* Basic Info */}
-          <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-5">
+          <div className="bg-white/60 backdrop-blur-xl border border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.05)] rounded-3xl p-6 space-y-5">
             <div className="flex items-center space-x-2 mb-2">
               <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-black">1</span>
               <h2 className="text-lg font-black text-gray-900">Basic Information</h2>
@@ -191,7 +205,7 @@ export default function EditProduct() {
                   required
                   value={formData.name}
                   onChange={handleChange}
-                  className="w-full border border-gray-200 rounded-xl p-3 text-sm focus:border-[#0b1042] focus:ring-1 focus:ring-[#0b1042] outline-none transition-all"
+                  className="w-full border border-white/60 rounded-xl p-3 text-sm focus:border-[#0b1042] focus:ring-1 focus:ring-[#0b1042] outline-none transition-all"
                   placeholder="Enter product name"
                 />
               </div>
@@ -203,7 +217,7 @@ export default function EditProduct() {
                   name="sku"
                   value={formData.sku}
                   onChange={handleChange}
-                  className="w-full border border-gray-200 rounded-xl p-3 text-sm focus:border-[#0b1042] focus:ring-1 focus:ring-[#0b1042] outline-none transition-all"
+                  className="w-full border border-white/60 rounded-xl p-3 text-sm focus:border-[#0b1042] focus:ring-1 focus:ring-[#0b1042] outline-none transition-all"
                   placeholder="Enter SKU"
                 />
               </div>
@@ -215,7 +229,7 @@ export default function EditProduct() {
                   required
                   value={formData.category}
                   onChange={handleChange}
-                  className="w-full border border-gray-200 rounded-xl p-3 text-sm focus:border-[#0b1042] focus:ring-1 focus:ring-[#0b1042] outline-none transition-all bg-white"
+                  className="w-full border border-white/60 rounded-xl p-3 text-sm focus:border-[#0b1042] focus:ring-1 focus:ring-[#0b1042] outline-none transition-all bg-white"
                 >
                   <option value="">Select category...</option>
                   <option value="Pneumatics">Pneumatics</option>
@@ -232,7 +246,7 @@ export default function EditProduct() {
                   name="brand"
                   value={formData.brand}
                   onChange={handleChange}
-                  className="w-full border border-gray-200 rounded-xl p-3 text-sm focus:border-[#0b1042] focus:ring-1 focus:ring-[#0b1042] outline-none transition-all"
+                  className="w-full border border-white/60 rounded-xl p-3 text-sm focus:border-[#0b1042] focus:ring-1 focus:ring-[#0b1042] outline-none transition-all"
                   placeholder="e.g. SMC, Festo, Loctite"
                 />
               </div>
@@ -244,7 +258,7 @@ export default function EditProduct() {
                   rows={4}
                   value={formData.description}
                   onChange={handleChange}
-                  className="w-full border border-gray-200 rounded-xl p-3 text-sm focus:border-[#0b1042] focus:ring-1 focus:ring-[#0b1042] outline-none transition-all resize-none"
+                  className="w-full border border-white/60 rounded-xl p-3 text-sm focus:border-[#0b1042] focus:ring-1 focus:ring-[#0b1042] outline-none transition-all resize-none"
                   placeholder="Enter full product description..."
                 ></textarea>
               </div>
@@ -252,7 +266,7 @@ export default function EditProduct() {
           </div>
 
           {/* Pricing & Stock */}
-          <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-5">
+          <div className="bg-white/60 backdrop-blur-xl border border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.05)] rounded-3xl p-6 space-y-5">
             <div className="flex items-center space-x-2 mb-2">
               <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-black">2</span>
               <h2 className="text-lg font-black text-gray-900">Pricing & Stock</h2>
@@ -268,7 +282,7 @@ export default function EditProduct() {
                   required
                   value={formData.price}
                   onChange={handleChange}
-                  className="w-full border border-gray-200 rounded-xl p-3 text-sm focus:border-[#0b1042] focus:ring-1 focus:ring-[#0b1042] outline-none transition-all"
+                  className="w-full border border-white/60 rounded-xl p-3 text-sm focus:border-[#0b1042] focus:ring-1 focus:ring-[#0b1042] outline-none transition-all"
                   placeholder="0.00"
                 />
               </div>
@@ -280,7 +294,7 @@ export default function EditProduct() {
                   name="compare_at_price"
                   value={formData.compare_at_price}
                   onChange={handleChange}
-                  className="w-full border border-gray-200 rounded-xl p-3 text-sm focus:border-[#0b1042] focus:ring-1 focus:ring-[#0b1042] outline-none transition-all"
+                  className="w-full border border-white/60 rounded-xl p-3 text-sm focus:border-[#0b1042] focus:ring-1 focus:ring-[#0b1042] outline-none transition-all"
                   placeholder="0.00"
                 />
               </div>
@@ -292,7 +306,7 @@ export default function EditProduct() {
                   name="cost_price"
                   value={formData.cost_price}
                   onChange={handleChange}
-                  className="w-full border border-gray-200 rounded-xl p-3 text-sm focus:border-[#0b1042] focus:ring-1 focus:ring-[#0b1042] outline-none transition-all"
+                  className="w-full border border-white/60 rounded-xl p-3 text-sm focus:border-[#0b1042] focus:ring-1 focus:ring-[#0b1042] outline-none transition-all"
                   placeholder="0.00"
                 />
               </div>
@@ -305,7 +319,7 @@ export default function EditProduct() {
                   required
                   value={formData.stock}
                   onChange={handleChange}
-                  className="w-full border border-gray-200 rounded-xl p-3 text-sm focus:border-[#0b1042] focus:ring-1 focus:ring-[#0b1042] outline-none transition-all"
+                  className="w-full border border-white/60 rounded-xl p-3 text-sm focus:border-[#0b1042] focus:ring-1 focus:ring-[#0b1042] outline-none transition-all"
                   placeholder="0"
                 />
               </div>
@@ -317,7 +331,7 @@ export default function EditProduct() {
                   name="low_stock_threshold"
                   value={formData.low_stock_threshold}
                   onChange={handleChange}
-                  className="w-full border border-gray-200 rounded-xl p-3 text-sm focus:border-[#0b1042] focus:ring-1 focus:ring-[#0b1042] outline-none transition-all"
+                  className="w-full border border-white/60 rounded-xl p-3 text-sm focus:border-[#0b1042] focus:ring-1 focus:ring-[#0b1042] outline-none transition-all"
                   placeholder="5"
                 />
               </div>
@@ -327,7 +341,7 @@ export default function EditProduct() {
 
         {/* Right Column - Image & Media */}
         <div className="space-y-6">
-          <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-5">
+          <div className="bg-white/60 backdrop-blur-xl border border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.05)] rounded-3xl p-6 space-y-5">
             <div className="flex items-center space-x-2 mb-2">
               <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-black">3</span>
               <h2 className="text-lg font-black text-gray-900">Media</h2>
@@ -341,25 +355,61 @@ export default function EditProduct() {
                   name="image_url"
                   value={formData.image_url}
                   onChange={handleChange}
-                  className="w-full border border-gray-200 rounded-xl p-3 text-sm focus:border-[#0b1042] focus:ring-1 focus:ring-[#0b1042] outline-none transition-all"
+                  className="w-full border border-white/60 rounded-xl p-3 text-sm focus:border-[#0b1042] focus:ring-1 focus:ring-[#0b1042] outline-none transition-all"
                   placeholder="https://..."
                 />
               </div>
 
               {/* Preview Box */}
-              <div className="w-full aspect-square bg-gray-50 rounded-xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center overflow-hidden">
+              <div className="w-full aspect-square bg-white/40 rounded-xl border-2 border-dashed border-white/60 flex flex-col items-center justify-center overflow-hidden">
                 {formData.image_url ? (
                   <img src={formData.image_url} alt="Preview" className="w-full h-full object-cover mix-blend-multiply" />
                 ) : (
                   <>
-                    <ImageIcon size={32} className="text-gray-300 mb-2" />
-                    <span className="text-xs font-bold text-gray-400">Image Preview</span>
+                    <ImageIcon size={32} className="text-slate-600 mb-2" />
+                    <span className="text-xs font-bold text-slate-500">Image Preview</span>
                   </>
                 )}
               </div>
-              <p className="text-[10px] text-gray-400 font-medium text-center">
+              <p className="text-[10px] text-slate-500 font-medium text-center">
                 Paste a valid image URL to see preview
               </p>
+            </div>
+          </div>
+
+          {/* Service, Rentable, Oeko-Tex Flags */}
+          <div className="bg-white/40 backdrop-blur-md rounded-xl p-4 space-y-4 border border-white/60">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-bold text-gray-900">Service</h3>
+                <p className="text-xs text-gray-500">Item is a service</p>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" name="is_service" checked={formData.is_service} onChange={handleChange} className="sr-only peer" />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#0b1042]"></div>
+              </label>
+            </div>
+            
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-bold text-gray-900">Rentable</h3>
+                <p className="text-xs text-gray-500">Item can be rented</p>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" name="is_rentable" checked={formData.is_rentable} onChange={handleChange} className="sr-only peer" />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#0b1042]"></div>
+              </label>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-bold text-gray-900">Oeko-Tex</h3>
+                <p className="text-xs text-gray-500">Oeko-Tex Certified flag</p>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" name="is_oeko_tex" checked={formData.is_oeko_tex} onChange={handleChange} className="sr-only peer" />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+              </label>
             </div>
           </div>
         </div>

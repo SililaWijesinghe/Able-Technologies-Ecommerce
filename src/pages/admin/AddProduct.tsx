@@ -21,12 +21,20 @@ export default function AddProduct() {
     stock: '',
     low_stock_threshold: '5',
     image_url: '',
-    status: 'active'
+    status: 'active',
+    is_service: false,
+    is_rentable: false,
+    is_oeko_tex: false
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    const { name, value, type } = e.target;
+    if (type === 'checkbox') {
+      const checked = (e.target as HTMLInputElement).checked;
+      setFormData(prev => ({ ...prev, [name]: checked }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -48,6 +56,9 @@ export default function AddProduct() {
         cost_price: formData.cost_price ? parseFloat(formData.cost_price) : null,
         low_stock_threshold: parseInt(formData.low_stock_threshold) || 5,
         image_urls: formData.image_url ? [formData.image_url] : [],
+        is_service: formData.is_service,
+        is_rentable: formData.is_rentable,
+        is_oeko_tex: formData.is_oeko_tex,
         // You might map status if your schema supports it, but standard might not have it
         // We'll omit status if it causes an error, but let's assume it doesn't exist for now or is ignored
       };
@@ -90,7 +101,7 @@ export default function AddProduct() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-black text-gray-900 flex items-center">
-            <Link to="/admin/products" className="mr-3 text-gray-400 hover:text-gray-900 transition-colors">
+            <Link to="/admin/products" className="mr-3 text-slate-500 hover:text-gray-900 transition-colors">
               <ArrowLeft size={24} />
             </Link>
             Add New Product
@@ -104,13 +115,13 @@ export default function AddProduct() {
           </div>
         </div>
         <div className="flex items-center space-x-3">
-          <Link to="/admin/products" className="px-4 py-2 border border-gray-200 text-gray-700 font-bold rounded-lg text-sm hover:bg-gray-50 transition-colors">
+          <Link to="/admin/products" className="px-5 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-xl shadow-md transition-all font-bold text-sm">
             Cancel
           </Link>
           <button 
             onClick={handleSubmit}
             disabled={loading}
-            className="bg-[#da1c26] text-white px-6 py-2 rounded-lg text-sm font-bold flex items-center space-x-2 hover:bg-red-700 transition-colors disabled:opacity-70"
+            className="bg-slate-800 hover:bg-slate-900 text-white rounded-xl px-5 py-2.5 shadow-md hover:shadow-lg transition-all text-sm font-bold flex items-center space-x-2 disabled:opacity-70"
           >
             {loading ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
             <span>Save & Publish</span>
@@ -130,7 +141,7 @@ export default function AddProduct() {
         <div className="lg:col-span-2 space-y-6">
           
           {/* Basic Info */}
-          <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-5">
+          <div className="bg-white/60 backdrop-blur-xl border border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.05)] rounded-3xl p-6 space-y-5">
             <div className="flex items-center space-x-2 mb-2">
               <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-black">1</span>
               <h2 className="text-lg font-black text-gray-900">Basic Information</h2>
@@ -145,7 +156,7 @@ export default function AddProduct() {
                   required
                   value={formData.name}
                   onChange={handleChange}
-                  className="w-full border border-gray-200 rounded-xl p-3 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+                  className="w-full border border-white/60 rounded-xl p-3 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
                   placeholder="Enter product name"
                 />
               </div>
@@ -157,7 +168,7 @@ export default function AddProduct() {
                   name="sku"
                   value={formData.sku}
                   onChange={handleChange}
-                  className="w-full border border-gray-200 rounded-xl p-3 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+                  className="w-full border border-white/60 rounded-xl p-3 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
                   placeholder="Enter SKU"
                 />
               </div>
@@ -169,7 +180,7 @@ export default function AddProduct() {
                   required
                   value={formData.category}
                   onChange={handleChange}
-                  className="w-full border border-gray-200 rounded-xl p-3 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all bg-white"
+                  className="w-full bg-white/50 focus:bg-white/80 backdrop-blur-md border border-white/60 focus:border-blue-300 rounded-xl p-3 text-slate-800 outline-none transition-all shadow-inner text-sm"
                 >
                   <option value="">Select category...</option>
                   <option value="Pneumatics">Pneumatics</option>
@@ -186,7 +197,7 @@ export default function AddProduct() {
                   name="brand"
                   value={formData.brand}
                   onChange={handleChange}
-                  className="w-full border border-gray-200 rounded-xl p-3 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+                  className="w-full border border-white/60 rounded-xl p-3 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
                   placeholder="e.g. SMC, Festo, Loctite"
                 />
               </div>
@@ -198,7 +209,7 @@ export default function AddProduct() {
                   rows={4}
                   value={formData.description}
                   onChange={handleChange}
-                  className="w-full border border-gray-200 rounded-xl p-3 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all resize-none"
+                  className="w-full border border-white/60 rounded-xl p-3 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all resize-none"
                   placeholder="Enter full product description..."
                 ></textarea>
               </div>
@@ -206,7 +217,7 @@ export default function AddProduct() {
           </div>
 
           {/* Pricing & Stock */}
-          <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-5">
+          <div className="bg-white/60 backdrop-blur-xl border border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.05)] rounded-3xl p-6 space-y-5">
             <div className="flex items-center space-x-2 mb-2">
               <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-black">2</span>
               <h2 className="text-lg font-black text-gray-900">Pricing & Stock</h2>
@@ -222,7 +233,7 @@ export default function AddProduct() {
                   required
                   value={formData.price}
                   onChange={handleChange}
-                  className="w-full border border-gray-200 rounded-xl p-3 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+                  className="w-full border border-white/60 rounded-xl p-3 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
                   placeholder="0.00"
                 />
               </div>
@@ -234,7 +245,7 @@ export default function AddProduct() {
                   name="compare_at_price"
                   value={formData.compare_at_price}
                   onChange={handleChange}
-                  className="w-full border border-gray-200 rounded-xl p-3 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+                  className="w-full border border-white/60 rounded-xl p-3 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
                   placeholder="0.00"
                 />
               </div>
@@ -246,7 +257,7 @@ export default function AddProduct() {
                   name="cost_price"
                   value={formData.cost_price}
                   onChange={handleChange}
-                  className="w-full border border-gray-200 rounded-xl p-3 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+                  className="w-full border border-white/60 rounded-xl p-3 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
                   placeholder="0.00"
                 />
               </div>
@@ -259,7 +270,7 @@ export default function AddProduct() {
                   required
                   value={formData.stock}
                   onChange={handleChange}
-                  className="w-full border border-gray-200 rounded-xl p-3 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+                  className="w-full border border-white/60 rounded-xl p-3 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
                   placeholder="0"
                 />
               </div>
@@ -270,7 +281,7 @@ export default function AddProduct() {
                   name="low_stock_threshold"
                   value={formData.low_stock_threshold}
                   onChange={handleChange}
-                  className="w-full border border-gray-200 rounded-xl p-3 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+                  className="w-full border border-white/60 rounded-xl p-3 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
                   placeholder="5"
                 />
               </div>
@@ -282,14 +293,14 @@ export default function AddProduct() {
         <div className="space-y-6">
           
           {/* Media */}
-          <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-5">
+          <div className="bg-white/60 backdrop-blur-xl border border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.05)] rounded-3xl p-6 space-y-5">
             <div className="flex items-center space-x-2 mb-2">
               <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-black">3</span>
               <h2 className="text-lg font-black text-gray-900">Product Image</h2>
             </div>
             
             <div className="space-y-4">
-              <div className="border-2 border-dashed border-gray-200 rounded-xl p-6 text-center hover:bg-gray-50 transition-colors">
+              <div className="border-2 border-dashed border-white/60 rounded-xl p-6 text-center hover:bg-white/40 transition-colors">
                 <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3 text-blue-500">
                   <ImageIcon size={24} />
                 </div>
@@ -301,14 +312,14 @@ export default function AddProduct() {
                   value={formData.image_url}
                   onChange={handleChange}
                   placeholder="https://..."
-                  className="w-full border border-gray-200 rounded-lg p-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                  className="w-full border border-white/60 rounded-lg p-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
                 />
               </div>
               
               {formData.image_url && (
                 <div className="mt-4">
                   <p className="text-xs font-bold text-gray-700 mb-2">Preview:</p>
-                  <div className="w-full h-40 bg-gray-100 rounded-lg border border-gray-200 overflow-hidden">
+                  <div className="w-full h-40 bg-gray-100 rounded-lg border border-white/60 overflow-hidden">
                     <img src={formData.image_url} alt="Preview" className="w-full h-full object-contain mix-blend-multiply p-2" onError={(e) => (e.currentTarget.style.display = 'none')} />
                   </div>
                 </div>
@@ -317,7 +328,7 @@ export default function AddProduct() {
           </div>
 
           {/* Visibility */}
-          <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-5">
+          <div className="bg-white/60 backdrop-blur-xl border border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.05)] rounded-3xl p-6 space-y-5">
             <div className="flex items-center space-x-2 mb-2">
               <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-black">4</span>
               <h2 className="text-lg font-black text-gray-900">Visibility</h2>
@@ -330,11 +341,47 @@ export default function AddProduct() {
                   name="status"
                   value={formData.status}
                   onChange={handleChange}
-                  className="w-full border border-gray-200 rounded-xl p-3 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all bg-white"
+                  className="w-full bg-white/50 focus:bg-white/80 backdrop-blur-md border border-white/60 focus:border-blue-300 rounded-xl p-3 text-slate-800 outline-none transition-all shadow-inner text-sm"
                 >
                   <option value="active">Active</option>
                   <option value="draft">Draft</option>
                 </select>
+              </div>
+
+              {/* Service, Rentable, Oeko-Tex Flags */}
+              <div className="bg-white/40 backdrop-blur-md rounded-xl p-4 space-y-4 mt-4 border border-white/60">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-sm font-bold text-gray-900">Service</h3>
+                    <p className="text-xs text-gray-500">Item is a service</p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" name="is_service" checked={formData.is_service} onChange={handleChange} className="sr-only peer" />
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#0b1042]"></div>
+                  </label>
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-sm font-bold text-gray-900">Rentable</h3>
+                    <p className="text-xs text-gray-500">Item can be rented</p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" name="is_rentable" checked={formData.is_rentable} onChange={handleChange} className="sr-only peer" />
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#0b1042]"></div>
+                  </label>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-sm font-bold text-gray-900">Oeko-Tex</h3>
+                    <p className="text-xs text-gray-500">Oeko-Tex Certified flag</p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" name="is_oeko_tex" checked={formData.is_oeko_tex} onChange={handleChange} className="sr-only peer" />
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                  </label>
+                </div>
               </div>
             </div>
           </div>

@@ -1,7 +1,8 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
+import NavigatedGuide from './components/ui/NavigatedGuide';
 import FloatingControls from './components/FloatingControls';
 import Home from './pages/Home';
 import Shop from './pages/Shop';
@@ -12,6 +13,8 @@ import Profile from './pages/Profile';
 import { CartProvider } from './context/CartContext';
 import CartDrawer from './components/cart/CartDrawer';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { ToastProvider } from './context/ToastContext';
+import { Toaster } from 'react-hot-toast';
 import AdminRoute from './components/auth/AdminRoute';
 import AdminLayout from './components/layout/AdminLayout';
 import Dashboard from './pages/admin/Dashboard';
@@ -22,6 +25,9 @@ import EditProduct from './pages/admin/EditProduct';
 import Inventory from './pages/admin/Inventory';
 import Orders from './pages/admin/Orders';
 import Customers from './pages/admin/Customers';
+import Inquiries from './pages/admin/Inquiries';
+
+import Categories from './pages/admin/Categories';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -32,6 +38,9 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 
 function StorefrontLayout() {
+  const location = useLocation();
+  const isHome = location.pathname === '/';
+
   return (
     <div className="min-h-screen bg-gray-50 font-sans overflow-x-hidden">
       {/* SVG Gradient Defs */}
@@ -46,21 +55,35 @@ function StorefrontLayout() {
       </svg>
       <Header />
       
-      <Outlet />
+      <main className={!isHome ? 'pt-0 bg-gradient-to-b from-[#060740] to-[#04081c]' : ''}>
+        <Outlet />
+      </main>
       
       <Footer />
       <FloatingControls />
       <CartDrawer />
+
+      <NavigatedGuide 
+        guideId="storefront_tour"
+        steps={[
+          { targetId: 'nav-shop', title: 'Welcome to the Store', description: 'Browse our full catalog of products here.', position: 'bottom' },
+          { targetId: 'nav-cart', title: 'Your Cart', description: 'Items you add will appear here.', position: 'bottom' },
+        ]}
+      />
+  
     </div>
   );
 }
 
 export default function App() {
   return (
-    <AuthProvider>
-      <CartProvider>
-        <Router>
-          <Routes>
+    <>
+      <Toaster position="top-right" />
+      <ToastProvider>
+      <AuthProvider>
+        <CartProvider>
+          <Router>
+            <Routes>
             {/* Storefront Routes */}
             <Route element={<StorefrontLayout />}>
               <Route path="/" element={<Home />} />
@@ -86,14 +109,18 @@ export default function App() {
               <Route path="products" element={<Products />} />
               <Route path="products/new" element={<AddProduct />} />
               <Route path="products/edit/:id" element={<EditProduct />} />
+              <Route path="categories" element={<Categories />} />
               <Route path="inventory" element={<Inventory />} />
               <Route path="orders" element={<Orders />} />
               <Route path="customers" element={<Customers />} />
+              <Route path="inquiries" element={<Inquiries />} />
               {/* Additional admin routes will go here in future steps */}
             </Route>
           </Routes>
         </Router>
       </CartProvider>
     </AuthProvider>
+    </ToastProvider>
+    </>
   );
 }

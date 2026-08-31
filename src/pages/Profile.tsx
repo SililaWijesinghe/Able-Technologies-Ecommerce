@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Package, User, ChevronRight, Settings } from 'lucide-react';
+import { Package, User, ChevronRight, Settings, FileText } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 export default function Profile() {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<'orders' | 'settings'>('orders');
+  const [activeTab, setActiveTab] = useState<'orders' | 'inquiries' | 'settings'>('orders');
   const [orders, setOrders] = useState<any[]>([]);
+  const [inquiries, setInquiries] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   
   // Shipping details state
@@ -19,36 +21,50 @@ export default function Profile() {
   const [saveSuccess, setSaveSuccess] = useState('');
 
   useEffect(() => {
-    const fetchOrders = async () => {
+    const fetchData = async () => {
       try {
+        setLoading(true);
         const token = localStorage.getItem('auth_token');
-        if (!token) return;
-        
-        const res = await fetch('/api/orders/me', {
-          headers: {
-            'Authorization': `Bearer ${token}`
+        if (token) {
+          const res = await fetch('/api/orders/me', {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (res.ok) {
+            const data = await res.json();
+            setOrders(data.orders || []);
           }
-        });
-        
-        if (res.ok) {
-          const data = await res.json();
-          setOrders(data.orders || []);
         }
+        
+        if (user) {
+          console.log('Fetching inquiries for user:', user.id);
+          const { data, error } = await supabase
+            .from('service_inquiries')
+            .select('*, products(name, image_urls)')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: false });
+          if (error) {
+            console.error('Supabase fetch error:', error);
+          } else {
+            console.log('Fetched inquiries:', data);
+            if (data) setInquiries(data);
+          }
+        }
+        
       } catch (err) {
-        console.error('Failed to fetch orders', err);
+        console.error('Failed to fetch data', err);
       } finally {
         setLoading(false);
       }
     };
     
-    fetchOrders();
+    fetchData();
     
     // Mock loading saved shipping details from local storage for now
     const saved = localStorage.getItem('shipping_details');
     if (saved) {
       setShippingDetails(JSON.parse(saved));
     }
-  }, []);
+  }, [user]);
 
   const handleSaveSettings = (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,6 +95,12 @@ export default function Profile() {
                   <Package size={18} className="mr-3" /> My Orders
                 </button>
                 <button 
+                  onClick={() => setActiveTab('inquiries')}
+                  className={`w-full flex items-center p-3 rounded-lg text-sm font-bold transition-colors ${activeTab === 'inquiries' ? 'bg-[#0b1042] text-white' : 'text-gray-600 hover:bg-gray-50'}`}
+                >
+                  <FileText size={18} className="mr-3" /> My Requests
+                </button>
+                <button 
                   onClick={() => setActiveTab('settings')}
                   className={`w-full flex items-center p-3 rounded-lg text-sm font-bold transition-colors ${activeTab === 'settings' ? 'bg-[#0b1042] text-white' : 'text-gray-600 hover:bg-gray-50'}`}
                 >
@@ -91,6 +113,39 @@ export default function Profile() {
           {/* Main Content */}
           <div className="flex-1">
             <div className="bg-white rounded-xl border border-gray-100 p-6 md:p-8 shadow-sm min-h-[500px]">
+              
+              {activeTab === 'inquiries' && (
+                <div>
+                  <h2 className="text-2xl font-black text-[#0b1042] mb-6">My Requests & Rentals</h2>
+                  
+                  {loading ? (
+                    <div className="animate-pulse space-y-4">
+                      {[1,2].map(i => <div key={i} className="h-24 bg-gray-100 rounded-xl w-full"></div>)}
+                    </div>
+                  ) : inquiries.length === 0 ? (
+                    <div className="text-center py-12 border-2 border-dashed border-gray-100 rounded-xl">
+                      <FileText size={48} className="mx-auto text-gray-300 mb-4" />
+                      <h3 className="text-lg font-bold text-gray-900 mb-2">No inquiries found</h3>
+                      <p className="text-gray-500 text-sm">You haven't submitted any service or rental requests yet.</p>
+                    </div>
+                  ) : (
+                    <div className="grid gap-4">
+                      {inquiries.map(inquiry => (
+                        <div key={inquiry.id} className="bg-white/40 backdrop-blur-md border border-gray-100 rounded-xl p-4 shadow-sm flex gap-4 items-center">
+                          <img src={inquiry.products?.image_urls?.[0] || '/placeholder-product.jpg'} alt={inquiry.products?.name} className="w-16 h-16 rounded-lg object-cover shadow-sm" />
+                          <div className="flex-1">
+                            <h4 className="font-bold text-[#0b1042]">{inquiry.products?.name}</h4>
+                            <p className="text-xs text-gray-500 font-medium capitalize">{inquiry.inquiry_type} • {new Date(inquiry.created_at).toLocaleDateString()}</p>
+                          </div>
+                          <span className={`text-[10px] font-black px-3 py-1 rounded-full uppercase ${inquiry.status === 'Reviewed' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                            {inquiry.status || 'Pending'}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
               
               {activeTab === 'orders' && (
                 <div>
@@ -143,7 +198,7 @@ export default function Profile() {
                   )}
                 </div>
               )}
-              
+
               {activeTab === 'settings' && (
                 <div className="max-w-xl">
                   <h2 className="text-2xl font-black text-[#0b1042] mb-6">Account Settings</h2>

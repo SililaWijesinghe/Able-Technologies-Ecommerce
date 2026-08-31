@@ -18,11 +18,13 @@ export default function Home() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
-        className="relative w-full min-h-[550px] md:h-[600px] bg-[#0b1042] overflow-hidden flex flex-col justify-center bg-cover bg-center bg-no-repeat pb-10 md:pb-0"
+        className="relative w-full min-h-[700px] md:h-[800px] bg-[#04081c] overflow-hidden flex flex-col justify-center bg-cover bg-center bg-no-repeat pb-10 md:pb-0"
         style={{ backgroundImage: `url(${heroBg})` }}
       >
         {/* Dark Navy Faded Overlay for Text Highlight */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#060a2b] via-[#0b1042]/90 md:via-[#0b1042]/95 to-transparent z-0 w-full md:w-[75%]"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-[#020516] via-[#080d35]/80 to-transparent z-0 w-full"></div>
+        <div className="absolute top-0 right-0 w-[60%] h-full bg-gradient-to-l from-red-600/20 via-red-900/10 to-transparent z-0 mix-blend-screen pointer-events-none"></div>
+        <div className="absolute top-[30%] left-[20%] w-[40%] h-[40%] bg-cyan-600/10 blur-[120px] pointer-events-none mix-blend-screen z-0"></div>
 
         {/* Floating Tool Image (Robotic Arm) */}
         <motion.div 
@@ -46,7 +48,7 @@ export default function Home() {
         </motion.div>
 
         {/* Hero Content */}
-        <div className="relative z-20 max-w-7xl mx-auto px-6 w-full flex flex-col pt-8 md:pt-12">
+        <div className="relative z-20 max-w-7xl mx-auto px-6 w-full flex flex-col pt-24 md:pt-[240px]">
           
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -89,32 +91,32 @@ export default function Home() {
             transition={{ duration: 0.6, delay: 0.7 }}
             className="grid grid-cols-2 gap-4 md:flex md:items-center md:space-x-8 mb-8 md:mb-12"
           >
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 md:w-10 md:h-10 rounded-md border border-blue-800/50 flex items-center justify-center bg-blue-900/30 backdrop-blur-sm">
-                <ShieldCheck size={16} className="text-blue-400 md:w-5 md:h-5" />
+            <div className="flex items-center space-x-3 bg-blue-950/40 backdrop-blur-md border border-white/10 rounded-2xl p-3 md:p-4 shadow-[inset_2px_2px_4px_rgba(255,255,255,0.1),4px_4px_12px_rgba(0,0,0,0.4)] transition-transform hover:-translate-y-1">
+              <div className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center shrink-0">
+                <ShieldCheck size={16} className="text-white md:w-5 md:h-5" />
               </div>
-              <span className="text-white text-xs md:text-sm font-medium leading-tight max-w-[100px]">High Quality Products</span>
+              <span className="text-white/90 text-xs md:text-sm font-medium leading-tight">High Quality Products</span>
             </div>
             
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 md:w-10 md:h-10 rounded-md border border-blue-800/50 flex items-center justify-center bg-blue-900/30 backdrop-blur-sm">
-                <Award size={16} className="text-blue-400 md:w-5 md:h-5" />
+            <div className="flex items-center space-x-3 bg-blue-950/40 backdrop-blur-md border border-white/10 rounded-2xl p-3 md:p-4 shadow-[inset_2px_2px_4px_rgba(255,255,255,0.1),4px_4px_12px_rgba(0,0,0,0.4)] transition-transform hover:-translate-y-1">
+              <div className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center shrink-0">
+                <Award size={16} className="text-white md:w-5 md:h-5" />
               </div>
-              <span className="text-white text-xs md:text-sm font-medium leading-tight max-w-[100px]">Trusted by Professionals</span>
+              <span className="text-white/90 text-xs md:text-sm font-medium leading-tight">Trusted by Professionals</span>
             </div>
 
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 md:w-10 md:h-10 rounded-md border border-blue-800/50 flex items-center justify-center bg-blue-900/30 backdrop-blur-sm">
-                <Truck size={16} className="text-blue-400 md:w-5 md:h-5" />
+            <div className="flex items-center space-x-3 bg-blue-950/40 backdrop-blur-md border border-white/10 rounded-2xl p-3 md:p-4 shadow-[inset_2px_2px_4px_rgba(255,255,255,0.1),4px_4px_12px_rgba(0,0,0,0.4)] transition-transform hover:-translate-y-1">
+              <div className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center shrink-0">
+                <Truck size={16} className="text-white md:w-5 md:h-5" />
               </div>
-              <span className="text-white text-xs md:text-sm font-medium leading-tight max-w-[100px]">Fast & Reliable Delivery</span>
+              <span className="text-white/90 text-xs md:text-sm font-medium leading-tight">Fast & Reliable Delivery</span>
             </div>
 
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 md:w-10 md:h-10 rounded-md border border-blue-800/50 flex items-center justify-center bg-blue-900/30 backdrop-blur-sm">
-                <Headphones size={16} className="text-blue-400 md:w-5 md:h-5" />
+            <div className="flex items-center space-x-3 bg-blue-950/40 backdrop-blur-md border border-white/10 rounded-2xl p-3 md:p-4 shadow-[inset_2px_2px_4px_rgba(255,255,255,0.1),4px_4px_12px_rgba(0,0,0,0.4)] transition-transform hover:-translate-y-1">
+              <div className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center shrink-0">
+                <Headphones size={16} className="text-white md:w-5 md:h-5" />
               </div>
-              <span className="text-white text-xs md:text-sm font-medium leading-tight max-w-[100px]">Expert Support</span>
+              <span className="text-white/90 text-xs md:text-sm font-medium leading-tight">Expert Support</span>
             </div>
           </motion.div>
 

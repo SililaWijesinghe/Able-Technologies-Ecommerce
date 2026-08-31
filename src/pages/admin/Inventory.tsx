@@ -126,7 +126,7 @@ export default function Inventory() {
   if (loading && inventory.length === 0) {
     return (
       <div className="flex h-full items-center justify-center min-h-[400px]">
-        <div className="flex flex-col items-center text-gray-400">
+        <div className="flex flex-col items-center text-slate-500">
           <Loader2 size={32} className="animate-spin mb-4 text-[#0b1042]" />
           <p className="text-sm font-bold uppercase tracking-widest text-gray-500">Loading Inventory...</p>
         </div>
@@ -171,7 +171,7 @@ export default function Inventory() {
             </div>
             <h3 className="text-2xl font-black text-gray-900">{stats.inStock.count}</h3>
             <p className="text-xs font-bold text-gray-500 mt-1">In Stock</p>
-            <p className="text-xs text-gray-400 mt-1">{stats.inStock.percentage}% of total</p>
+            <p className="text-xs text-slate-500 mt-1">{stats.inStock.percentage}% of total</p>
           </div>
         </div>
         <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between">
@@ -181,7 +181,7 @@ export default function Inventory() {
             </div>
             <h3 className="text-2xl font-black text-gray-900">{stats.lowStock.count}</h3>
             <p className="text-xs font-bold text-gray-500 mt-1">Low Stock</p>
-            <p className="text-xs text-gray-400 mt-1">{stats.lowStock.percentage}% of total</p>
+            <p className="text-xs text-slate-500 mt-1">{stats.lowStock.percentage}% of total</p>
           </div>
         </div>
         <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between">
@@ -191,7 +191,7 @@ export default function Inventory() {
             </div>
             <h3 className="text-2xl font-black text-gray-900">{stats.outOfStock.count}</h3>
             <p className="text-xs font-bold text-gray-500 mt-1">Out of Stock</p>
-            <p className="text-xs text-gray-400 mt-1">{stats.outOfStock.percentage}% of total</p>
+            <p className="text-xs text-slate-500 mt-1">{stats.outOfStock.percentage}% of total</p>
           </div>
         </div>
         <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between">
@@ -208,7 +208,7 @@ export default function Inventory() {
       </div>
 
       {/* Main Table Area */}
-      <div className="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
+      <div className="bg-white/60 backdrop-blur-xl border border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.05)] rounded-3xl p-6 overflow-hidden">
         {/* Tabs */}
         <div className="flex border-b border-gray-100 px-6 overflow-x-auto">
           {['overview', 'movements', 'adjustments', 'alerts'].map((tab) => (
@@ -229,36 +229,36 @@ export default function Inventory() {
         {/* Filters */}
         <div className="p-4 border-b border-gray-100 flex flex-col lg:flex-row gap-4 items-center justify-between">
           <div className="relative w-full lg:w-80">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
             <input 
               type="text" 
               placeholder="Search SKU, Product Name..." 
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#0b1042] focus:ring-1 focus:ring-[#0b1042]"
+              className="w-full pl-10 pr-4 py-2.5 border border-white/60 rounded-lg text-sm focus:outline-none focus:border-[#0b1042] focus:ring-1 focus:ring-[#0b1042]"
             />
           </div>
           <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
-            <select className="border border-gray-200 rounded-lg text-sm p-2.5 outline-none focus:border-[#0b1042] bg-white text-gray-600 font-medium">
+            <select className="border border-white/60 rounded-lg text-sm p-2.5 outline-none focus:border-[#0b1042] bg-white text-gray-600 font-medium">
               <option>All Categories</option>
               <option>Electronics</option>
               <option>Accessories</option>
             </select>
-            <select className="border border-gray-200 rounded-lg text-sm p-2.5 outline-none focus:border-[#0b1042] bg-white text-gray-600 font-medium">
+            <select className="border border-white/60 rounded-lg text-sm p-2.5 outline-none focus:border-[#0b1042] bg-white text-gray-600 font-medium">
               <option>All Brands</option>
               <option>Brand A</option>
               <option>Brand B</option>
             </select>
-            <select className="border border-gray-200 rounded-lg text-sm p-2.5 outline-none focus:border-[#0b1042] bg-white text-gray-600 font-medium">
+            <select className="border border-white/60 rounded-lg text-sm p-2.5 outline-none focus:border-[#0b1042] bg-white text-gray-600 font-medium">
               <option>All Locations</option>
               <option>Main Warehouse</option>
               <option>Branch A</option>
             </select>
-            <select className="border border-gray-200 rounded-lg text-sm p-2.5 outline-none focus:border-[#0b1042] bg-white text-gray-600 font-medium">
+            <select className="border border-white/60 rounded-lg text-sm p-2.5 outline-none focus:border-[#0b1042] bg-white text-gray-600 font-medium">
               <option>All Status</option>
               <option>In Stock</option>
               <option>Low Stock</option>
               <option>Out of Stock</option>
             </select>
-            <button className="px-4 py-2.5 border border-gray-200 rounded-lg text-sm font-bold text-gray-600 flex items-center space-x-2 hover:bg-gray-50">
+            <button className="px-4 py-2.5 border border-white/60 rounded-lg text-sm font-bold text-gray-600 flex items-center space-x-2 hover:bg-gray-50">
               <Download size={16} />
               <span>Export</span>
             </button>
@@ -303,7 +303,7 @@ export default function Inventory() {
                         <td className="p-4"><input type="checkbox" className="rounded border-gray-300" /></td>
                         <td className="p-4">
                           <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 rounded-lg bg-gray-100 border border-gray-200 overflow-hidden shrink-0 flex items-center justify-center text-gray-400">
+                            <div className="w-10 h-10 rounded-lg bg-gray-100 border border-white/60 overflow-hidden shrink-0 flex items-center justify-center text-slate-500">
                               {item.image_urls?.[0] ? (
                                 <img src={item.image_urls[0]} alt={item.name} className="w-full h-full object-cover mix-blend-multiply" />
                               ) : (
@@ -333,13 +333,13 @@ export default function Inventory() {
                         </td>
                         <td className="p-4 text-center">
                           <div className="flex items-center justify-center space-x-2">
-                            <button className="text-gray-400 hover:text-gray-900 transition-colors p-1.5 border border-gray-200 rounded-lg hover:bg-white shadow-sm" title="View">
+                            <button className="text-slate-500 hover:text-gray-900 transition-colors p-1.5 border border-white/60 rounded-lg hover:bg-white shadow-sm" title="View">
                               <Eye size={14} />
                             </button>
-                            <button className="text-gray-400 hover:text-gray-900 transition-colors p-1.5 border border-gray-200 rounded-lg hover:bg-white shadow-sm" title="Edit">
+                            <button className="text-slate-500 hover:text-gray-900 transition-colors p-1.5 border border-white/60 rounded-lg hover:bg-white shadow-sm" title="Edit">
                               <Edit2 size={14} />
                             </button>
-                            <button className="text-gray-400 hover:text-gray-900 transition-colors p-1.5 border border-gray-200 rounded-lg hover:bg-white shadow-sm" title="History">
+                            <button className="text-slate-500 hover:text-gray-900 transition-colors p-1.5 border border-white/60 rounded-lg hover:bg-white shadow-sm" title="History">
                               <History size={14} />
                             </button>
                           </div>
@@ -362,7 +362,7 @@ export default function Inventory() {
       {/* Bottom Analytics Widgets */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
         {/* Stock by Status */}
-        <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+        <div className="bg-white/50 border border-gray-100 rounded-2xl p-5 shadow-sm">
           <h3 className="text-sm font-black text-gray-900 mb-4">Stock by Status</h3>
           <div className="flex items-center justify-center h-40">
              {/* Simple visual donut representation */}
@@ -376,21 +376,21 @@ export default function Inventory() {
           <div className="mt-4 space-y-2">
             <div className="flex justify-between text-sm">
               <div className="flex items-center space-x-2"><div className="w-3 h-3 bg-green-500 rounded-full"></div><span className="text-gray-600">In Stock</span></div>
-              <span className="font-bold">{stats.inStock.count} <span className="text-gray-400 font-normal">({stats.inStock.percentage}%)</span></span>
+              <span className="font-bold">{stats.inStock.count} <span className="text-slate-500 font-normal">({stats.inStock.percentage}%)</span></span>
             </div>
             <div className="flex justify-between text-sm">
               <div className="flex items-center space-x-2"><div className="w-3 h-3 bg-orange-500 rounded-full"></div><span className="text-gray-600">Low Stock</span></div>
-              <span className="font-bold">{stats.lowStock.count} <span className="text-gray-400 font-normal">({stats.lowStock.percentage}%)</span></span>
+              <span className="font-bold">{stats.lowStock.count} <span className="text-slate-500 font-normal">({stats.lowStock.percentage}%)</span></span>
             </div>
             <div className="flex justify-between text-sm">
               <div className="flex items-center space-x-2"><div className="w-3 h-3 bg-red-500 rounded-full"></div><span className="text-gray-600">Out of Stock</span></div>
-              <span className="font-bold">{stats.outOfStock.count} <span className="text-gray-400 font-normal">({stats.outOfStock.percentage}%)</span></span>
+              <span className="font-bold">{stats.outOfStock.count} <span className="text-slate-500 font-normal">({stats.outOfStock.percentage}%)</span></span>
             </div>
           </div>
         </div>
 
         {/* Stock by Location */}
-        <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+        <div className="bg-white/50 border border-gray-100 rounded-2xl p-5 shadow-sm">
           <h3 className="text-sm font-black text-gray-900 mb-4">Stock by Location</h3>
           <div className="flex items-center justify-center h-40">
              <div className="relative w-32 h-32 rounded-full border-[12px] border-blue-500 border-b-purple-500 transform -rotate-12 flex items-center justify-center">
@@ -419,7 +419,7 @@ export default function Inventory() {
         </div>
 
         {/* Top Low Stock Items */}
-        <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+        <div className="bg-white/50 border border-gray-100 rounded-2xl p-5 shadow-sm">
           <h3 className="text-sm font-black text-gray-900 mb-4">Top Low Stock Items</h3>
           <div className="space-y-4">
             {topLowStock.length === 0 ? (
@@ -428,10 +428,10 @@ export default function Inventory() {
               topLowStock.map((item) => (
                 <div key={item.id} className="flex items-center justify-between border-b border-gray-50 pb-3 last:border-0 last:pb-0">
                   <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 rounded bg-gray-100 border border-gray-200 overflow-hidden shrink-0 flex items-center justify-center">
+                    <div className="w-8 h-8 rounded bg-gray-100 border border-white/60 overflow-hidden shrink-0 flex items-center justify-center">
                       {item.image_urls?.[0] ? (
                         <img src={item.image_urls[0]} alt="" className="w-full h-full object-cover mix-blend-multiply" />
-                      ) : <Package size={14} className="text-gray-400" />}
+                      ) : <Package size={14} className="text-slate-500" />}
                     </div>
                     <div>
                       <div className="text-sm font-bold text-gray-900 truncate max-w-[120px]">{item.name}</div>
@@ -448,7 +448,7 @@ export default function Inventory() {
         </div>
 
         {/* Recent Stock Movements */}
-        <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+        <div className="bg-white/50 border border-gray-100 rounded-2xl p-5 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-black text-gray-900">Recent Movements</h3>
           </div>

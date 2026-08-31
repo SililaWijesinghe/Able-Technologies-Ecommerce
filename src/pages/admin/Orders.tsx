@@ -81,7 +81,7 @@ export default function Orders() {
   if (loading && orders.length === 0) {
     return (
       <div className="flex h-full items-center justify-center min-h-[400px]">
-        <div className="flex flex-col items-center text-gray-400">
+        <div className="flex flex-col items-center text-slate-500">
           <Loader2 size={32} className="animate-spin mb-4 text-[#0b1042]" />
           <p className="text-sm font-bold uppercase tracking-widest text-gray-500">Loading Orders...</p>
         </div>
@@ -155,35 +155,35 @@ export default function Orders() {
       </div>
 
       {/* Filters & Table */}
-      <div className="bg-white border border-gray-100 rounded-2xl shadow-sm">
+      <div className="bg-white/60 backdrop-blur-xl border border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.05)] rounded-3xl p-6">
         <div className="p-4 border-b border-gray-100 flex flex-col lg:flex-row gap-4 items-center justify-between">
           <div className="relative w-full lg:w-96">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
             <input 
               type="text" 
               placeholder="Search by order ID, customer, email..." 
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              className="w-full pl-10 pr-4 py-2.5 border border-white/60 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             />
           </div>
           <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
-            <select className="border border-gray-200 rounded-lg text-sm p-2.5 outline-none focus:border-blue-500 bg-white text-gray-600 font-medium">
+            <select className="border border-white/60 rounded-lg text-sm p-2.5 outline-none focus:border-blue-500 bg-white text-gray-600 font-medium">
               <option>Select Date Range</option>
               <option>Today</option>
               <option>Last 7 Days</option>
               <option>This Month</option>
             </select>
-            <select className="border border-gray-200 rounded-lg text-sm p-2.5 outline-none focus:border-blue-500 bg-white text-gray-600 font-medium">
+            <select className="border border-white/60 rounded-lg text-sm p-2.5 outline-none focus:border-blue-500 bg-white text-gray-600 font-medium">
               <option>All Status</option>
               <option>Pending</option>
               <option>Processing</option>
               <option>Shipped</option>
               <option>Delivered</option>
             </select>
-            <button className="px-4 py-2.5 border border-gray-200 rounded-lg text-sm font-bold text-gray-600 flex items-center space-x-2 hover:bg-gray-50">
+            <button className="px-4 py-2.5 border border-white/60 rounded-lg text-sm font-bold text-gray-600 flex items-center space-x-2 hover:bg-gray-50">
               <Filter size={16} />
               <span>Filter</span>
             </button>
-            <button className="px-4 py-2.5 border border-gray-200 rounded-lg text-sm font-bold text-gray-600 flex items-center space-x-2 hover:bg-gray-50 ml-auto lg:ml-2">
+            <button className="px-4 py-2.5 border border-white/60 rounded-lg text-sm font-bold text-gray-600 flex items-center space-x-2 hover:bg-gray-50 ml-auto lg:ml-2">
               <Download size={16} />
               <span>Export</span>
             </button>
@@ -223,7 +223,7 @@ export default function Orders() {
                       </td>
                       <td className="p-4 text-sm text-gray-500 font-medium">
                         {new Date(order.created_at).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}<br/>
-                        <span className="text-xs text-gray-400">{new Date(order.created_at).toLocaleString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
+                        <span className="text-xs text-slate-500">{new Date(order.created_at).toLocaleString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
                       </td>
                       <td className="p-4">
                         <div className="text-sm font-bold text-gray-900">{customerName}</div>
@@ -247,7 +247,7 @@ export default function Orders() {
                       <td className="p-4 text-center">
                         <button 
                           onClick={() => setSelectedOrderId(order.id)}
-                          className="text-gray-400 hover:text-gray-900 transition-colors p-1.5 border border-gray-200 rounded-lg hover:bg-white shadow-sm" title="View Order"
+                          className="text-slate-500 hover:text-gray-900 transition-colors p-1.5 border border-white/60 rounded-lg hover:bg-white shadow-sm" title="View Order"
                         >
                           <Eye size={14} />
                         </button>

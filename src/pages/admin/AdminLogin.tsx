@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { Loader2, Lock, Mail, ShieldAlert } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('');
@@ -14,6 +15,7 @@ export default function AdminLogin() {
     e.preventDefault();
     if (!email || !password) {
       setError('Please enter both email and password.');
+      toast.error('Please enter both email and password.');
       return;
     }
 
@@ -43,8 +45,10 @@ export default function AdminLogin() {
       }
 
       // Success, redirect to dashboard
-      navigate('/admin');
+      toast.success('Login successful');
+        navigate('/admin');
     } catch (err: any) {
+      toast.error(err.message || 'Login failed');
       setError(err.message || 'An error occurred during login.');
     } finally {
       setLoading(false);
@@ -63,7 +67,7 @@ export default function AdminLogin() {
           <div className="text-[10px] uppercase tracking-widest text-red-500 font-bold">
             Technologies (Pvt) Ltd
           </div>
-          <div className="mt-6 flex items-center space-x-2 text-gray-400 bg-white/5 px-4 py-1.5 rounded-full text-xs font-bold border border-white/10">
+          <div className="mt-6 flex items-center space-x-2 text-slate-500 bg-white/50 px-4 py-1.5 rounded-full text-xs font-bold border border-white/40">
             <Lock size={14} />
             <span>Secure Admin Portal</span>
           </div>
@@ -85,7 +89,7 @@ export default function AdminLogin() {
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-gray-700 block">Email Address</label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
                     <Mail size={18} />
                   </div>
                   <input
@@ -93,7 +97,7 @@ export default function AdminLogin() {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full border border-gray-200 rounded-xl py-3 pl-10 pr-4 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+                    className="w-full border border-white/60 rounded-xl py-3 pl-10 pr-4 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
                     placeholder="admin@abletech.com"
                   />
                 </div>
@@ -102,7 +106,7 @@ export default function AdminLogin() {
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-gray-700 block">Password</label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
                     <Lock size={18} />
                   </div>
                   <input
@@ -110,7 +114,7 @@ export default function AdminLogin() {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full border border-gray-200 rounded-xl py-3 pl-10 pr-4 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+                    className="w-full border border-white/60 rounded-xl py-3 pl-10 pr-4 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
                     placeholder="••••••••"
                   />
                 </div>

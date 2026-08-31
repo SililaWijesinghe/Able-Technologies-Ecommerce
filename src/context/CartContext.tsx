@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
+import { useToast } from './ToastContext';
 
 export type CartItem = {
   id: string;
@@ -25,10 +26,12 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
+  const toast = useToast();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
 
   const addToCart = (item: Omit<CartItem, 'id'>) => {
+    toast.success('Added to cart');
     setCartItems(prev => {
       const existingItem = prev.find(i => i.productId === item.productId && i.variant === item.variant);
       if (existingItem) {
@@ -40,6 +43,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   };
 
   const removeFromCart = (id: string) => {
+    toast.info('Item removed from cart');
     setCartItems(prev => prev.filter(i => i.id !== id));
   };
 
@@ -52,6 +56,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   };
 
   const clearCart = () => {
+    toast.warning('Cart cleared');
     setCartItems([]);
   };
 

@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useToast } from '../../context/ToastContext';
 import { Plus, Search, Filter, Eye, Edit, Trash, Package, CheckCircle, Clock, XCircle, Loader2 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
 export default function Products() {
+  const toast = useToast();
   const [viewProduct, setViewProduct] = useState<any>(null);
   const [productToDelete, setProductToDelete] = useState<any>(null);
   const [products, setProducts] = useState<any[]>([]);
@@ -52,6 +54,7 @@ export default function Products() {
       });
 
     } catch (err) {
+      toast.error('Failed to delete product');
       console.error('Error fetching products:', err);
     } finally {
       setLoading(false);
@@ -71,6 +74,7 @@ export default function Products() {
       if (!error) {
         setProducts(products.filter(p => p.id !== productToDelete.id));
         setProductToDelete(null);
+        toast.success('Product deleted successfully');
       }
     } catch (err) {
       console.error(err);
@@ -94,7 +98,7 @@ export default function Products() {
   if (loading) {
     return (
       <div className="flex h-full items-center justify-center min-h-[400px]">
-        <div className="flex flex-col items-center text-gray-400">
+        <div className="flex flex-col items-center text-slate-500">
           <Loader2 size={32} className="animate-spin mb-4 text-[#0b1042]" />
           <p className="text-sm font-bold uppercase tracking-widest text-gray-500">Loading Products...</p>
         </div>
@@ -118,7 +122,7 @@ export default function Products() {
         </div>
         <Link 
           to="/admin/products/new" 
-          className="bg-[#0b1042] text-white px-4 py-2.5 rounded-lg text-sm font-bold flex items-center space-x-2 hover:bg-gray-800 transition-colors"
+          className="bg-slate-800 hover:bg-slate-900 text-white rounded-xl px-5 py-2.5 shadow-md hover:shadow-lg transition-all flex items-center space-x-2 hover:bg-gray-800 transition-colors"
         >
           <Plus size={16} />
           <span>Add New Product</span>
@@ -127,7 +131,7 @@ export default function Products() {
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center space-x-4">
+        <div className="bg-white/60 backdrop-blur-xl border border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.05)] rounded-3xl p-6 flex items-center space-x-4">
           <div className="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
             <Package size={24} />
           </div>
@@ -136,7 +140,7 @@ export default function Products() {
             <p className="text-xs font-bold text-gray-500">Total Products</p>
           </div>
         </div>
-        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center space-x-4">
+        <div className="bg-white/60 backdrop-blur-xl border border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.05)] rounded-3xl p-6 flex items-center space-x-4">
           <div className="w-12 h-12 rounded-full bg-green-100 text-green-600 flex items-center justify-center shrink-0">
             <CheckCircle size={24} />
           </div>
@@ -145,7 +149,7 @@ export default function Products() {
             <p className="text-xs font-bold text-gray-500">In Stock</p>
           </div>
         </div>
-        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center space-x-4">
+        <div className="bg-white/60 backdrop-blur-xl border border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.05)] rounded-3xl p-6 flex items-center space-x-4">
           <div className="w-12 h-12 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center shrink-0">
             <Clock size={24} />
           </div>
@@ -154,7 +158,7 @@ export default function Products() {
             <p className="text-xs font-bold text-gray-500">Low Stock</p>
           </div>
         </div>
-        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center space-x-4">
+        <div className="bg-white/60 backdrop-blur-xl border border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.05)] rounded-3xl p-6 flex items-center space-x-4">
           <div className="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center shrink-0">
             <XCircle size={24} />
           </div>
@@ -166,23 +170,23 @@ export default function Products() {
       </div>
 
       {/* Filters & Table */}
-      <div className="bg-white border border-gray-100 rounded-2xl shadow-sm">
+      <div className="bg-white/60 backdrop-blur-xl border border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.05)] rounded-3xl p-6">
         <div className="p-4 border-b border-gray-100 flex flex-col sm:flex-row gap-4 items-center justify-between">
           <div className="relative w-full sm:w-96">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
             <input 
               type="text" 
               placeholder="Search products by name, SKU..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#0b1042] focus:ring-1 focus:ring-[#0b1042]"
+              className="w-full pl-10 pr-4 py-2 border border-white/60 rounded-lg text-sm focus:outline-none focus:border-[#0b1042] focus:ring-1 focus:ring-[#0b1042]"
             />
           </div>
           <div className="flex items-center space-x-2 w-full sm:w-auto">
             <select 
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-4 py-2 border border-gray-200 rounded-lg text-sm font-bold text-gray-600 bg-white focus:outline-none focus:border-[#0b1042] w-full sm:w-auto outline-none"
+              className="px-4 py-2 border border-white/60 rounded-lg text-sm font-bold text-gray-600 bg-white focus:outline-none focus:border-[#0b1042] w-full sm:w-auto outline-none"
             >
               <option value="ALL">All Status</option>
               <option value="IN STOCK">In Stock</option>
@@ -220,7 +224,7 @@ export default function Products() {
                       <td className="p-4"><input type="checkbox" className="rounded border-gray-300" /></td>
                       <td className="p-4">
                         <div className="flex items-center space-x-3">
-                          <div className="w-10 h-10 rounded-lg bg-gray-100 border border-gray-200 overflow-hidden shrink-0">
+                          <div className="w-10 h-10 rounded-lg bg-gray-100 border border-white/60 overflow-hidden shrink-0">
                             <img src={product.image_urls?.[0] || 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=200&h=200'} alt={product.name} className="w-full h-full object-cover mix-blend-multiply" />
                           </div>
                           <span className="text-sm font-bold text-gray-900 max-w-[200px] truncate">{product.name}</span>
@@ -240,10 +244,10 @@ export default function Products() {
                       </td>
                       <td className="p-4 text-center">
                         <div className="flex items-center justify-center space-x-2">
-                          <button onClick={() => setViewProduct(product)} className="text-gray-400 hover:text-gray-900 transition-colors p-1.5 border border-gray-200 rounded-lg hover:bg-white shadow-sm" title="View">
+                          <button onClick={() => setViewProduct(product)} className="text-slate-500 hover:text-gray-900 transition-colors p-1.5 border border-white/60 rounded-lg hover:bg-white shadow-sm" title="View">
                             <Eye size={18}/>
                           </button>
-                          <Link to={`/admin/products/edit/${product.id}`} className="text-gray-400 hover:text-blue-600 transition-colors p-1.5 border border-gray-200 rounded-lg hover:bg-white shadow-sm" title="Edit">
+                          <Link to={`/admin/products/edit/${product.id}`} className="text-slate-500 hover:text-blue-600 transition-colors p-1.5 border border-white/60 rounded-lg hover:bg-white shadow-sm" title="Edit">
                             <Edit size={18}/>
                           </Link>
                           <button onClick={() => setProductToDelete(product)} className="p-1 text-red-600 hover:bg-red-50 rounded transition-colors" title="Delete Product">

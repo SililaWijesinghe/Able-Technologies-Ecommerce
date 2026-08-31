@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useToast } from '../context/ToastContext';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { ChevronRight, Check, Truck, CreditCard, Landmark, Banknote, ShieldCheck } from 'lucide-react';
 import LoginModal from '../components/auth/LoginModal';
 
 export default function Checkout() {
+  const toast = useToast();
   const { cartItems, cartTotal, clearCart } = useCart();
   const { isAuthenticated, user } = useAuth();
   
@@ -68,10 +70,11 @@ export default function Checkout() {
       const data = await response.json();
       setOrderId(data.orderId);
       setOrderConfirmed(true);
+      toast.success('Order placed successfully!');
       clearCart();
     } catch (error) {
       console.error(error);
-      alert('There was an error placing your order. Please try again.');
+      toast.error('There was an error placing your order.');
     } finally {
       setIsSubmitting(false);
     }

@@ -108,7 +108,7 @@ export default function Customers() {
   if (loading && customers.length === 0) {
     return (
       <div className="flex h-full items-center justify-center min-h-[400px]">
-        <div className="flex flex-col items-center text-gray-400">
+        <div className="flex flex-col items-center text-slate-500">
           <Loader2 size={32} className="animate-spin mb-4 text-[#0b1042]" />
           <p className="text-sm font-bold uppercase tracking-widest text-gray-500">Loading Customers...</p>
         </div>
@@ -149,7 +149,7 @@ export default function Customers() {
             </div>
             <h3 className="text-2xl font-black text-gray-900">{stats.active}</h3>
             <p className="text-xs font-bold text-gray-500 mt-1">Active Customers</p>
-            <p className="text-xs text-gray-400 mt-2">{stats.total > 0 ? Math.round((stats.active/stats.total)*100) : 0}% of total</p>
+            <p className="text-xs text-slate-500 mt-2">{stats.total > 0 ? Math.round((stats.active/stats.total)*100) : 0}% of total</p>
           </div>
         </div>
         <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between">
@@ -159,7 +159,7 @@ export default function Customers() {
             </div>
             <h3 className="text-2xl font-black text-gray-900">{stats.newThisMonth}</h3>
             <p className="text-xs font-bold text-gray-500 mt-1">New This Month</p>
-            <p className="text-xs text-gray-400 mt-2">{stats.total > 0 ? Math.round((stats.newThisMonth/stats.total)*100) : 0}% of total</p>
+            <p className="text-xs text-slate-500 mt-2">{stats.total > 0 ? Math.round((stats.newThisMonth/stats.total)*100) : 0}% of total</p>
           </div>
         </div>
         <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between">
@@ -189,38 +189,38 @@ export default function Customers() {
       </div>
 
       {/* Filters & Table */}
-      <div className="bg-white border border-gray-100 rounded-2xl shadow-sm">
+      <div className="bg-white/60 backdrop-blur-xl border border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.05)] rounded-3xl p-6">
         <div className="p-4 border-b border-gray-100 flex flex-col lg:flex-row gap-4 items-center justify-between">
           <div className="relative w-full lg:w-80">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
             <input 
               type="text" 
               placeholder="Search by name, email, phone..." 
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#0b1042] focus:ring-1 focus:ring-[#0b1042]"
+              className="w-full pl-10 pr-4 py-2.5 border border-white/60 rounded-lg text-sm focus:outline-none focus:border-[#0b1042] focus:ring-1 focus:ring-[#0b1042]"
             />
           </div>
           <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
-            <select className="border border-gray-200 rounded-lg text-sm p-2.5 outline-none focus:border-[#0b1042] bg-white text-gray-600 font-medium">
+            <select className="border border-white/60 rounded-lg text-sm p-2.5 outline-none focus:border-[#0b1042] bg-white text-gray-600 font-medium">
               <option>All Status</option>
               <option>Active</option>
               <option>Inactive</option>
             </select>
-            <select className="border border-gray-200 rounded-lg text-sm p-2.5 outline-none focus:border-[#0b1042] bg-white text-gray-600 font-medium">
+            <select className="border border-white/60 rounded-lg text-sm p-2.5 outline-none focus:border-[#0b1042] bg-white text-gray-600 font-medium">
               <option>All Locations</option>
               <option>Colombo</option>
               <option>Kandy</option>
               <option>Galle</option>
             </select>
-            <select className="border border-gray-200 rounded-lg text-sm p-2.5 outline-none focus:border-[#0b1042] bg-white text-gray-600 font-medium">
+            <select className="border border-white/60 rounded-lg text-sm p-2.5 outline-none focus:border-[#0b1042] bg-white text-gray-600 font-medium">
               <option>All Registration Date</option>
               <option>This Month</option>
               <option>Last Month</option>
             </select>
-            <button className="px-4 py-2.5 border border-gray-200 rounded-lg text-sm font-bold text-gray-600 flex items-center space-x-2 hover:bg-gray-50">
+            <button className="px-4 py-2.5 border border-white/60 rounded-lg text-sm font-bold text-gray-600 flex items-center space-x-2 hover:bg-gray-50">
               <Filter size={16} />
               <span>Filter</span>
             </button>
-            <button className="px-4 py-2.5 border border-gray-200 rounded-lg text-sm font-bold text-gray-600 flex items-center space-x-2 hover:bg-gray-50">
+            <button className="px-4 py-2.5 border border-white/60 rounded-lg text-sm font-bold text-gray-600 flex items-center space-x-2 hover:bg-gray-50">
               <Download size={16} />
               <span>Export</span>
             </button>
@@ -268,7 +268,7 @@ export default function Customers() {
                     </td>
                     <td className="p-4">
                       <div className="flex items-center space-x-2 text-sm text-gray-600">
-                        <Phone size={14} className="text-gray-400" />
+                        <Phone size={14} className="text-slate-500" />
                         <span>{c.phone || 'N/A'}</span>
                       </div>
                     </td>
@@ -292,20 +292,20 @@ export default function Customers() {
                     </td>
                     <td className="p-4 text-sm text-gray-500 font-medium">
                       {new Date(c.created_at).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}<br/>
-                      <span className="text-xs text-gray-400">{new Date(c.created_at).toLocaleString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
+                      <span className="text-xs text-slate-500">{new Date(c.created_at).toLocaleString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
                     </td>
                     <td className="p-4">
                       <div className="flex items-center justify-center space-x-2">
                         <button 
                           onClick={() => setSelectedCustomerId(c.id)}
-                          className="text-gray-400 hover:text-gray-900 transition-colors p-1.5 border border-gray-200 rounded-lg hover:bg-white shadow-sm" title="View Profile"
+                          className="text-slate-500 hover:text-gray-900 transition-colors p-1.5 border border-white/60 rounded-lg hover:bg-white shadow-sm" title="View Profile"
                         >
                           <Eye size={14} />
                         </button>
-                        <button className="text-gray-400 hover:text-gray-900 transition-colors p-1.5 border border-gray-200 rounded-lg hover:bg-white shadow-sm" title="Edit Profile">
+                        <button className="text-slate-500 hover:text-gray-900 transition-colors p-1.5 border border-white/60 rounded-lg hover:bg-white shadow-sm" title="Edit Profile">
                           <Edit2 size={14} />
                         </button>
-                        <button className="text-gray-400 hover:text-gray-900 transition-colors p-1.5 border border-gray-200 rounded-lg hover:bg-white shadow-sm" title="More">
+                        <button className="text-slate-500 hover:text-gray-900 transition-colors p-1.5 border border-white/60 rounded-lg hover:bg-white shadow-sm" title="More">
                           <MoreVertical size={14} />
                         </button>
                       </div>
@@ -322,19 +322,19 @@ export default function Customers() {
           <div>Showing 1 to {Math.min(10, customers.length)} of {customers.length} results</div>
           <div className="flex items-center space-x-2">
             <span>Show</span>
-            <select className="border border-gray-200 rounded p-1 outline-none">
+            <select className="border border-white/60 rounded p-1 outline-none">
               <option>10</option>
               <option>25</option>
               <option>50</option>
             </select>
             <span>per page</span>
             <div className="flex items-center ml-4 space-x-1">
-              <button className="w-8 h-8 flex items-center justify-center rounded border border-gray-200 hover:bg-gray-50">&lt;</button>
-              <button className="w-8 h-8 flex items-center justify-center rounded bg-[#0b1042] text-white font-bold">1</button>
-              <button className="w-8 h-8 flex items-center justify-center rounded border border-gray-200 hover:bg-gray-50 font-medium">2</button>
-              <button className="w-8 h-8 flex items-center justify-center rounded border border-gray-200 hover:bg-gray-50 font-medium">3</button>
+              <button className="w-8 h-8 flex items-center justify-center rounded border border-white/60 hover:bg-gray-50">&lt;</button>
+              <button className="w-8 h-8 flex items-center justify-center rounded bg-[#0b1042] text-slate-800 font-bold">1</button>
+              <button className="w-8 h-8 flex items-center justify-center rounded border border-white/60 hover:bg-gray-50 font-medium">2</button>
+              <button className="w-8 h-8 flex items-center justify-center rounded border border-white/60 hover:bg-gray-50 font-medium">3</button>
               <span>...</span>
-              <button className="w-8 h-8 flex items-center justify-center rounded border border-gray-200 hover:bg-gray-50">&gt;</button>
+              <button className="w-8 h-8 flex items-center justify-center rounded border border-white/60 hover:bg-gray-50">&gt;</button>
             </div>
           </div>
         </div>
@@ -343,7 +343,7 @@ export default function Customers() {
       {/* Analytics Row */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
         {/* Customers by Status */}
-        <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+        <div className="bg-white/50 border border-gray-100 rounded-2xl p-5 shadow-sm">
           <h3 className="text-sm font-black text-gray-900 mb-4">Customers by Status</h3>
           <div className="flex items-center justify-center h-40">
              {/* Mock Donut Chart */}
@@ -356,17 +356,17 @@ export default function Customers() {
           <div className="mt-4 space-y-2">
             <div className="flex justify-between text-sm">
               <div className="flex items-center space-x-2"><div className="w-3 h-3 bg-green-500 rounded-full"></div><span className="text-gray-600">Active</span></div>
-              <span className="font-bold">{stats.active} <span className="text-gray-400 font-normal">({stats.total > 0 ? Math.round(stats.active/stats.total*100) : 0}%)</span></span>
+              <span className="font-bold">{stats.active} <span className="text-slate-500 font-normal">({stats.total > 0 ? Math.round(stats.active/stats.total*100) : 0}%)</span></span>
             </div>
             <div className="flex justify-between text-sm">
               <div className="flex items-center space-x-2"><div className="w-3 h-3 bg-red-500 rounded-full"></div><span className="text-gray-600">Inactive</span></div>
-              <span className="font-bold">{stats.total - stats.active} <span className="text-gray-400 font-normal">({stats.total > 0 ? Math.round((stats.total-stats.active)/stats.total*100) : 0}%)</span></span>
+              <span className="font-bold">{stats.total - stats.active} <span className="text-slate-500 font-normal">({stats.total > 0 ? Math.round((stats.total-stats.active)/stats.total*100) : 0}%)</span></span>
             </div>
           </div>
         </div>
 
         {/* Top Customers */}
-        <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+        <div className="bg-white/50 border border-gray-100 rounded-2xl p-5 shadow-sm">
           <h3 className="text-sm font-black text-gray-900 mb-4">Top Customers by Spend</h3>
           <div className="space-y-4">
             {customers.sort((a,b) => b.totalSpent - a.totalSpent).slice(0,4).map((c, idx) => (
@@ -384,7 +384,7 @@ export default function Customers() {
         </div>
 
         {/* New Customers This Month */}
-        <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+        <div className="bg-white/50 border border-gray-100 rounded-2xl p-5 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-black text-gray-900">New Customers</h3>
             <span className="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded">{stats.newThisMonth}</span>
@@ -397,7 +397,7 @@ export default function Customers() {
               </div>
             ))}
           </div>
-          <div className="flex justify-between mt-2 text-xs text-gray-400 font-medium">
+          <div className="flex justify-between mt-2 text-xs text-slate-500 font-medium">
             <span>May 01</span>
             <span>May 15</span>
             <span>May 31</span>
@@ -405,7 +405,7 @@ export default function Customers() {
         </div>
 
         {/* Customer Insights */}
-        <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+        <div className="bg-white/50 border border-gray-100 rounded-2xl p-5 shadow-sm">
           <h3 className="text-sm font-black text-gray-900 mb-4">Customer Insights</h3>
           <div className="space-y-6">
             <div className="flex items-start space-x-4">
@@ -416,7 +416,7 @@ export default function Customers() {
                 <p className="text-xs font-bold text-gray-500 mb-1">Repeat Customers</p>
                 <p className="text-sm font-black text-gray-900">
                   {customers.filter(c => c.totalOrders > 1).length} 
-                  <span className="text-gray-400 font-medium ml-1">
+                  <span className="text-slate-500 font-medium ml-1">
                     ({stats.total > 0 ? Math.round(customers.filter(c => c.totalOrders > 1).length / stats.total * 100) : 0}%)
                   </span>
                 </p>
