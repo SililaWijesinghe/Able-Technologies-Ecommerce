@@ -3,6 +3,7 @@ import { useState, useMemo } from 'react';
 
 export default function FilterSidebar({ 
   allProducts = [],
+  dbCategories = [],
   selectedCategories = [], 
   setSelectedCategories,
   selectedBrands = [], 
@@ -13,6 +14,7 @@ export default function FilterSidebar({
   setAvailability
 }: { 
   allProducts?: any[],
+  dbCategories?: any[],
   selectedCategories?: string[],
   setSelectedCategories?: (c: string[]) => void,
   selectedBrands?: string[],
@@ -27,15 +29,21 @@ export default function FilterSidebar({
   const [brandsExpanded, setBrandsExpanded] = useState(true);
   const [availabilityExpanded, setAvailabilityExpanded] = useState(true);
   
-  
   const categories = useMemo(() => {
-    const cats: Record<string, number> = {};
-    (allProducts || []).forEach(p => {
-      const cat = (p.category_id || p.category || 'uncategorized').toLowerCase();
-      cats[cat] = (cats[cat] || 0) + 1;
-    });
-    return Object.entries(cats).map(([id, count]) => ({ id, label: id, count }));
-  }, [allProducts]);
+    const productCategoryCounts = allProducts.reduce((acc: Record<string, number>, p: any) => {
+      const catId = p.category_id;
+      if (catId) {
+        acc[catId] = (acc[catId] || 0) + 1;
+      }
+      return acc;
+    }, {});
+
+    return dbCategories.map(c => ({
+      id: c.id,
+      label: c.name,
+      count: productCategoryCounts[c.id] || 0
+    }));
+  }, [dbCategories, allProducts]);
 
   const brands = useMemo(() => {
     const brs: Record<string, number> = {};
@@ -47,10 +55,22 @@ export default function FilterSidebar({
   }, [allProducts]);
 
   const toggleCategory = (id: string) => {
-    if (selectedCategories && selectedCategories.includes(id)) {
-      if (setSelectedCategories) setSelectedCategories((selectedCategories || []).filter(c => c !== id));
+    const cat = dbCategories.find(c => c.id === id);
+    const slug = cat?.slug;
+    const name = cat?.name;
+
+    const isSelected = selectedCategories?.includes(id) || 
+                       (slug && selectedCategories?.includes(slug)) || 
+                       (name && selectedCategories?.includes(name));
+
+    if (isSelected) {
+      if (setSelectedCategories) {
+        setSelectedCategories((selectedCategories || []).filter(c => c !== id && c !== slug && c !== name));
+      }
     } else {
-      if (setSelectedCategories) setSelectedCategories([...(selectedCategories || []), id]);
+      if (setSelectedCategories) {
+        setSelectedCategories([...(selectedCategories || []), id]);
+      }
     }
   };
 
@@ -106,7 +126,7 @@ export default function FilterSidebar({
                     <input 
                       type="checkbox" 
                       className="w-4 h-4 rounded border-gray-300 text-[#0b1042] focus:ring-[#0b1042]" 
-                      checked={(selectedCategories || []).includes(cat.id)} // Mock pre-selected state for visual match if empty
+                      checked={(selectedCategories || []).includes(cat.id) || (dbCategories.find(c => c.id === cat.id)?.slug && (selectedCategories || []).includes(dbCategories.find(c => c.id === cat.id)!.slug)) || (dbCategories.find(c => c.id === cat.id)?.name && (selectedCategories || []).includes(dbCategories.find(c => c.id === cat.id)!.name))}
                       onChange={() => toggleCategory(cat.id)}
                     />
                     <span className="ml-3 text-sm text-gray-700 group-hover:text-[#0b1042] transition-colors font-medium capitalize">{cat.label.replace('_', ' ')}</span>

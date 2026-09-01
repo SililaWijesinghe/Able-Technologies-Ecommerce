@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useToast } from '../../context/ToastContext';
-import { Plus, Search, Filter, Eye, Edit, Trash, Package, CheckCircle, Clock, XCircle, Loader2 } from 'lucide-react';
+import { Plus, Search, X, Tag, Box, AlertCircle, Info, Shield, Activity, FileText, List, Filter, Eye, Edit, Trash, Package, CheckCircle, Clock, XCircle, Loader2 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
 export default function Products() {
@@ -231,7 +231,7 @@ export default function Products() {
                         </div>
                       </td>
                       <td className="p-4 text-sm text-gray-500 font-medium">{product.sku || '-'}</td>
-                      <td className="p-4 text-sm text-gray-500 font-medium">{product.category || '-'}</td>
+                      <td className="p-4 text-sm text-gray-500 font-medium">{product.category_id || '-'}</td>
                       <td className="p-4 text-sm text-gray-500 font-medium">{product.brand || '-'}</td>
                       <td className="p-4 text-sm font-black text-gray-900">
                         {Number(product.price || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -263,15 +263,238 @@ export default function Products() {
           </table>
         </div>
       </div>
+      {/* COMPREHENSIVE PRODUCT VIEW MODAL */}
       {viewProduct && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg max-w-md w-full relative">
-            <button onClick={() => setViewProduct(null)} className="absolute top-4 right-4 text-gray-500 hover:text-gray-900 font-bold">X</button>
-            <h2 className="text-xl font-bold mb-4">{viewProduct.name}</h2>
-            <p className="mb-2"><strong>SKU:</strong> {viewProduct.sku}</p>
-            <p className="mb-2"><strong>Price:</strong> Rs. {viewProduct.price}</p>
-            <p className="mb-2"><strong>Stock:</strong> {viewProduct.stock}</p>
-            <p className="mt-4 text-sm text-gray-600">{viewProduct.description}</p>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 sm:p-6 overflow-y-auto">
+          <div className="bg-white rounded-3xl w-full max-w-4xl shadow-2xl relative flex flex-col max-h-[90vh]">
+            
+            {/* Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-100 shrink-0">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                  <Package size={20} />
+                </div>
+                <div>
+                  <h2 className="text-xl font-black text-gray-900 leading-tight">{viewProduct.name}</h2>
+                  <p className="text-sm font-bold text-gray-500">SKU: {viewProduct.sku || 'N/A'}</p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-3">
+                <Link
+                  to={`/admin/products/edit/${viewProduct.id}`}
+                  className="flex items-center space-x-2 px-4 py-2 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg text-sm font-bold transition-colors"
+                >
+                  <Edit size={16} />
+                  <span>Edit</span>
+                </Link>
+                <button 
+                  onClick={() => setViewProduct(null)} 
+                  className="w-10 h-10 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-900 flex items-center justify-center transition-colors"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+            </div>
+
+            {/* Scrollable Content */}
+            <div className="p-6 overflow-y-auto custom-scrollbar flex-1">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                
+                {/* Left Column: Visuals & Badges */}
+                <div className="lg:col-span-5 space-y-6">
+                  {/* Image Gallery */}
+                  <div className="space-y-3">
+                    <div className="w-full aspect-square rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center overflow-hidden relative">
+                      {viewProduct.image_urls && viewProduct.image_urls.length > 0 ? (
+                        <img 
+                          src={viewProduct.image_urls[0]} 
+                          alt={viewProduct.name} 
+                          className="w-full h-full object-contain mix-blend-multiply p-4"
+                        />
+                      ) : (
+                        <div className="text-gray-400 flex flex-col items-center">
+                          <Box size={48} className="mb-2 opacity-20" />
+                          <span className="text-sm font-bold">No Image Available</span>
+                        </div>
+                      )}
+                      
+                      {/* Status Badge Float */}
+                      <div className="absolute top-4 right-4">
+                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-black shadow-sm ${
+                          viewProduct.status === 'active' 
+                            ? 'bg-green-100 text-green-700 border border-green-200' 
+                            : 'bg-gray-100 text-gray-600 border border-gray-200'
+                        }`}>
+                          {viewProduct.status === 'active' ? 'Active' : 'Inactive'}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    {/* Thumbnails if multiple */}
+                    {viewProduct.image_urls && viewProduct.image_urls.length > 1 && (
+                      <div className="flex space-x-2 overflow-x-auto pb-2">
+                        {viewProduct.image_urls.map((url: string, idx: number) => (
+                          <div key={idx} className="w-16 h-16 rounded-lg border border-gray-200 bg-gray-50 shrink-0 overflow-hidden">
+                            <img src={url} alt={`Thumb ${idx}`} className="w-full h-full object-cover" />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Highlights/Badges */}
+                  <div className="bg-gray-50 rounded-2xl p-5 border border-gray-100 space-y-4">
+                    <h3 className="text-xs font-black text-gray-400 uppercase tracking-wider mb-2">Product Flags</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {viewProduct.is_service && (
+                        <span className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-purple-100 text-purple-700 text-xs font-bold border border-purple-200">
+                          <Activity size={14} />
+                          <span>Service Provider</span>
+                        </span>
+                      )}
+                      {viewProduct.is_oeko_tex && (
+                        <span className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-emerald-100 text-emerald-700 text-xs font-bold border border-emerald-200">
+                          <Shield size={14} />
+                          <span>Oeko-Tex Certified</span>
+                        </span>
+                      )}
+                      {(!viewProduct.is_service && !viewProduct.is_oeko_tex) && (
+                        <span className="text-sm font-medium text-gray-500">Standard Product</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right Column: Core Details & Rules */}
+                <div className="lg:col-span-7 space-y-8">
+                  
+                  {/* Core Details Grid */}
+                  <div>
+                    <h3 className="text-sm font-black text-gray-900 border-b border-gray-100 pb-2 mb-4 flex items-center">
+                      <List size={16} className="mr-2 text-gray-400" /> General Information
+                    </h3>
+                    <div className="grid grid-cols-2 gap-y-4 gap-x-6">
+                      <div>
+                        <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Brand</p>
+                        <p className="text-sm font-semibold text-gray-900">{viewProduct.brand || 'Unbranded'}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Category</p>
+                        <p className="text-sm font-semibold text-gray-900">{viewProduct.category || 'Uncategorized'}</p>
+                      </div>
+                      <div className="col-span-2">
+                        <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Description</p>
+                        <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{viewProduct.description || 'No description provided.'}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Pricing Matrix */}
+                  <div>
+                    <h3 className="text-sm font-black text-gray-900 border-b border-gray-100 pb-2 mb-4 flex items-center">
+                      <Tag size={16} className="mr-2 text-gray-400" /> Pricing Structure
+                    </h3>
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                        <p className="text-xs font-bold text-gray-500 mb-1">Selling Price</p>
+                        <p className="text-lg font-black text-gray-900">Rs. {viewProduct.price?.toLocaleString() || '0'}</p>
+                      </div>
+                      <div className="bg-gray-50 rounded-xl p-4 border border-gray-100 opacity-70">
+                        <p className="text-xs font-bold text-gray-500 mb-1">Compare At</p>
+                        <p className="text-lg font-black text-gray-500 line-through">Rs. {viewProduct.compare_at_price?.toLocaleString() || '-'}</p>
+                      </div>
+                      <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                        <p className="text-xs font-bold text-gray-500 mb-1">Cost Price</p>
+                        <p className="text-lg font-black text-gray-900">Rs. {viewProduct.cost_price?.toLocaleString() || '-'}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Inventory & Stock Metrics */}
+                  <div>
+                    <h3 className="text-sm font-black text-gray-900 border-b border-gray-100 pb-2 mb-4 flex items-center">
+                      <Box size={16} className="mr-2 text-gray-400" /> Inventory Health
+                    </h3>
+                    <div className="flex items-center space-x-6">
+                      <div className="flex items-center space-x-4">
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 ${
+                          viewProduct.stock === 0 ? 'bg-red-100 text-red-600' :
+                          viewProduct.stock <= (viewProduct.low_stock_threshold || 5) ? 'bg-orange-100 text-orange-600' :
+                          'bg-green-100 text-green-600'
+                        }`}>
+                          {viewProduct.stock === 0 ? <XCircle size={24} /> : 
+                           viewProduct.stock <= (viewProduct.low_stock_threshold || 5) ? <AlertCircle size={24} /> : 
+                           <CheckCircle size={24} />}
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold text-gray-500 mb-1">Current Stock</p>
+                          <div className="flex items-baseline space-x-2">
+                            <span className="text-2xl font-black text-gray-900">{viewProduct.stock || 0}</span>
+                            <span className="text-sm font-medium text-gray-500">units</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="h-10 w-px bg-gray-200"></div>
+                      <div>
+                        <p className="text-xs font-bold text-gray-500 mb-1">Low Stock Alert at</p>
+                        <p className="text-lg font-black text-gray-900">{viewProduct.low_stock_threshold || 5} <span className="text-sm font-medium text-gray-500">units</span></p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* B2B Configuration */}
+                  <div>
+                    <h3 className="text-sm font-black text-gray-900 border-b border-gray-100 pb-2 mb-4 flex items-center">
+                      <Shield size={16} className="mr-2 text-gray-400" /> B2B & Transaction Rules
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div className="border border-gray-200 rounded-xl p-3 flex flex-col items-center justify-center text-center bg-white shadow-sm">
+                        <span className="text-xs font-bold text-gray-400 mb-2 uppercase">Transaction Type</span>
+                        <span className="text-sm font-black text-gray-800 capitalize">{viewProduct.transaction_type || 'Sale'}</span>
+                      </div>
+                      <div className={`border rounded-xl p-3 flex flex-col items-center justify-center text-center shadow-sm ${viewProduct.requires_quote ? 'border-blue-200 bg-blue-50' : 'border-gray-200 bg-white'}`}>
+                        <span className={`text-xs font-bold mb-2 uppercase ${viewProduct.requires_quote ? 'text-blue-600' : 'text-gray-400'}`}>Requires Quote</span>
+                        <span className={`text-sm font-black ${viewProduct.requires_quote ? 'text-blue-700' : 'text-gray-800'}`}>
+                          {viewProduct.requires_quote ? 'Yes' : 'No'}
+                        </span>
+                      </div>
+                      <div className={`border rounded-xl p-3 flex flex-col items-center justify-center text-center shadow-sm ${viewProduct.is_customizable ? 'border-purple-200 bg-purple-50' : 'border-gray-200 bg-white'}`}>
+                        <span className={`text-xs font-bold mb-2 uppercase ${viewProduct.is_customizable ? 'text-purple-600' : 'text-gray-400'}`}>Customizable</span>
+                        <span className={`text-sm font-black ${viewProduct.is_customizable ? 'text-purple-700' : 'text-gray-800'}`}>
+                          {viewProduct.is_customizable ? 'Yes' : 'No'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* JSONB Specifications Render */}
+                  {viewProduct.specifications && Array.isArray(viewProduct.specifications) && viewProduct.specifications.length > 0 && (
+                    <div>
+                      <h3 className="text-sm font-black text-gray-900 border-b border-gray-100 pb-2 mb-4 flex items-center">
+                        <FileText size={16} className="mr-2 text-gray-400" /> Technical Specifications
+                      </h3>
+                      <div className="bg-gray-50 border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+                        <table className="w-full text-left text-sm">
+                          <tbody className="divide-y divide-gray-200">
+                            {viewProduct.specifications.map((spec: any, idx: number) => {
+                              if (!spec.key) return null;
+                              return (
+                                <tr key={idx} className="hover:bg-gray-100/50 transition-colors">
+                                  <td className="px-4 py-3 font-bold text-gray-700 w-1/3 bg-gray-100/50">{spec.key}</td>
+                                  <td className="px-4 py-3 text-gray-600 bg-white">{spec.value}</td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+
+                </div>
+              </div>
+            </div>
+            
           </div>
         </div>
       )}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { fetchProducts } from '../services/api';
+import { fetchProducts, fetchCategories } from '../services/api';
 import { useLocation } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { 
@@ -9,16 +9,17 @@ import {
 import FilterSidebar from '../components/shop/FilterSidebar';
 import ProductCard from '../components/shop/ProductCard';
 import TrustBar from '../components/TrustBar';
-
 import heroBg from '../assets/heroBg.webp';
 
 export default function Shop() {
-    const location = useLocation();
+  
+  const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const initialCategory = searchParams.get('category');
-
+  
   const [allProducts, setAllProducts] = useState<any[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<any[]>([]);
+  const [dbCategories, setDbCategories] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   // Filters state
@@ -30,11 +31,12 @@ export default function Shop() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 12;
 
-  // 1. Fetch ALL products once
+  // 1. Fetch ALL products and categories once
   useEffect(() => {
     setIsLoading(true);
-    fetchProducts().then(data => {
-      setAllProducts(data || []);
+    Promise.all([fetchProducts(), fetchCategories()]).then(([productsData, categoriesData]) => {
+      setAllProducts(productsData || []);
+      setDbCategories(categoriesData || []);
       setIsLoading(false);
     });
   }, []);
@@ -45,7 +47,12 @@ export default function Shop() {
 
     // Filter by Category
     if (selectedCategories.length > 0) {
-      result = result.filter(p => selectedCategories.includes(p.category_id?.toLowerCase() || p.category?.toLowerCase() || ''));
+      result = result.filter(p => {
+        const pCat = dbCategories.find(c => c.id === p.category_id);
+        return selectedCategories.includes(p.category_id) || 
+               (pCat && selectedCategories.includes(pCat.slug)) ||
+               (pCat && selectedCategories.includes(pCat.name));
+      });
     }
 
     // Filter by Brand
@@ -83,14 +90,17 @@ export default function Shop() {
   const displayedProducts = filteredProducts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const activeFilters = [
-    ...selectedCategories.map(c => ({ label: c, type: 'category' })),
-    ...selectedBrands.map(b => ({ label: b, type: 'brand' })),
-    ...(availability !== 'all' ? [{ label: availability.replace('_', ' '), type: 'availability' }] : [])
+    ...selectedCategories.map(cId => {
+       const cat = dbCategories.find(d => d.id === cId || d.slug === cId);
+       return { id: cId, label: cat ? cat.name : cId, type: 'category' };
+    }),
+    ...selectedBrands.map(b => ({ id: b, label: b, type: 'brand' })),
+    ...(availability !== 'all' ? [{ id: availability, label: availability.replace('_', ' '), type: 'availability' }] : [])
   ];
 
   const removeFilter = (filter: any) => {
-    if (filter.type === 'category') setSelectedCategories(selectedCategories.filter(c => c !== filter.label));
-    if (filter.type === 'brand') setSelectedBrands(selectedBrands.filter(b => b !== filter.label));
+    if (filter.type === 'category') setSelectedCategories(selectedCategories.filter(c => c !== filter.id));
+    if (filter.type === 'brand') setSelectedBrands(selectedBrands.filter(b => b !== filter.id));
     if (filter.type === 'availability') setAvailability('all');
   };
 
@@ -142,6 +152,7 @@ export default function Shop() {
         <aside className="w-full lg:w-1/4 shrink-0">
           <FilterSidebar 
             allProducts={allProducts}
+            dbCategories={dbCategories}
             selectedCategories={selectedCategories}
             setSelectedCategories={setSelectedCategories}
             selectedBrands={selectedBrands}

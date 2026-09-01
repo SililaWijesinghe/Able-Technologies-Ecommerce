@@ -3,7 +3,7 @@ import NavigatedGuide from '../ui/NavigatedGuide';
 import { useAuth } from '../../context/AuthContext';
 import { 
   Home, Package, Plus, Grid, Tag, Archive, 
-  ShoppingBag, Clock, CheckCircle, XCircle, 
+  ShoppingBag, 
   Users, Image as ImageIcon, FileText, Settings, 
   LogOut, Eye, Bell, ChevronDown
 } from 'lucide-react';
@@ -26,14 +26,10 @@ export default function AdminLayout() {
       {/* Sidebar */}
       <aside className="w-64 bg-white/70 backdrop-blur-2xl border-r border-white/80 shadow-sm text-slate-800 flex flex-col h-full shrink-0 overflow-y-auto custom-scrollbar">
         {/* Logo */}
-        <div className="p-6 pb-2 border-b border-white/80 shadow-sm flex items-center">
-          {/* Logo Placeholder (White text instead of image to match theme) */}
-          <div className="flex flex-col">
-            <span className="text-xl font-black tracking-wider flex items-center">
-              <span className="text-blue-500 mr-1 text-2xl">▲</span> ABLE
-            </span>
-            <span className="text-[9px] uppercase tracking-widest text-red-500 font-bold ml-6">Technologies</span>
-          </div>
+        <div className="p-6 pb-2 border-b border-white/80 shadow-sm flex items-center justify-center">
+          <Link to="/admin">
+            <img src="/src/assets/ableLogo.png" alt="ABLE Technologies" className="h-8 object-contain" />
+          </Link>
         </div>
 
         <div className="p-4 flex-1">
@@ -73,16 +69,6 @@ export default function AdminLayout() {
             <div className="space-y-1">
               <Link to="/admin/orders" className={`flex items-center space-x-3 px-4 py-2 rounded-lg text-sm transition-colors ${isActive('/admin/orders') ? 'text-slate-800 font-bold' : 'text-slate-600 hover:text-blue-950 hover:bg-white/50'}`}>
                 <ShoppingBag size={16} /> <span>All Orders</span>
-              </Link>
-              <Link to="/admin/orders/pending" className={`flex items-center justify-between px-4 py-2 rounded-lg text-sm transition-colors ${isActive('/admin/orders/pending') ? 'text-slate-800 font-bold' : 'text-slate-600 hover:text-blue-950 hover:bg-white/50'}`}>
-                <div className="flex items-center space-x-3"><Clock size={16} /> <span>Pending Orders</span></div>
-                <span className="bg-yellow-500 text-[#0b1042] text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center">5</span>
-              </Link>
-              <Link to="/admin/orders/completed" className={`flex items-center space-x-3 px-4 py-2 rounded-lg text-sm transition-colors ${isActive('/admin/orders/completed') ? 'text-slate-800 font-bold' : 'text-slate-600 hover:text-blue-950 hover:bg-white/50'}`}>
-                <CheckCircle size={16} /> <span>Completed Orders</span>
-              </Link>
-              <Link to="/admin/orders/cancelled" className={`flex items-center space-x-3 px-4 py-2 rounded-lg text-sm transition-colors ${isActive('/admin/orders/cancelled') ? 'text-slate-800 font-bold' : 'text-slate-600 hover:text-blue-950 hover:bg-white/50'}`}>
-                <XCircle size={16} /> <span>Cancelled Orders</span>
               </Link>
             </div>
           </div>

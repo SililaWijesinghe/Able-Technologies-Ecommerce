@@ -21,7 +21,7 @@ function getSupabase() {
 // GET /api/categories
 router.get('/', async (req, res): Promise<void> => {
     try {
-        const { data, error } = await getSupabase().from('categories').select('*').order('name');
+        const { data, error } = await getSupabase().from('categories').select('*, products(count)').order('name');
         if (error) {
             res.status(400).json({ error: 'Failed to fetch categories' });
             return;

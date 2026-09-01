@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Send, Headphones, Phone, MessageCircle, Mail, MapPin } from 'lucide-react';
+import { Send, Headphones, Phone, Mail, MapPin } from 'lucide-react';
+import { WhatsAppIcon } from '../icons/WhatsAppIcon';
 import { motion } from 'motion/react';
 
 export default function ContactFormSection() {
@@ -107,8 +108,8 @@ export default function ContactFormSection() {
                 <button type="button" onClick={() => setFormData(prev => ({...prev, contactMethod: 'phone'}))} className={`py-2.5 px-4 rounded-lg border flex items-center justify-center space-x-2 text-sm transition-all ${formData.contactMethod === 'phone' ? 'border-[#0b1042] bg-blue-50 text-[#0b1042] font-semibold' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}>
                   <Phone size={16} /><span>Phone</span>
                 </button>
-                <button type="button" onClick={() => setFormData(prev => ({...prev, contactMethod: 'whatsapp'}))} className={`py-2.5 px-4 rounded-lg border flex items-center justify-center space-x-2 text-sm transition-all ${formData.contactMethod === 'whatsapp' ? 'border-green-600 bg-green-50 text-green-700 font-semibold' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}>
-                  <MessageCircle size={16} /><span>WhatsApp</span>
+                <button type="button" onClick={() => setFormData(prev => ({...prev, contactMethod: 'whatsapp'}))} className={`py-2.5 px-4 rounded-lg border flex items-center justify-center space-x-2 text-sm transition-all ${formData.contactMethod === 'whatsapp' ? 'border-[#25D366] bg-green-50 text-[#128C7E] font-semibold' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}>
+                  <WhatsAppIcon size={16} className="text-[#25D366]" /><span>WhatsApp</span>
                 </button>
               </div>
             </div>
@@ -157,15 +158,21 @@ export default function ContactFormSection() {
                 {/* WhatsApp */}
                 <div className="flex items-start space-x-4 bg-white/5 p-4 rounded-xl border border-white/10 hover:bg-white/10 transition-colors">
                   <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0 mt-1">
-                    <MessageCircle size={18} className="text-green-400" />
+                    <WhatsAppIcon size={20} className="text-[#25D366]" />
                   </div>
                   <div>
                     <h4 className="font-semibold text-sm mb-1">WhatsApp Chat</h4>
                     <p className="text-blue-200 text-xs mb-3">Chat with us for quick support</p>
-                    <button className="bg-green-600 hover:bg-green-500 text-white text-xs font-semibold px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
+                    <a 
+                      href="https://wa.me/94777852476"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-[#25D366] hover:bg-[#20ba59] text-white text-xs font-semibold px-4 py-2 rounded-lg inline-flex items-center space-x-2 transition-colors shadow-md"
+                    >
+                      <WhatsAppIcon size={14} className="text-white mr-1" />
                       <span>Chat on WhatsApp</span>
                       <ArrowRightIcon />
-                    </button>
+                    </a>
                   </div>
                 </div>
 

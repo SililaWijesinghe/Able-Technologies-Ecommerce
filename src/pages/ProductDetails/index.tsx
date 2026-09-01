@@ -63,11 +63,13 @@ export default function ProductDetails() {
           <ChevronRight size={14} />
           <Link to="/shop" className="hover:text-[#0b1042] transition-colors">Shop</Link>
           <ChevronRight size={14} />
-          <span className="hover:text-[#0b1042] transition-colors cursor-pointer">Spare Parts</span>
-          <ChevronRight size={14} />
-          <span className="hover:text-[#0b1042] transition-colors cursor-pointer">Pneumatic</span>
-          <ChevronRight size={14} />
-          <span className="text-gray-400">{product.name}</span>
+          {product.category_id && (
+             <>
+               <span className="hover:text-[#0b1042] transition-colors cursor-pointer capitalize">{product.category_id.replace('-', ' ')}</span>
+               <ChevronRight size={14} />
+             </>
+          )}
+          <span className="text-gray-400 truncate max-w-[200px]">{product.name}</span>
         </div>
 
         {/* Top Section: Gallery & Buy Box */}
@@ -82,59 +84,6 @@ export default function ProductDetails() {
         {/* Related Products */}
         <RelatedProducts currentProductId={product.id} />
         
-      </div>
-      
-      {/* Why Thousands of Industries Trust Us Banner */}
-      <div className="bg-[#0b1042] py-16 relative overflow-hidden">
-        {/* Abstract metallic/industrial texture overlay */}
-        <div className="absolute inset-0 opacity-10 bg-[url('https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&w=2000')] bg-cover bg-center mix-blend-overlay"></div>
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0b1042] via-transparent to-[#0b1042]"></div>
-        
-        <div className="max-w-7xl mx-auto px-4 md:px-6 relative z-10">
-          <h2 className="text-2xl md:text-3xl font-black text-white mb-10 text-center md:text-left">Why Thousands of Industries Trust Us</h2>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center border border-white/20">
-                <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-              </div>
-              <div>
-                <div className="text-xl font-bold text-white">10+</div>
-                <div className="text-xs text-blue-200">Years of Experience</div>
-              </div>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center border border-white/20">
-                <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-              </div>
-              <div>
-                <div className="text-xl font-bold text-white">5000+</div>
-                <div className="text-xs text-blue-200">Happy Customers</div>
-              </div>
-            </div>
-
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center border border-white/20">
-                <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><path d="M9 12l2 2 4-4"></path></svg>
-              </div>
-              <div>
-                <div className="text-xl font-bold text-white">100%</div>
-                <div className="text-xs text-blue-200">Genuine Products</div>
-              </div>
-            </div>
-
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center border border-white/20">
-                <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14"></path><path d="M12 5l7 7-7 7"></path></svg>
-              </div>
-              <div>
-                <div className="text-xl font-bold text-white">Islandwide</div>
-                <div className="text-xs text-blue-200">Fast Delivery</div>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );

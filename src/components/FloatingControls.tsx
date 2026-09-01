@@ -1,16 +1,30 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { MessageCircle, Phone, Mail, LayoutGrid, Search, User, ChevronRight, X } from 'lucide-react';
+import { Phone, Mail, LayoutGrid, Search, User, ChevronRight, X, ArrowUp } from 'lucide-react';
+import { WhatsAppIcon } from './icons/WhatsAppIcon';
 import { fetchSettings } from '../services/api';
 
 export default function FloatingControls() {
   const [settings, setSettings] = useState<any>(null);
   const [isMobileContactOpen, setIsMobileContactOpen] = useState(false);
+  const [showScrollTop, setShowScrollTop] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchSettings().then(data => data && setSettings(data));
   }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 250);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -53,7 +67,7 @@ export default function FloatingControls() {
           <div className="w-14 h-14 shrink-0 flex items-center justify-center relative rounded-full">
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/90 to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-[800ms] ease-in-out pointer-events-none rounded-full" />
             <div className="absolute inset-0 bg-[#25D366]/10 opacity-0 group-hover:opacity-100 transition-opacity rounded-full blur-md" />
-            <MessageCircle size={22} className="text-gray-700 group-hover:text-[#25D366] transition-colors relative z-10 group-hover:scale-[1.1] group-hover:-translate-y-0.5 duration-300" />
+            <WhatsAppIcon size={22} className="text-gray-700 group-hover:text-[#25D366] transition-colors relative z-10 group-hover:scale-[1.1] group-hover:-translate-y-0.5 duration-300" />
           </div>
         </a>
         
@@ -126,7 +140,7 @@ export default function FloatingControls() {
           <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-3 group">
             <span className="bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-700 shadow-sm border border-gray-100">WhatsApp</span>
             <div className="w-12 h-12 bg-white/90 backdrop-blur-xl border border-white shadow-[0_4px_16px_rgba(0,0,0,0.1)] rounded-full flex items-center justify-center active:scale-95 transition-transform">
-              <MessageCircle size={20} className="text-[#25D366]" />
+              <WhatsAppIcon size={22} className="text-[#25D366]" />
             </div>
           </a>
         </div>
@@ -141,7 +155,7 @@ export default function FloatingControls() {
             <X size={24} />
           ) : (
             <div className="relative">
-               <MessageCircle size={26} className="text-[#25D366]" />
+               <WhatsAppIcon size={26} className="text-[#25D366]" />
                <div className="absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white animate-pulse" />
             </div>
           )}
@@ -172,6 +186,25 @@ export default function FloatingControls() {
         </Link>
       </div>
       
+      {/* ---------------- FLOATING LIQUID GLASS SCROLL-TO-TOP BUTTON ---------------- */}
+      <button
+        onClick={scrollToTop}
+        className={`fixed right-4 md:right-8 bottom-36 md:bottom-8 z-[90] w-12 h-12 md:w-14 md:h-14 bg-white/20 hover:bg-white/80 backdrop-blur-[24px] border border-white/40 hover:border-white/80 rounded-full shadow-[0_12px_40px_rgba(10,20,50,0.12),inset_0_2px_4px_rgba(255,255,255,0.9)] flex items-center justify-center text-[#060740] hover:text-[#0b1042] transition-all duration-300 active:scale-95 group overflow-hidden ${
+          showScrollTop ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-8 pointer-events-none'
+        }`}
+        aria-label="Scroll to top"
+        title="Scroll to Top"
+      >
+        {/* Light sweep reflection */}
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/90 to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-[800ms] ease-in-out pointer-events-none rounded-full" />
+        
+        {/* Subtle hover glow */}
+        <div className="absolute inset-0 bg-[#060740]/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-full blur-md" />
+        
+        {/* Arrow Icon */}
+        <ArrowUp size={22} className="relative z-10 text-gray-700 group-hover:text-[#060740] group-hover:-translate-y-1 transition-all duration-300" />
+      </button>
+
       {/* Spacer for mobile bottom nav */}
       <div className="h-16 md:hidden"></div>
 

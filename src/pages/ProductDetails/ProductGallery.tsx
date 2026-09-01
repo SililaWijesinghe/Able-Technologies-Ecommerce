@@ -43,14 +43,20 @@ export default function ProductGallery({ product }: { product: any }) {
       {/* Main Image */}
       <div className="flex-1 bg-gray-50 rounded-xl relative flex items-center justify-center p-8 border border-gray-100 min-h-[400px] order-1 md:order-2">
         {/* Badges */}
-        <div className="absolute top-4 left-4 flex gap-2 z-10">
-          <span className="metallic-red-bg text-white text-[10px] font-bold px-2 py-1 rounded">
-            -12%
-          </span>
-          <span className="bg-[#0b1042] text-white text-[10px] font-bold px-2 py-1 rounded">
-            Best Seller
-          </span>
-        </div>
+        {(product.discount > 0 || product.best_seller) && (
+          <div className="absolute top-4 left-4 flex gap-2 z-10">
+            {product.discount > 0 && (
+              <span className="metallic-red-bg text-white text-[10px] font-bold px-2 py-1 rounded">
+                -{product.discount}%
+              </span>
+            )}
+            {product.best_seller && (
+              <span className="bg-[#0b1042] text-white text-[10px] font-bold px-2 py-1 rounded">
+                Best Seller
+              </span>
+            )}
+          </div>
+        )}
         
         {activeImage ? (
           <img src={activeImage} alt={product.name} className="max-w-full max-h-[400px] object-contain mix-blend-multiply" />

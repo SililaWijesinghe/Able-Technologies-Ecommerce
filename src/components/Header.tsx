@@ -8,7 +8,6 @@ import LoginModal from './auth/LoginModal';
 import { 
   Facebook, 
   Linkedin, 
-  MessageCircle, 
   Search, 
   User, 
   ShoppingCart, 
@@ -19,6 +18,7 @@ import {
   Loader2,
   Package
 } from 'lucide-react';
+import { WhatsAppIcon } from './icons/WhatsAppIcon';
 import { motion, AnimatePresence } from 'motion/react';
 
 import whiteAbleLogo from '../assets/whiteAbleLogo.png';
@@ -337,9 +337,17 @@ export default function Header() {
                 <span className="opacity-90">Need Help? {settings?.whatsapp_number || '+1-555-019-8372'}</span>
               </div>
               <div className="flex items-center space-x-4 opacity-90">
-                <a href="#" className="hover:text-cyan-400 hover:opacity-100 transition-colors"><Facebook size={13} /></a>
-                <a href="#" className="hover:text-cyan-400 hover:opacity-100 transition-colors"><Linkedin size={13} /></a>
-                <a href="#" className="hover:text-cyan-400 hover:opacity-100 transition-colors"><MessageCircle size={13} /></a>
+                <a href="#" className="hover:text-cyan-400 hover:opacity-100 transition-colors" title="Facebook"><Facebook size={13} /></a>
+                <a href="#" className="hover:text-cyan-400 hover:opacity-100 transition-colors" title="LinkedIn"><Linkedin size={13} /></a>
+                <a 
+                  href={`https://wa.me/${(settings?.whatsapp_number || '+94777852476').replace(/[^0-9]/g, '')}`} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="hover:text-[#25D366] hover:opacity-100 transition-colors"
+                  title="WhatsApp"
+                >
+                  <WhatsAppIcon size={13} />
+                </a>
               </div>
               <div className="w-[1px] h-4 bg-white/20" />
               {isAuthenticated ? (

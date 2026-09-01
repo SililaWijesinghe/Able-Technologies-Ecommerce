@@ -1,6 +1,25 @@
 import { Link } from 'react-router-dom';
-import { Shield, RefreshCw, Headphones, Award, Facebook, Linkedin, Instagram, MapPin, Phone, Mail, ArrowUp, MessageCircle } from 'lucide-react';
+import { 
+  Shield, 
+  RefreshCw, 
+  Headphones, 
+  Award, 
+  Facebook, 
+  Linkedin, 
+  Instagram, 
+  MapPin, 
+  Phone, 
+  Mail, 
+  ArrowUp, 
+  Users,
+  CheckCircle,
+  Truck,
+  ArrowRight,
+  ChevronRight
+} from 'lucide-react';
+import { WhatsAppIcon } from './icons/WhatsAppIcon';
 import { useEffect, useState } from 'react';
+import { motion } from 'motion/react';
 import whiteAbleLogo from '../assets/whiteAbleLogo.png';
 import { fetchSettings } from '../services/api';
 
@@ -13,154 +32,364 @@ export default function Footer() {
 
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+      opacity: 1,
+      transition: { staggerChildren: 0.1, delayChildren: 0.1 }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { type: 'spring', stiffness: 100, damping: 15 }
+    }
+  };
+
   return (
-    <footer>
-      {/* Mobile Contact Cards */}
-      <div className="md:hidden max-w-7xl mx-auto px-4 pt-8 pb-4 grid grid-cols-3 gap-3">
-        <a href="#" className="flex flex-col items-center justify-center bg-white border border-gray-100 rounded-xl py-4 shadow-sm hover:shadow-md transition-shadow">
-          <div className="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center mb-2">
-            <MessageCircle size={20} className="text-green-500" />
-          </div>
-          <span className="text-[10px] font-semibold text-gray-700">WhatsApp</span>
-        </a>
-        <a href="#" className="flex flex-col items-center justify-center bg-white border border-gray-100 rounded-xl py-4 shadow-sm hover:shadow-md transition-shadow">
-          <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center mb-2">
-            <Phone size={20} className="text-blue-500" />
-          </div>
-          <span className="text-[10px] font-semibold text-gray-700">Call Us</span>
-        </a>
-        <a href="#" className="flex flex-col items-center justify-center bg-white border border-gray-100 rounded-xl py-4 shadow-sm hover:shadow-md transition-shadow">
-          <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center mb-2">
-            <Mail size={20} color="url(#metal-red)" />
-          </div>
-          <span className="text-[10px] font-semibold text-gray-700">Email Us</span>
-        </a>
+    <footer className="relative bg-[#040822] overflow-hidden">
+      
+      {/* ================================================== */}
+      {/* SECTION 01: WHY THOUSANDS OF INDUSTRIES TRUST US */}
+      {/* ================================================== */}
+      <div className="relative pt-20 pb-16 px-4 md:px-6">
+        {/* Subtle background effects */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-blue-600/10 rounded-full blur-[120px] pointer-events-none"></div>
+        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-red-600/5 rounded-full blur-[100px] pointer-events-none"></div>
+        
+        {/* Faint industrial grid pattern overlay */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:40px_40px] opacity-20 pointer-events-none"></div>
+
+        <div className="max-w-7xl mx-auto relative z-10">
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <div className="flex items-center justify-center space-x-2 mb-3">
+              <div className="w-8 h-px bg-gradient-to-r from-transparent to-red-600"></div>
+              <span className="text-red-500 text-xs font-bold uppercase tracking-[0.2em]">Our Track Record</span>
+              <div className="w-8 h-px bg-gradient-to-l from-transparent to-red-600"></div>
+            </div>
+            <h2 className="text-3xl md:text-4xl font-black text-white mb-4 tracking-tight">
+              Why Thousands of Industries Trust Us
+            </h2>
+            <p className="text-blue-100/70 max-w-2xl mx-auto text-sm">
+              Reliable industrial solutions backed by quality, experience and professional support.
+            </p>
+          </motion.div>
+
+          <motion.div 
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6"
+          >
+            {/* Stat 1 */}
+            <motion.div 
+              variants={itemVariants}
+              whileHover={{ y: -5, scale: 1.02 }}
+              className="group relative bg-[#0a0f33]/60 backdrop-blur-md border border-blue-500/10 hover:border-blue-500/30 rounded-2xl p-6 overflow-hidden transition-all duration-300 shadow-[0_8px_32px_rgba(0,0,0,0.2)]"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="relative z-10 flex flex-col items-center text-center">
+                <div className="w-14 h-14 rounded-full bg-[#111945] border border-blue-500/20 flex items-center justify-center mb-4 group-hover:bg-blue-900/40 group-hover:border-blue-400/40 group-hover:shadow-[0_0_15px_rgba(59,130,246,0.3)] transition-all duration-300">
+                  <Shield className="text-blue-400 group-hover:text-blue-300" size={24} strokeWidth={1.5} />
+                </div>
+                <div className="text-3xl font-black text-white mb-1 group-hover:text-blue-100 transition-colors">10+</div>
+                <div className="text-xs font-semibold text-blue-200/60 tracking-wide uppercase">Years of<br/>Experience</div>
+              </div>
+            </motion.div>
+
+            {/* Stat 2 */}
+            <motion.div 
+              variants={itemVariants}
+              whileHover={{ y: -5, scale: 1.02 }}
+              className="group relative bg-[#0a0f33]/60 backdrop-blur-md border border-blue-500/10 hover:border-blue-500/30 rounded-2xl p-6 overflow-hidden transition-all duration-300 shadow-[0_8px_32px_rgba(0,0,0,0.2)]"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="relative z-10 flex flex-col items-center text-center">
+                <div className="w-14 h-14 rounded-full bg-[#111945] border border-blue-500/20 flex items-center justify-center mb-4 group-hover:bg-blue-900/40 group-hover:border-blue-400/40 group-hover:shadow-[0_0_15px_rgba(59,130,246,0.3)] transition-all duration-300">
+                  <Users className="text-blue-400 group-hover:text-blue-300" size={24} strokeWidth={1.5} />
+                </div>
+                <div className="text-3xl font-black text-white mb-1 group-hover:text-blue-100 transition-colors">5000+</div>
+                <div className="text-xs font-semibold text-blue-200/60 tracking-wide uppercase">Happy<br/>Customers</div>
+              </div>
+            </motion.div>
+
+            {/* Stat 3 */}
+            <motion.div 
+              variants={itemVariants}
+              whileHover={{ y: -5, scale: 1.02 }}
+              className="group relative bg-[#0a0f33]/60 backdrop-blur-md border border-blue-500/10 hover:border-blue-500/30 rounded-2xl p-6 overflow-hidden transition-all duration-300 shadow-[0_8px_32px_rgba(0,0,0,0.2)]"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="relative z-10 flex flex-col items-center text-center">
+                <div className="w-14 h-14 rounded-full bg-[#111945] border border-blue-500/20 flex items-center justify-center mb-4 group-hover:bg-blue-900/40 group-hover:border-blue-400/40 group-hover:shadow-[0_0_15px_rgba(59,130,246,0.3)] transition-all duration-300">
+                  <CheckCircle className="text-blue-400 group-hover:text-blue-300" size={24} strokeWidth={1.5} />
+                </div>
+                <div className="text-3xl font-black text-white mb-1 group-hover:text-blue-100 transition-colors">100%</div>
+                <div className="text-xs font-semibold text-blue-200/60 tracking-wide uppercase">Genuine<br/>Products</div>
+              </div>
+            </motion.div>
+
+            {/* Stat 4 */}
+            <motion.div 
+              variants={itemVariants}
+              whileHover={{ y: -5, scale: 1.02 }}
+              className="group relative bg-[#0a0f33]/60 backdrop-blur-md border border-red-500/10 hover:border-red-500/30 rounded-2xl p-6 overflow-hidden transition-all duration-300 shadow-[0_8px_32px_rgba(0,0,0,0.2)]"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="relative z-10 flex flex-col items-center text-center">
+                <div className="w-14 h-14 rounded-full bg-[#111945] border border-red-500/20 flex items-center justify-center mb-4 group-hover:bg-red-900/40 group-hover:border-red-400/40 group-hover:shadow-[0_0_15px_rgba(220,38,38,0.3)] transition-all duration-300">
+                  <Truck className="text-red-400 group-hover:text-red-300" size={24} strokeWidth={1.5} />
+                </div>
+                <div className="text-3xl font-black text-white mb-1 group-hover:text-red-100 transition-colors">Islandwide</div>
+                <div className="text-xs font-semibold text-blue-200/60 tracking-wide uppercase">Fast<br/>Delivery</div>
+              </div>
+            </motion.div>
+          </motion.div>
+        </div>
       </div>
 
-      {/* Trust Bar Footer */}
-      <div className="bg-[#eaf1ff] py-8">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-6">
-          <div className="flex flex-col md:flex-row items-center md:items-start text-center md:text-left md:space-x-4 text-[#0b1042]">
-            <Shield size={24} strokeWidth={1.5} className="mb-2 md:mb-0 md:w-7 md:h-7" />
-            <div>
-              <h5 className="font-bold text-[11px] md:text-sm">Secure Checkout</h5>
-              <p className="text-[9px] md:text-xs text-gray-600 mt-0.5 md:mt-0.5">100% Protected</p>
-            </div>
-          </div>
-          <div className="flex flex-col md:flex-row items-center md:items-start text-center md:text-left md:space-x-4 text-[#0b1042]">
-            <RefreshCw size={24} strokeWidth={1.5} className="mb-2 md:mb-0 md:w-7 md:h-7" />
-            <div>
-              <h5 className="font-bold text-[11px] md:text-sm">Easy Returns</h5>
-              <p className="text-[9px] md:text-xs text-gray-600 mt-0.5 md:mt-0.5">Hassle Free</p>
-            </div>
-          </div>
-          <div className="flex flex-col md:flex-row items-center md:items-start text-center md:text-left md:space-x-4 text-[#0b1042]">
-            <Headphones size={24} strokeWidth={1.5} className="mb-2 md:mb-0 md:w-7 md:h-7" />
-            <div>
-              <h5 className="font-bold text-[11px] md:text-sm">Customer Support</h5>
-              <p className="text-[9px] md:text-xs text-gray-600 mt-0.5 md:mt-0.5">Always Here to Help</p>
-            </div>
-          </div>
-          <div className="flex flex-col md:flex-row items-center md:items-start text-center md:text-left md:space-x-4 text-[#0b1042]">
-            <Award size={24} strokeWidth={1.5} className="mb-2 md:mb-0 md:w-7 md:h-7" />
-            <div>
-              <h5 className="font-bold text-[11px] md:text-sm">Quality Assured</h5>
-              <p className="text-[9px] md:text-xs text-gray-600 mt-0.5 md:mt-0.5">Genuine Products</p>
-            </div>
+      {/* ================================================== */}
+      {/* SECTION 02: TRUST / SERVICE BENEFITS STRIP */}
+      {/* ================================================== */}
+      <div className="relative z-20 bg-gradient-to-r from-[#eef2fc] via-[#f8f9ff] to-[#fcebed] shadow-[0_-10px_40px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.8)] border-y border-white/40">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 divide-x-0 lg:divide-x lg:divide-blue-900/10">
+            
+            <motion.div 
+              whileHover={{ y: -2 }}
+              className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left space-y-3 sm:space-y-0 sm:space-x-4 px-2 group"
+            >
+              <div className="w-12 h-12 shrink-0 rounded-full bg-white shadow-[inset_0_2px_4px_rgba(255,255,255,0.8),0_4px_12px_rgba(11,16,66,0.06)] border border-blue-50 flex items-center justify-center group-hover:shadow-[0_6px_16px_rgba(11,16,66,0.1)] group-hover:-translate-y-1 transition-all duration-300">
+                <Shield className="text-blue-700 group-hover:scale-110 transition-transform duration-300" size={22} strokeWidth={1.5} />
+              </div>
+              <div>
+                <h5 className="font-bold text-sm text-[#0b1042] group-hover:text-blue-900 transition-colors">Secure Checkout</h5>
+                <p className="text-xs text-gray-500 mt-1 font-medium">100% Protected</p>
+              </div>
+            </motion.div>
+
+            <motion.div 
+              whileHover={{ y: -2 }}
+              className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left space-y-3 sm:space-y-0 sm:space-x-4 px-2 lg:pl-8 group"
+            >
+              <div className="w-12 h-12 shrink-0 rounded-full bg-white shadow-[inset_0_2px_4px_rgba(255,255,255,0.8),0_4px_12px_rgba(11,16,66,0.06)] border border-blue-50 flex items-center justify-center group-hover:shadow-[0_6px_16px_rgba(11,16,66,0.1)] group-hover:-translate-y-1 transition-all duration-300">
+                <RefreshCw className="text-blue-700 group-hover:scale-110 transition-transform duration-300" size={22} strokeWidth={1.5} />
+              </div>
+              <div>
+                <h5 className="font-bold text-sm text-[#0b1042] group-hover:text-blue-900 transition-colors">Easy Returns</h5>
+                <p className="text-xs text-gray-500 mt-1 font-medium">Hassle Free</p>
+              </div>
+            </motion.div>
+
+            <motion.div 
+              whileHover={{ y: -2 }}
+              className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left space-y-3 sm:space-y-0 sm:space-x-4 px-2 lg:pl-8 group"
+            >
+              <div className="w-12 h-12 shrink-0 rounded-full bg-white shadow-[inset_0_2px_4px_rgba(255,255,255,0.8),0_4px_12px_rgba(11,16,66,0.06)] border border-blue-50 flex items-center justify-center group-hover:shadow-[0_6px_16px_rgba(11,16,66,0.1)] group-hover:-translate-y-1 transition-all duration-300">
+                <Headphones className="text-blue-700 group-hover:scale-110 transition-transform duration-300" size={22} strokeWidth={1.5} />
+              </div>
+              <div>
+                <h5 className="font-bold text-sm text-[#0b1042] group-hover:text-blue-900 transition-colors">Customer Support</h5>
+                <p className="text-xs text-gray-500 mt-1 font-medium">Always Here to Help</p>
+              </div>
+            </motion.div>
+
+            <motion.div 
+              whileHover={{ y: -2 }}
+              className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left space-y-3 sm:space-y-0 sm:space-x-4 px-2 lg:pl-8 group"
+            >
+              <div className="w-12 h-12 shrink-0 rounded-full bg-white shadow-[inset_0_2px_4px_rgba(255,255,255,0.8),0_4px_12px_rgba(11,16,66,0.06)] border border-blue-50 flex items-center justify-center group-hover:shadow-[0_6px_16px_rgba(11,16,66,0.1)] group-hover:-translate-y-1 transition-all duration-300">
+                <Award className="text-blue-700 group-hover:scale-110 transition-transform duration-300" size={22} strokeWidth={1.5} />
+              </div>
+              <div>
+                <h5 className="font-bold text-sm text-[#0b1042] group-hover:text-blue-900 transition-colors">Quality Assured</h5>
+                <p className="text-xs text-gray-500 mt-1 font-medium">Genuine Products</p>
+              </div>
+            </motion.div>
+
           </div>
         </div>
       </div>
 
-      {/* Main Footer */}
-      <div className="bg-[#040822] pt-12 md:pt-16 pb-20 md:pb-6 relative">
-        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 md:gap-12 mb-8 md:mb-12 border-b border-white/10 pb-10 md:pb-12">
+      {/* ================================================== */}
+      {/* SECTION 03: PREMIUM MAIN FOOTER */}
+      {/* ================================================== */}
+      <div className="relative pt-16 md:pt-20 pb-28 md:pb-8 bg-[#040822]">
+        
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
           
-          {/* Col 1 */}
-          <div className="md:pr-4">
-            <div className="flex items-center space-x-2 mb-6">
-              <img 
-                src={whiteAbleLogo} 
-                alt="Able Technologies Logo" 
-                className="h-14 object-contain" 
-              />
+          {/* Top CTA Row */}
+          <div className="bg-[#0a0f33]/60 backdrop-blur-md border border-white/10 rounded-3xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between mb-16 shadow-2xl">
+            <div className="mb-6 md:mb-0 text-center md:text-left">
+              <h3 className="text-xl md:text-2xl font-black text-white mb-2">Need a Custom Industrial Solution?</h3>
+              <p className="text-sm text-blue-200/70">Talk to our team and find the right solution for your business.</p>
             </div>
-            <p className="text-gray-400 text-xs md:text-sm mb-6 leading-relaxed">
-              Your trusted partner for industrial machines, spare parts, gauges and more. We deliver quality, reliability and performance.
-            </p>
-            <div className="flex space-x-3">
-              <a href="#" className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-[#1877F2] transition-colors"><Facebook size={14} /></a>
-              <a href="#" className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-[#0A66C2] transition-colors"><Linkedin size={14} /></a>
-              <a href="#" className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-[#E4405F] transition-colors"><Instagram size={14} /></a>
+            <div className="flex flex-col sm:flex-row items-center space-y-3 sm:space-y-0 sm:space-x-4">
+              <a 
+                href="/contact" 
+                className="group relative px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-bold rounded-xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.3),0_4px_15px_rgba(220,38,38,0.4)] hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.4),0_6px_20px_rgba(220,38,38,0.6)] transition-all duration-300 flex items-center"
+              >
+                Get a Quote <ArrowRight size={16} className="ml-2 group-hover:translate-x-1 transition-transform" />
+              </a>
+              <a 
+                href={`https://wa.me/${(settings?.whatsapp_number || '0777852476').replace(/\D/g, '')}`} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-white font-bold rounded-xl transition-all duration-300 flex items-center group"
+              >
+                <WhatsAppIcon size={18} className="mr-2 text-[#25D366] group-hover:scale-110 transition-transform" /> WhatsApp Us
+              </a>
             </div>
           </div>
 
-          {/* Col 2 */}
-          <div>
-            <h4 className="text-white font-bold mb-4 md:mb-6 text-[13px] md:text-sm tracking-wider">QUICK LINKS</h4>
-            <ul className="space-y-2 md:space-y-3">
-              {[
-                { name: 'Home', path: '/' },
-                { name: 'About Us', path: '/about' },
-                { name: 'Shop', path: '/shop' },
-                { name: 'Machines', path: '/shop?category=machines' },
-                { name: 'Spare Parts', path: '/shop?category=spare-parts' },
-                { name: 'Gauges', path: '/shop?category=gauges' },
-                { name: 'Glue', path: '/shop?category=glue' },
-                { name: 'Contact Us', path: '/contact' }
-              ].map((link, i) => (
-                <li key={i}><Link to={link.path} className="text-gray-400 hover:text-white text-xs md:text-sm transition-colors block py-1 md:py-0">{link.name}</Link></li>
-              ))}
-            </ul>
-          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 md:gap-12 mb-12">
+            
+            {/* Col 1 - Brand */}
+            <div className="lg:col-span-4 pr-0 lg:pr-8">
+              <Link to="/" className="inline-block mb-6">
+                <img 
+                  src={whiteAbleLogo} 
+                  alt="Able Technologies Logo" 
+                  className="h-12 md:h-14 object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]" 
+                />
+              </Link>
+              <p className="text-blue-100/60 text-sm mb-8 leading-relaxed font-medium">
+                Your trusted partner for industrial machines, spare parts, gauges and more. We deliver quality, reliability and performance.
+              </p>
+              
+              <div className="flex items-center space-x-3">
+                <a href="#" className="group w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-blue-100/70 hover:text-white hover:bg-[#1877F2] hover:border-transparent hover:shadow-[0_0_20px_rgba(24,119,242,0.4)] transition-all duration-300" title="Facebook">
+                  <Facebook size={16} className="group-hover:scale-110 transition-transform" />
+                </a>
+                <a href="#" className="group w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-blue-100/70 hover:text-white hover:bg-[#0A66C2] hover:border-transparent hover:shadow-[0_0_20px_rgba(10,102,194,0.4)] transition-all duration-300" title="LinkedIn">
+                  <Linkedin size={16} className="group-hover:scale-110 transition-transform" />
+                </a>
+                <a href="#" className="group w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-blue-100/70 hover:text-white hover:bg-[#E4405F] hover:border-transparent hover:shadow-[0_0_20px_rgba(228,64,95,0.4)] transition-all duration-300" title="Instagram">
+                  <Instagram size={16} className="group-hover:scale-110 transition-transform" />
+                </a>
+                <a 
+                  href={`https://wa.me/${(settings?.whatsapp_number || '0777852476').replace(/\D/g, '')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-blue-100/70 hover:text-white hover:bg-[#25D366] hover:border-transparent hover:shadow-[0_0_20px_rgba(37,211,102,0.4)] transition-all duration-300"
+                  title="WhatsApp"
+                >
+                  <WhatsAppIcon size={16} className="group-hover:scale-110 transition-transform" />
+                </a>
+              </div>
+            </div>
 
-          {/* Col 3 */}
-          <div>
-            <h4 className="text-white font-bold mb-4 md:mb-6 text-[13px] md:text-sm tracking-wider">CUSTOMER SERVICE</h4>
-            <ul className="space-y-2 md:space-y-3">
-              {['My Account', 'Order History', 'Shipping Policy', 'Return & Refund', 'Terms & Conditions', 'Privacy Policy', 'FAQ\'s'].map((link, i) => (
-                <li key={i}><a href="#" className="text-gray-400 hover:text-white text-xs md:text-sm transition-colors block py-1 md:py-0">{link}</a></li>
-              ))}
-            </ul>
-          </div>
+            {/* Col 2 - Quick Links */}
+            <div className="lg:col-span-2">
+              <h4 className="text-white font-black mb-6 text-sm tracking-wider uppercase flex items-center">
+                <span className="w-2 h-2 bg-red-600 rounded-sm mr-2 inline-block"></span> Quick Links
+              </h4>
+              <ul className="space-y-3">
+                {[
+                  { name: 'Home', path: '/' },
+                  { name: 'About Us', path: '/about' },
+                  { name: 'Shop', path: '/shop' },
+                  { name: 'Machines', path: '/shop?category=machines' },
+                  { name: 'Spare Parts', path: '/shop?category=spare-parts' },
+                  { name: 'Gauges', path: '/shop?category=gauges' },
+                  { name: 'Glue', path: '/shop?category=glue' },
+                  { name: 'Contact Us', path: '/contact' }
+                ].map((link, i) => (
+                  <li key={i}>
+                    <Link 
+                      to={link.path} 
+                      className="group flex items-center text-blue-100/60 hover:text-white text-sm font-medium transition-colors"
+                    >
+                      <ChevronRight size={14} className="opacity-0 -ml-4 mr-2 group-hover:opacity-100 group-hover:ml-0 text-red-500 transition-all duration-300" />
+                      <span className="group-hover:translate-x-1 transition-transform duration-300">{link.name}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-          {/* Col 4 */}
-          <div>
-            <h4 className="text-white font-bold mb-4 md:mb-6 text-[13px] md:text-sm tracking-wider">CONTACT US</h4>
-            <ul className="space-y-4 md:space-y-5">
-              <li className="flex items-start text-gray-400 text-xs md:text-sm">
-                <MapPin size={16} color="url(#metal-red)" className="mr-3 flex-shrink-0 mt-0.5 md:w-[18px] md:h-[18px]" />
-                <span className="leading-relaxed">No 10, Hathbodhi Mawatha,<br/>Udahamulla, Panadura, Sri Lanka.</span>
-              </li>
-              <li className="flex items-start text-gray-400 text-xs md:text-sm">
-                <Phone size={16} color="url(#metal-red)" className="mr-3 flex-shrink-0 mt-0.5 md:w-[18px] md:h-[18px]" />
-                <div className="flex flex-col leading-relaxed">
-                  <span>{settings?.whatsapp_number || '077 785 2476'}</span>
-                </div>
-              </li>
-              <li className="flex items-center text-gray-400 text-xs md:text-sm">
-                <Mail size={16} color="url(#metal-red)" className="mr-3 flex-shrink-0 md:w-[18px] md:h-[18px]" />
-                <span>{settings?.support_email || 'able@ablero.com'}</span>
-              </li>
-            </ul>
-          </div>
+            {/* Col 3 - Customer Service */}
+            <div className="lg:col-span-3">
+              <h4 className="text-white font-black mb-6 text-sm tracking-wider uppercase flex items-center">
+                <span className="w-2 h-2 bg-blue-600 rounded-sm mr-2 inline-block"></span> Customer Service
+              </h4>
+              <ul className="space-y-3">
+                {['My Account', 'Order History', 'Shipping Policy', 'Return & Refund', 'Terms & Conditions', 'Privacy Policy', 'FAQ\'s'].map((link, i) => (
+                  <li key={i}>
+                    <a 
+                      href="#" 
+                      className="group flex items-center text-blue-100/60 hover:text-white text-sm font-medium transition-colors"
+                    >
+                      <ChevronRight size={14} className="opacity-0 -ml-4 mr-2 group-hover:opacity-100 group-hover:ml-0 text-blue-500 transition-all duration-300" />
+                      <span className="group-hover:translate-x-1 transition-transform duration-300">{link}</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
+            {/* Col 4 - Contact Us */}
+            <div className="lg:col-span-3">
+              <h4 className="text-white font-black mb-6 text-sm tracking-wider uppercase flex items-center">
+                <span className="w-2 h-2 bg-gray-500 rounded-sm mr-2 inline-block"></span> Contact Us
+              </h4>
+              <ul className="space-y-5">
+                <li className="flex items-start group">
+                  <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0 mr-3 mt-0.5 group-hover:bg-blue-900/30 group-hover:border-blue-500/30 transition-colors">
+                    <MapPin size={14} className="text-blue-400" />
+                  </div>
+                  <span className="text-blue-100/70 text-sm leading-relaxed font-medium">No 10, Hathbodhi Mawatha,<br/>Udahamulla, Panadura, Sri Lanka.</span>
+                </li>
+                <li className="flex items-center group">
+                  <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0 mr-3 group-hover:bg-blue-900/30 group-hover:border-blue-500/30 transition-colors">
+                    <Phone size={14} className="text-blue-400" />
+                  </div>
+                  <span className="text-blue-100/70 text-sm font-medium">{settings?.whatsapp_number || '077 785 2476'}</span>
+                </li>
+                <li className="flex items-center group">
+                  <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0 mr-3 group-hover:bg-blue-900/30 group-hover:border-blue-500/30 transition-colors">
+                    <Mail size={14} className="text-blue-400" />
+                  </div>
+                  <span className="text-blue-100/70 text-sm font-medium">{settings?.support_email || 'able@ablero.com'}</span>
+                </li>
+              </ul>
+            </div>
+
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div className="max-w-7xl mx-auto px-6 mb-6">
+          <div className="w-full h-px bg-gradient-to-r from-white/0 via-white/10 to-white/0"></div>
         </div>
 
         {/* Bottom Bar */}
-        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center text-[10px] md:text-[11px] text-gray-500 font-medium text-center md:text-left">
-          <p className="mb-2 md:mb-0">© 2024 Able Technologies (Pvt) Ltd. All Rights Reserved.</p>
-          <p>Designed by <a href="https://premierdigital.lk" target="_blank" rel="noopener noreferrer" className="metallic-red-text font-bold text-[12px] hover:underline">Premier Digital Pvt Ltd</a></p>
+        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center text-xs text-blue-100/50 font-medium text-center md:text-left space-y-4 md:space-y-0">
+          <p>© {new Date().getFullYear()} Able Technologies (Pvt) Ltd. All Rights Reserved.</p>
+          <p className="flex items-center flex-wrap justify-center md:justify-end gap-1.5">
+            <span>designed and developed by</span>
+            <a 
+              href="https://premierdigital.lk" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="metallic-red-text font-bold hover:underline transition-all"
+            >
+              Premier Digital Pvt Ltd
+            </a>
+          </p>
         </div>
-
-        {/* Scroll to top */}
-        <button 
-          onClick={scrollToTop}
-          className="absolute bottom-[90px] md:bottom-6 right-6 md:right-12 w-10 h-10 metallic-red-bg border-none text-white rounded-full flex items-center justify-center shadow-lg transition-transform hover:-translate-y-1 z-50"
-          aria-label="Scroll to top"
-        >
-          <ArrowUp size={20} />
-        </button>
       </div>
+
     </footer>
   );
 }

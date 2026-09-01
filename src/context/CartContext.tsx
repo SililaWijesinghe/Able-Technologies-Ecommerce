@@ -26,12 +26,12 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const toast = useToast();
+  const { toast } = useToast();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
 
   const addToCart = (item: Omit<CartItem, 'id'>) => {
-    toast.success('Added to cart');
+    toast({ title: 'Added to cart', variant: 'success' });
     setCartItems(prev => {
       const existingItem = prev.find(i => i.productId === item.productId && i.variant === item.variant);
       if (existingItem) {
@@ -43,7 +43,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   };
 
   const removeFromCart = (id: string) => {
-    toast.info('Item removed from cart');
+    toast({ title: 'Item removed from cart', variant: 'info' });
     setCartItems(prev => prev.filter(i => i.id !== id));
   };
 
@@ -56,7 +56,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   };
 
   const clearCart = () => {
-    toast.warning('Cart cleared');
+    toast({ title: 'Cart cleared', variant: 'warning' });
     setCartItems([]);
   };
 

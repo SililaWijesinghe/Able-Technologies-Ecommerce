@@ -16,7 +16,7 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
   
   // Data extraction based on new rich schema
   const price = typeof product.price === 'number' ? product.price : parseFloat(product.base_price || product.price || 0);
-  const comparePrice = typeof product.compare_price === 'number' ? product.compare_price : parseFloat(product.compare_price || 0);
+  const comparePrice = typeof product.compare_at_price === 'number' ? product.compare_at_price : parseFloat(product.compare_at_price || 0);
   
   const displayPrice = `Rs. ${price.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
   const displayComparePrice = `Rs. ${comparePrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;

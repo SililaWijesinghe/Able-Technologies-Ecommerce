@@ -53,7 +53,15 @@ router.get('/:id', async (req, res): Promise<void> => {
             .from('products')
             .select(`
                 *,
-                images:product_images(id, image_url, display_order)
+                images:product_images(id, image_url, display_order),
+                product_variants (
+                    id,
+                    product_id,
+                    sku,
+                    attributes,
+                    price_modifier,
+                    inventory_count
+                )
             `)
             .eq('id', id)
             .single();

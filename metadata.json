@@ -1,6 +1,6 @@
 {
   "name": "Able Technologies Store",
-  "description": "An industrial machinery e-commerce store layout.",
+  "description": "Able Technologies - Premier Industrial Machinery, Precision Tools, Equipment & B2B Solutions.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

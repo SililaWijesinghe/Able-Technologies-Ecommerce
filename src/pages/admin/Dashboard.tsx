@@ -93,7 +93,7 @@ export default function Dashboard() {
     { title: 'Total Orders', value: stats.totalOrders.toString(), link: 'View all orders', to: '/admin/orders', icon: ShoppingBag, color: 'blue' },
     { title: 'Total Products', value: stats.totalProducts.toString(), link: 'View all products', to: '/admin/products', icon: Package, color: 'green' },
     { title: 'Total Customers', value: stats.totalCustomers.toString(), link: 'View all customers', to: '/admin/customers', icon: Users, color: 'purple' },
-    { title: 'Pending Orders', value: stats.pendingOrders.toString(), link: 'View pending orders', to: '/admin/orders/pending', icon: Clock, color: 'orange' },
+    { title: 'Pending Orders', value: stats.pendingOrders.toString(), link: 'View pending orders', to: '/admin/orders', icon: Clock, color: 'orange' },
     { title: 'Total Revenue', value: `Rs. ${stats.totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`, link: 'View reports', to: '/admin/reports', icon: DollarSign, color: 'red' },
   ];
 

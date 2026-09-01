@@ -7,6 +7,7 @@ export default function Orders() {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState('All Orders');
   
   const [stats, setStats] = useState({
     total: 0,
@@ -78,6 +79,14 @@ export default function Orders() {
     }
   };
 
+  const filteredOrders = orders.filter((order) => {
+    if (activeTab === 'All Orders') return true;
+    if (activeTab === 'Completed') return order.status === 'completed' || order.status === 'delivered';
+    if (activeTab === 'Pending') return order.status === 'pending';
+    if (activeTab === 'Cancelled') return order.status === 'cancelled';
+    return true;
+  });
+
   if (loading && orders.length === 0) {
     return (
       <div className="flex h-full items-center justify-center min-h-[400px]">
@@ -107,7 +116,7 @@ export default function Orders() {
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center space-x-4">
+        <div className={`bg-white p-5 rounded-2xl border shadow-sm flex items-center space-x-4 transition-all duration-300 cursor-pointer ${activeTab === 'All Orders' ? 'border-blue-500 ring-1 ring-blue-500 shadow-md' : 'border-gray-100 hover:border-gray-200'}`} onClick={() => setActiveTab('All Orders')}>
           <div className="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
             <FileText size={24} />
           </div>
@@ -116,7 +125,7 @@ export default function Orders() {
             <p className="text-xs font-bold text-gray-500">Total Orders</p>
           </div>
         </div>
-        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center space-x-4">
+        <div className={`bg-white p-5 rounded-2xl border shadow-sm flex items-center space-x-4 transition-all duration-300 cursor-pointer ${activeTab === 'Completed' ? 'border-green-500 ring-1 ring-green-500 shadow-md' : 'border-gray-100 hover:border-gray-200'}`} onClick={() => setActiveTab('Completed')}>
           <div className="w-12 h-12 rounded-full bg-green-100 text-green-600 flex items-center justify-center shrink-0">
             <CheckCircle size={24} />
           </div>
@@ -125,7 +134,7 @@ export default function Orders() {
             <p className="text-xs font-bold text-gray-500">Completed</p>
           </div>
         </div>
-        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center space-x-4">
+        <div className={`bg-white p-5 rounded-2xl border shadow-sm flex items-center space-x-4 transition-all duration-300 cursor-pointer ${activeTab === 'Pending' ? 'border-yellow-500 ring-1 ring-yellow-500 shadow-md' : 'border-gray-100 hover:border-gray-200'}`} onClick={() => setActiveTab('Pending')}>
           <div className="w-12 h-12 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center shrink-0">
             <Clock size={24} />
           </div>
@@ -134,7 +143,7 @@ export default function Orders() {
             <p className="text-xs font-bold text-gray-500">Pending</p>
           </div>
         </div>
-        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center space-x-4">
+        <div className={`bg-white p-5 rounded-2xl border shadow-sm flex items-center space-x-4 transition-all duration-300 cursor-pointer ${activeTab === 'Cancelled' ? 'border-red-500 ring-1 ring-red-500 shadow-md' : 'border-gray-100 hover:border-gray-200'}`} onClick={() => setActiveTab('Cancelled')}>
           <div className="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center shrink-0">
             <XCircle size={24} />
           </div>
@@ -154,6 +163,23 @@ export default function Orders() {
         </div>
       </div>
 
+      {/* Order Tabs */}
+      <div className="flex overflow-x-auto hide-scrollbar space-x-1 bg-gray-100/50 p-1.5 rounded-xl w-full sm:w-max border border-gray-200/50">
+        {['All Orders', 'Pending', 'Completed', 'Cancelled'].map(tab => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={`px-5 py-2.5 rounded-lg text-sm font-bold transition-all duration-300 whitespace-nowrap ${
+              activeTab === tab 
+                ? 'bg-white text-blue-600 shadow-sm ring-1 ring-black/5' 
+                : 'text-gray-500 hover:text-gray-900 hover:bg-gray-200/50'
+            }`}
+          >
+            {tab}
+          </button>
+        ))}
+      </div>
+
       {/* Filters & Table */}
       <div className="bg-white/60 backdrop-blur-xl border border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.05)] rounded-3xl p-6">
         <div className="p-4 border-b border-gray-100 flex flex-col lg:flex-row gap-4 items-center justify-between">
@@ -171,13 +197,6 @@ export default function Orders() {
               <option>Today</option>
               <option>Last 7 Days</option>
               <option>This Month</option>
-            </select>
-            <select className="border border-white/60 rounded-lg text-sm p-2.5 outline-none focus:border-blue-500 bg-white text-gray-600 font-medium">
-              <option>All Status</option>
-              <option>Pending</option>
-              <option>Processing</option>
-              <option>Shipped</option>
-              <option>Delivered</option>
             </select>
             <button className="px-4 py-2.5 border border-white/60 rounded-lg text-sm font-bold text-gray-600 flex items-center space-x-2 hover:bg-gray-50">
               <Filter size={16} />
@@ -205,12 +224,12 @@ export default function Orders() {
               </tr>
             </thead>
             <tbody>
-              {orders.length === 0 ? (
+              {filteredOrders.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="p-8 text-center text-gray-500 font-medium text-sm">No orders found.</td>
                 </tr>
               ) : (
-                orders.map((order) => {
+                filteredOrders.map((order) => {
                   const customerName = order.users?.full_name || order.shipping_address?.fullName || order.users?.email || 'Unknown';
                   const customerEmail = order.users?.email || '';
                   const customerPhone = order.users?.phone || order.shipping_address?.phone || '';

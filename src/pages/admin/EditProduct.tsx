@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
-import { Loader2, ArrowLeft, Image as ImageIcon, Save, Check } from 'lucide-react';
+import { Loader2, ArrowLeft, Image as ImageIcon, Save, Check, Plus, Trash2 } from 'lucide-react';
 
 export default function EditProduct() {
   const { id } = useParams<{ id: string }>();
@@ -11,6 +11,10 @@ export default function EditProduct() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [skuError, setSkuError] = useState('');
+  const [categories, setCategories] = useState<any[]>([]);
+  const [uploadMethod, setUploadMethod] = useState<'url' | 'file'>('url');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -27,14 +31,23 @@ export default function EditProduct() {
     image_url: '',
     status: 'active',
     is_service: false,
-    is_rentable: false,
-    is_oeko_tex: false
+    is_oeko_tex: false,
+    transaction_type: 'sale',
+    requires_quote: false,
+    is_customizable: false
   });
 
+  const [specifications, setSpecifications] = useState<{key: string, value: string}[]>([{ key: '', value: '' }]);
+
   useEffect(() => {
-    async function fetchProduct() {
+    async function fetchData() {
       try {
         if (!id) return;
+        
+        // Fetch Categories
+        const { data: catData } = await supabase.from('categories').select('*');
+        if (catData) setCategories(catData);
+
         const { data, error } = await supabase
           .from('products')
           .select('*')
@@ -44,10 +57,21 @@ export default function EditProduct() {
         if (error) throw error;
         
         if (data) {
+          // Parse Specifications JSONB back to Array
+          const loadedSpecs = [];
+          if (data.specifications && typeof data.specifications === 'object') {
+            for (const [key, value] of Object.entries(data.specifications)) {
+              loadedSpecs.push({ key, value: String(value) });
+            }
+          }
+          if (loadedSpecs.length === 0) loadedSpecs.push({ key: '', value: '' });
+          
+          setSpecifications(loadedSpecs);
+
           setFormData({
             name: data.name || '',
             sku: data.sku || '',
-            category: data.category || '',
+            category: data.category_id || data.category || '',
             brand: data.brand || '',
             description: data.description || '',
             price: data.price?.toString() || '',
@@ -58,8 +82,10 @@ export default function EditProduct() {
             image_url: data.image_urls?.[0] || '',
             status: data.status || 'active',
             is_service: data.is_service || false,
-            is_rentable: data.is_rentable || false,
-            is_oeko_tex: data.is_oeko_tex || false
+            is_oeko_tex: data.is_oeko_tex || false,
+            transaction_type: data.transaction_type || 'sale',
+            requires_quote: data.requires_quote || false,
+            is_customizable: data.is_customizable || false
           });
         }
       } catch (err: any) {
@@ -70,8 +96,22 @@ export default function EditProduct() {
       }
     }
 
-    fetchProduct();
+    fetchData();
   }, [id]);
+
+  const handleSpecChange = (index: number, field: 'key' | 'value', val: string) => {
+    const newSpecs = [...specifications];
+    newSpecs[index][field] = val;
+    setSpecifications(newSpecs);
+  };
+
+  const addSpecRow = () => {
+    setSpecifications([...specifications, { key: '', value: '' }]);
+  };
+
+  const removeSpecRow = (index: number) => {
+    setSpecifications(specifications.filter((_, i) => i !== index));
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -88,23 +128,59 @@ export default function EditProduct() {
     setSaving(true);
     setError('');
     setSuccess('');
+    setSkuError('');
 
     try {
+      // 0. Parse Specifications
+      const specsObject: Record<string, string> = {};
+      specifications.forEach(spec => {
+        if (spec.key.trim()) {
+          specsObject[spec.key.trim()] = spec.value.trim();
+        }
+      });
+
+      // 0.5 Handle File Upload
+      let finalImageUrl = formData.image_url;
+      if (uploadMethod === 'file' && selectedFile) {
+        const category = categories.find(c => c.id === formData.category);
+        const folder = category?.slug || category?.name || 'uncategorized';
+        const timestamp = Date.now();
+        const fileName = `${timestamp}_${selectedFile.name.replace(/[^a-zA-Z0-9.\-_]/g, '_')}`;
+        const dynamicPath = `${folder}/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('uploads')
+          .upload(dynamicPath, selectedFile);
+          
+        if (uploadError) {
+          throw new Error('Image upload failed: ' + uploadError.message);
+        }
+
+        const { data: publicUrlData } = supabase.storage
+          .from('uploads')
+          .getPublicUrl(dynamicPath);
+
+        finalImageUrl = publicUrlData.publicUrl;
+      }
+
       const updatePayload = {
         name: formData.name,
         description: formData.description,
         price: parseFloat(formData.price) || 0,
         stock: parseInt(formData.stock) || 0,
-        category: formData.category,
+        category_id: formData.category,
         brand: formData.brand || null,
         sku: formData.sku || null,
         compare_at_price: formData.compare_at_price ? parseFloat(formData.compare_at_price) : null,
         cost_price: formData.cost_price ? parseFloat(formData.cost_price) : null,
         low_stock_threshold: parseInt(formData.low_stock_threshold) || 5,
-        image_urls: formData.image_url ? [formData.image_url] : [],
+        image_urls: finalImageUrl ? [finalImageUrl] : [],
         is_service: formData.is_service,
-        is_rentable: formData.is_rentable,
-        is_oeko_tex: formData.is_oeko_tex
+        is_oeko_tex: formData.is_oeko_tex,
+        transaction_type: formData.transaction_type,
+        requires_quote: formData.requires_quote,
+        is_customizable: formData.is_customizable,
+        specifications: specsObject
       };
 
       const { error: updateError } = await supabase
@@ -121,7 +197,11 @@ export default function EditProduct() {
       
     } catch (err: any) {
       console.error('Error updating product:', err);
-      setError(err.message || 'Failed to update product');
+      if (err?.code === '23505' || (err?.message && err.message.includes('products_sku_key'))) {
+        setSkuError('This SKU is already in use. Please use a unique SKU.');
+      } else {
+        setError(err.message || 'Failed to update product');
+      }
     } finally {
       setSaving(false);
     }
@@ -217,9 +297,10 @@ export default function EditProduct() {
                   name="sku"
                   value={formData.sku}
                   onChange={handleChange}
-                  className="w-full border border-white/60 rounded-xl p-3 text-sm focus:border-[#0b1042] focus:ring-1 focus:ring-[#0b1042] outline-none transition-all"
+                  className={`w-full border ${skuError ? 'border-red-500 bg-red-50/50' : 'border-white/60'} rounded-xl p-3 text-sm focus:border-[#0b1042] focus:ring-1 focus:ring-[#0b1042] outline-none transition-all`}
                   placeholder="Enter SKU"
                 />
+                {skuError && <p className="text-xs font-bold text-red-500 mt-1">{skuError}</p>}
               </div>
 
               <div className="space-y-1.5">
@@ -232,10 +313,9 @@ export default function EditProduct() {
                   className="w-full border border-white/60 rounded-xl p-3 text-sm focus:border-[#0b1042] focus:ring-1 focus:ring-[#0b1042] outline-none transition-all bg-white"
                 >
                   <option value="">Select category...</option>
-                  <option value="Pneumatics">Pneumatics</option>
-                  <option value="Hydraulics">Hydraulics</option>
-                  <option value="Robotics">Robotics</option>
-                  <option value="Maintenance">Maintenance</option>
+                  {categories.map(c => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
                 </select>
               </div>
 
@@ -337,79 +417,200 @@ export default function EditProduct() {
               </div>
             </div>
           </div>
+
+          {/* Technical Specifications */}
+          <div className="bg-white/60 backdrop-blur-xl border border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.05)] rounded-3xl p-6 space-y-5">
+            <div className="flex items-center space-x-2 mb-2">
+              <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-black">3</span>
+              <h2 className="text-lg font-black text-gray-900">Technical Specifications</h2>
+            </div>
+            
+            <div className="space-y-3">
+              {specifications.map((spec, idx) => (
+                <div key={idx} className="flex items-center space-x-3">
+                  <input
+                    type="text"
+                    value={spec.key}
+                    onChange={(e) => handleSpecChange(idx, 'key', e.target.value)}
+                    placeholder="Key (e.g., Power Supply)"
+                    className="flex-1 border border-white/60 rounded-xl p-3 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+                  />
+                  <input
+                    type="text"
+                    value={spec.value}
+                    onChange={(e) => handleSpecChange(idx, 'value', e.target.value)}
+                    placeholder="Value (e.g., 230V)"
+                    className="flex-1 border border-white/60 rounded-xl p-3 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeSpecRow(idx)}
+                    className="p-3 text-red-500 hover:bg-red-50 rounded-xl transition-colors shrink-0"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={addSpecRow}
+                className="flex items-center space-x-2 text-sm font-bold text-blue-600 hover:text-blue-700 transition-colors mt-2"
+              >
+                <Plus size={16} />
+                <span>Add Row</span>
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Right Column - Image & Media */}
         <div className="space-y-6">
           <div className="bg-white/60 backdrop-blur-xl border border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.05)] rounded-3xl p-6 space-y-5">
             <div className="flex items-center space-x-2 mb-2">
-              <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-black">3</span>
+              <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-black">4</span>
               <h2 className="text-lg font-black text-gray-900">Media</h2>
             </div>
 
             <div className="space-y-4">
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-gray-700">Image URL</label>
-                <input 
-                  type="url" 
-                  name="image_url"
-                  value={formData.image_url}
-                  onChange={handleChange}
-                  className="w-full border border-white/60 rounded-xl p-3 text-sm focus:border-[#0b1042] focus:ring-1 focus:ring-[#0b1042] outline-none transition-all"
-                  placeholder="https://..."
-                />
+              <div className="flex items-center space-x-4 mb-4">
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input type="radio" checked={uploadMethod === 'url'} onChange={() => setUploadMethod('url')} className="text-blue-600" />
+                  <span className="text-sm text-gray-700 font-medium">Image URL</span>
+                </label>
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input type="radio" checked={uploadMethod === 'file'} onChange={() => setUploadMethod('file')} className="text-blue-600" />
+                  <span className="text-sm text-gray-700 font-medium">File Upload</span>
+                </label>
               </div>
 
+              {uploadMethod === 'url' ? (
+                <div className="border-2 border-dashed border-white/60 rounded-xl p-6 text-center hover:bg-white/40 transition-colors">
+                  <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3 text-blue-500">
+                    <ImageIcon size={24} />
+                  </div>
+                  <p className="text-sm font-bold text-gray-700 mb-1">Enter Image URL</p>
+                  <p className="text-xs text-gray-500 mb-4">Paste a direct link to an image</p>
+                  <input 
+                    key="url-input"
+                    type="url" 
+                    name="image_url"
+                    value={formData.image_url || ''}
+                    onChange={handleChange}
+                    className="w-full border border-white/60 rounded-xl p-3 text-sm focus:border-[#0b1042] focus:ring-1 focus:ring-[#0b1042] outline-none transition-all"
+                    placeholder="https://..."
+                  />
+                </div>
+              ) : (
+                <div className="border-2 border-dashed border-white/60 rounded-xl p-6 text-center hover:bg-white/40 transition-colors">
+                  <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3 text-blue-500">
+                    <ImageIcon size={24} />
+                  </div>
+                  <p className="text-sm font-bold text-gray-700 mb-1">Upload File</p>
+                  <p className="text-xs text-gray-500 mb-4">Select an image to replace current</p>
+                  <input 
+                    key="file-input"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                    className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                  />
+                </div>
+              )}
+
               {/* Preview Box */}
-              <div className="w-full aspect-square bg-white/40 rounded-xl border-2 border-dashed border-white/60 flex flex-col items-center justify-center overflow-hidden">
-                {formData.image_url ? (
-                  <img src={formData.image_url} alt="Preview" className="w-full h-full object-cover mix-blend-multiply" />
-                ) : (
-                  <>
-                    <ImageIcon size={32} className="text-slate-600 mb-2" />
-                    <span className="text-xs font-bold text-slate-500">Image Preview</span>
-                  </>
-                )}
-              </div>
-              <p className="text-[10px] text-slate-500 font-medium text-center">
-                Paste a valid image URL to see preview
-              </p>
+              {(uploadMethod === 'url' && formData.image_url) || (uploadMethod === 'file' && selectedFile) || formData.image_url ? (
+                <div className="mt-4">
+                  <p className="text-xs font-bold text-gray-700 mb-2">Preview:</p>
+                  <div className="w-full aspect-square bg-white/40 rounded-xl border-2 border-dashed border-white/60 flex flex-col items-center justify-center overflow-hidden">
+                    <img 
+                      src={uploadMethod === 'file' && selectedFile ? URL.createObjectURL(selectedFile) : formData.image_url} 
+                      alt="Preview" 
+                      className="w-full h-full object-contain mix-blend-multiply p-2" 
+                      onError={(e) => (e.currentTarget.style.display = 'none')} 
+                    />
+                  </div>
+                </div>
+              ) : null}
             </div>
           </div>
 
-          {/* Service, Rentable, Oeko-Tex Flags */}
-          <div className="bg-white/40 backdrop-blur-md rounded-xl p-4 space-y-4 border border-white/60">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-sm font-bold text-gray-900">Service</h3>
-                <p className="text-xs text-gray-500">Item is a service</p>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" name="is_service" checked={formData.is_service} onChange={handleChange} className="sr-only peer" />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#0b1042]"></div>
-              </label>
+          {/* B2B Rules */}
+          <div className="bg-white/60 backdrop-blur-xl border border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.05)] rounded-3xl p-6 space-y-5">
+            <div className="flex items-center space-x-2 mb-2">
+              <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-black">5</span>
+              <h2 className="text-lg font-black text-gray-900">B2B Rules</h2>
             </div>
             
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-sm font-bold text-gray-900">Rentable</h3>
-                <p className="text-xs text-gray-500">Item can be rented</p>
+            <div className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-gray-700">Transaction Type</label>
+                <select 
+                  name="transaction_type"
+                  value={formData.transaction_type}
+                  onChange={handleChange}
+                  className="w-full bg-white/50 focus:bg-white/80 backdrop-blur-md border border-white/60 focus:border-blue-300 rounded-xl p-3 text-slate-800 outline-none transition-all shadow-inner text-sm"
+                >
+                  <option value="sale">Sale Only (Buy)</option>
+                  <option value="rent">Rent Only</option>
+                  <option value="both">Sale & Rent</option>
+                </select>
               </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" name="is_rentable" checked={formData.is_rentable} onChange={handleChange} className="sr-only peer" />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#0b1042]"></div>
-              </label>
-            </div>
 
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-sm font-bold text-gray-900">Oeko-Tex</h3>
-                <p className="text-xs text-gray-500">Oeko-Tex Certified flag</p>
+              <div className="bg-white/40 backdrop-blur-md rounded-xl p-4 space-y-4 mt-4 border border-white/60">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-sm font-bold text-gray-900">Requires Quote</h3>
+                    <p className="text-xs text-gray-500">Hide "Add to Cart" and show "Request Quote"</p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" name="requires_quote" checked={formData.requires_quote} onChange={handleChange} className="sr-only peer" />
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#0b1042]"></div>
+                  </label>
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-sm font-bold text-gray-900">Customizable</h3>
+                    <p className="text-xs text-gray-500">Allow users to upload drawings/specs</p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" name="is_customizable" checked={formData.is_customizable} onChange={handleChange} className="sr-only peer" />
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#0b1042]"></div>
+                  </label>
+                </div>
               </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" name="is_oeko_tex" checked={formData.is_oeko_tex} onChange={handleChange} className="sr-only peer" />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
-              </label>
+            </div>
+          </div>
+
+          {/* Visibility & Badges */}
+          <div className="bg-white/60 backdrop-blur-xl border border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.05)] rounded-3xl p-6 space-y-5">
+            <div className="flex items-center space-x-2 mb-2">
+              <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-black">6</span>
+              <h2 className="text-lg font-black text-gray-900">Badges & Tags</h2>
+            </div>
+            
+            <div className="bg-white/40 backdrop-blur-md rounded-xl p-4 space-y-4 border border-white/60">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-sm font-bold text-gray-900">Service</h3>
+                  <p className="text-xs text-gray-500">Item is a service</p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" name="is_service" checked={formData.is_service} onChange={handleChange} className="sr-only peer" />
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#0b1042]"></div>
+                </label>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-sm font-bold text-gray-900">Oeko-Tex</h3>
+                  <p className="text-xs text-gray-500">Oeko-Tex Certified flag</p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" name="is_oeko_tex" checked={formData.is_oeko_tex} onChange={handleChange} className="sr-only peer" />
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                </label>
+              </div>
             </div>
           </div>
         </div>
