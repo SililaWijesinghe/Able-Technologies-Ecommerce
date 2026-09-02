@@ -15,6 +15,7 @@ import {
   Send, 
   ShieldCheck, 
   Phone,
+  Mail,
   Loader2,
   Package
 } from 'lucide-react';
@@ -77,7 +78,14 @@ export default function Header() {
   const location = useLocation();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMobileContactExpanded, setIsMobileContactExpanded] = useState(false);
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+
+  const whatsappNumber = settings?.whatsapp_number || '+94777852476';
+  const whatsappUrl = `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}`;
+  const phoneNumber = settings?.whatsapp_number || '+94777852476';
+  const email = settings?.support_email || 'info@abletech.com';
 
   // Search States
   const [searchQuery, setSearchQuery] = useState('');
@@ -221,13 +229,70 @@ export default function Header() {
               </button>
             </div>
           </div>
-          <div ref={mobileSearchRef} className="relative w-full z-50 overflow-visible">
+          <div ref={mobileSearchRef} className="relative w-full z-50 overflow-visible flex items-center gap-2">
+            {/* Small Contact Button */}
+            <div className={`relative shrink-0 transition-all duration-300 ease-in-out ${isSearchFocused ? 'opacity-0 w-0 overflow-hidden scale-95 pointer-events-none mr-0' : 'opacity-100 w-10 scale-100 mr-0'}`}>
+              <button 
+                type="button"
+                onClick={() => setIsMobileContactExpanded(!isMobileContactExpanded)}
+                className="w-10 h-10 bg-gradient-to-br from-cyan-500/20 to-blue-600/30 hover:from-cyan-500/30 hover:to-blue-600/40 border border-cyan-400/40 rounded-full flex items-center justify-center text-white shadow-[0_0_15px_rgba(34,211,238,0.3)] animate-pulse transition-all relative active:scale-95 shrink-0"
+                title="Contact Options"
+              >
+                <Phone size={17} className="text-cyan-300" />
+                <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-red-500 rounded-full border border-white animate-ping" />
+              </button>
+
+              {/* Expanded 3 Contact Buttons Dropdown */}
+              {isMobileContactExpanded && (
+                <div className="absolute top-[120%] left-0 bg-[#0b1042]/95 backdrop-blur-2xl border border-white/20 rounded-2xl shadow-[0_15px_40px_rgba(0,0,0,0.6)] p-2.5 flex flex-col space-y-2 z-[100] min-w-[170px] animate-in fade-in slide-in-from-top-2 duration-200">
+                  <a 
+                    href={`tel:${phoneNumber}`} 
+                    onClick={() => setIsMobileContactExpanded(false)}
+                    className="flex items-center space-x-2.5 text-white hover:bg-white/10 p-2 rounded-xl text-xs font-semibold transition-colors"
+                  >
+                    <div className="w-7 h-7 bg-blue-600/20 border border-blue-500/40 rounded-full flex items-center justify-center shrink-0">
+                      <Phone size={14} className="text-blue-400" />
+                    </div>
+                    <span>Call Us</span>
+                  </a>
+                  <a 
+                    href={whatsappUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    onClick={() => setIsMobileContactExpanded(false)}
+                    className="flex items-center space-x-2.5 text-white hover:bg-white/10 p-2 rounded-xl text-xs font-semibold transition-colors"
+                  >
+                    <div className="w-7 h-7 bg-emerald-600/20 border border-emerald-500/40 rounded-full flex items-center justify-center shrink-0">
+                      <WhatsAppIcon size={16} className="text-emerald-400" />
+                    </div>
+                    <span>WhatsApp</span>
+                  </a>
+                  <a 
+                    href={`mailto:${email}`} 
+                    onClick={() => setIsMobileContactExpanded(false)}
+                    className="flex items-center space-x-2.5 text-white hover:bg-white/10 p-2 rounded-xl text-xs font-semibold transition-colors"
+                  >
+                    <div className="w-7 h-7 bg-rose-600/20 border border-rose-500/40 rounded-full flex items-center justify-center shrink-0">
+                      <Mail size={14} className="text-rose-400" />
+                    </div>
+                    <span>Email Us</span>
+                  </a>
+                </div>
+              )}
+            </div>
+
             <form onSubmit={handleSearchSubmit} className="relative flex items-center w-full">
               <input 
                 type="text" 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                onFocus={() => { if (searchQuery.trim().length > 2) setIsDropdownOpen(true); }}
+                onFocus={() => {
+                  setIsSearchFocused(true);
+                  if (searchQuery.trim().length > 2) setIsDropdownOpen(true);
+                }}
+                onBlur={() => {
+                  setTimeout(() => setIsSearchFocused(false), 250);
+                }}
                 placeholder="Search for machines, parts, gauges, glue..." 
                 className="bg-white/10 hover:bg-white/20 focus:bg-white/20 backdrop-blur-md border border-white/20 text-white placeholder-white/60 rounded-full px-5 py-2.5 outline-none focus:ring-2 focus:ring-white/30 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.3)] transition-all w-full text-xs pr-10"
               />

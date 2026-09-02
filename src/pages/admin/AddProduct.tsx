@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { Loader2, ArrowLeft, Image as ImageIcon, Save, Check, Plus, Trash2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export default function AddProduct() {
   const navigate = useNavigate();
@@ -71,6 +72,36 @@ export default function AddProduct() {
     setError('');
     setSkuError('');
 
+    // Pre-Submission Validation (Client-Side)
+    if (!formData.name.trim()) {
+      const msg = 'Oops! Please enter a Product Name before saving.';
+      setError(msg);
+      toast.error(msg);
+      setLoading(false);
+      return;
+    }
+    if (!formData.category) {
+      const msg = 'Oops! Please select a Category before saving this product.';
+      setError(msg);
+      toast.error(msg);
+      setLoading(false);
+      return;
+    }
+    if (formData.price === '' || isNaN(parseFloat(formData.price)) || parseFloat(formData.price) < 0) {
+      const msg = 'Oops! Please enter a valid Selling Price.';
+      setError(msg);
+      toast.error(msg);
+      setLoading(false);
+      return;
+    }
+    if (formData.stock === '' || isNaN(parseInt(formData.stock)) || parseInt(formData.stock) < 0) {
+      const msg = 'Oops! Please enter a valid Stock Quantity.';
+      setError(msg);
+      toast.error(msg);
+      setLoading(false);
+      return;
+    }
+
     try {
       // 0. Parse Specifications
       const specsObject: Record<string, string> = {};
@@ -94,7 +125,7 @@ export default function AddProduct() {
           .upload(dynamicPath, selectedFile);
           
         if (uploadError) {
-          throw new Error('Image upload failed: ' + uploadError.message);
+          throw new Error('STORAGE_ERROR: ' + uploadError.message);
         }
 
         const { data: publicUrlData } = supabase.storage
@@ -149,13 +180,24 @@ export default function AddProduct() {
         }
       }
 
+      toast.success('🎉 Product published successfully!');
       navigate('/admin/products');
     } catch (err: any) {
       console.error('Error saving product:', err);
-      if (err?.code === '23505' || (err?.message && err.message.includes('products_sku_key'))) {
-        setSkuError('This SKU is already in use. Please use a unique SKU.');
+      // Friendly Error Translation (Server-Side)
+      if (err?.code === '23505' || (err?.message && (err.message.includes('products_sku_key') || err.message.includes('unique constraint')))) {
+        const msg = 'It looks like a product with this SKU already exists. Please enter a unique SKU.';
+        setSkuError(msg);
+        setError(msg);
+        toast.error(msg);
+      } else if (err?.message && (err.message.includes('STORAGE_ERROR') || err.message.includes('storage') || err.message.includes('upload'))) {
+        const msg = 'We had trouble saving your image. Please check your internet connection or try a different image file.';
+        setError(msg);
+        toast.error(msg);
       } else {
-        setError(err.message || 'Failed to create product');
+        const msg = 'Something went wrong while saving your product. Please try clicking save again in a moment.';
+        setError(msg);
+        toast.error(msg);
       }
     } finally {
       setLoading(false);
@@ -187,10 +229,10 @@ export default function AddProduct() {
           <button 
             onClick={handleSubmit}
             disabled={loading}
-            className="bg-slate-800 hover:bg-slate-900 text-white rounded-xl px-5 py-2.5 shadow-md hover:shadow-lg transition-all text-sm font-bold flex items-center space-x-2 disabled:opacity-70"
+            className="bg-slate-800 hover:bg-slate-900 text-white rounded-xl px-5 py-2.5 shadow-md hover:shadow-lg transition-all text-sm font-bold flex items-center space-x-2 disabled:opacity-70 cursor-pointer disabled:cursor-not-allowed"
           >
             {loading ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
-            <span>Save & Publish</span>
+            <span>{loading ? 'Saving...' : 'Save & Publish'}</span>
           </button>
         </div>
       </div>

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
-import { Loader2, ArrowLeft, Image as ImageIcon, Save, Check, Plus, Trash2 } from 'lucide-react';
+import { Loader2, ArrowLeft, Image as ImageIcon, Save, Check, Plus, Trash2, AlertCircle } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export default function EditProduct() {
   const { id } = useParams<{ id: string }>();
@@ -9,6 +10,7 @@ export default function EditProduct() {
   
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [productNotFound, setProductNotFound] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [skuError, setSkuError] = useState('');
@@ -42,55 +44,59 @@ export default function EditProduct() {
   useEffect(() => {
     async function fetchData() {
       try {
-        if (!id) return;
+        if (!id) {
+          setProductNotFound(true);
+          return;
+        }
         
         // Fetch Categories
         const { data: catData } = await supabase.from('categories').select('*');
         if (catData) setCategories(catData);
 
-        const { data, error } = await supabase
+        const { data, error: fetchError } = await supabase
           .from('products')
           .select('*')
           .eq('id', id)
           .single();
 
-        if (error) throw error;
-        
-        if (data) {
-          // Parse Specifications JSONB back to Array
-          const loadedSpecs = [];
-          if (data.specifications && typeof data.specifications === 'object') {
-            for (const [key, value] of Object.entries(data.specifications)) {
-              loadedSpecs.push({ key, value: String(value) });
-            }
-          }
-          if (loadedSpecs.length === 0) loadedSpecs.push({ key: '', value: '' });
-          
-          setSpecifications(loadedSpecs);
-
-          setFormData({
-            name: data.name || '',
-            sku: data.sku || '',
-            category: data.category_id || data.category || '',
-            brand: data.brand || '',
-            description: data.description || '',
-            price: data.price?.toString() || '',
-            compare_at_price: data.compare_at_price?.toString() || '',
-            cost_price: data.cost_price?.toString() || '',
-            stock: data.stock?.toString() || '',
-            low_stock_threshold: data.low_stock_threshold?.toString() || '5',
-            image_url: data.image_urls?.[0] || '',
-            status: data.status || 'active',
-            is_service: data.is_service || false,
-            is_oeko_tex: data.is_oeko_tex || false,
-            transaction_type: data.transaction_type || 'sale',
-            requires_quote: data.requires_quote || false,
-            is_customizable: data.is_customizable || false
-          });
+        if (fetchError || !data) {
+          setProductNotFound(true);
+          return;
         }
+        
+        // Parse Specifications JSONB back to Array
+        const loadedSpecs = [];
+        if (data.specifications && typeof data.specifications === 'object') {
+          for (const [key, value] of Object.entries(data.specifications)) {
+            loadedSpecs.push({ key, value: String(value) });
+          }
+        }
+        if (loadedSpecs.length === 0) loadedSpecs.push({ key: '', value: '' });
+        
+        setSpecifications(loadedSpecs);
+
+        setFormData({
+          name: data.name || '',
+          sku: data.sku || '',
+          category: data.category_id || data.category || '',
+          brand: data.brand || '',
+          description: data.description || '',
+          price: data.price?.toString() || '',
+          compare_at_price: data.compare_at_price?.toString() || '',
+          cost_price: data.cost_price?.toString() || '',
+          stock: data.stock?.toString() || '',
+          low_stock_threshold: data.low_stock_threshold?.toString() || '5',
+          image_url: data.image_urls?.[0] || '',
+          status: data.status || 'active',
+          is_service: data.is_service || false,
+          is_oeko_tex: data.is_oeko_tex || false,
+          transaction_type: data.transaction_type || 'sale',
+          requires_quote: data.requires_quote || false,
+          is_customizable: data.is_customizable || false
+        });
       } catch (err: any) {
         console.error('Error fetching product:', err);
-        setError('Failed to load product details.');
+        setProductNotFound(true);
       } finally {
         setLoading(false);
       }
@@ -130,6 +136,36 @@ export default function EditProduct() {
     setSuccess('');
     setSkuError('');
 
+    // Pre-Submission Validation (Client-Side)
+    if (!formData.name.trim()) {
+      const msg = 'Oops! Please enter a Product Name before saving.';
+      setError(msg);
+      toast.error(msg);
+      setSaving(false);
+      return;
+    }
+    if (!formData.category) {
+      const msg = 'Oops! Please select a Category before saving this product.';
+      setError(msg);
+      toast.error(msg);
+      setSaving(false);
+      return;
+    }
+    if (formData.price === '' || isNaN(parseFloat(formData.price)) || parseFloat(formData.price) < 0) {
+      const msg = 'Oops! Please enter a valid Selling Price.';
+      setError(msg);
+      toast.error(msg);
+      setSaving(false);
+      return;
+    }
+    if (formData.stock === '' || isNaN(parseInt(formData.stock)) || parseInt(formData.stock) < 0) {
+      const msg = 'Oops! Please enter a valid Stock Quantity.';
+      setError(msg);
+      toast.error(msg);
+      setSaving(false);
+      return;
+    }
+
     try {
       // 0. Parse Specifications
       const specsObject: Record<string, string> = {};
@@ -153,7 +189,7 @@ export default function EditProduct() {
           .upload(dynamicPath, selectedFile);
           
         if (uploadError) {
-          throw new Error('Image upload failed: ' + uploadError.message);
+          throw new Error('STORAGE_ERROR: ' + uploadError.message);
         }
 
         const { data: publicUrlData } = supabase.storage
@@ -190,17 +226,33 @@ export default function EditProduct() {
 
       if (updateError) throw updateError;
 
-      setSuccess('Product updated successfully!');
+      const successMsg = 'Product updated successfully!';
+      setSuccess(successMsg);
+      toast.success('🎉 ' + successMsg);
       setTimeout(() => {
         navigate('/admin/products');
-      }, 1500);
+      }, 1200);
       
     } catch (err: any) {
       console.error('Error updating product:', err);
-      if (err?.code === '23505' || (err?.message && err.message.includes('products_sku_key'))) {
-        setSkuError('This SKU is already in use. Please use a unique SKU.');
+      // Human-Readable Error Translation (Server/Database)
+      if (err?.code === '23505' || (err?.message && (err.message.includes('products_sku_key') || err.message.includes('unique constraint')))) {
+        const msg = 'This SKU is already assigned to another product. Please enter a unique SKU.';
+        setSkuError(msg);
+        setError(msg);
+        toast.error(msg);
+      } else if (err?.message && (err.message.includes('STORAGE_ERROR') || err.message.includes('storage') || err.message.includes('upload'))) {
+        const msg = "We couldn't upload the new product image. Please check your connection or try a smaller file.";
+        setError(msg);
+        toast.error(msg);
+      } else if (err?.code === '42501' || (err?.message && err.message.includes('permission'))) {
+        const msg = "You don't have permission to save these changes. Please refresh your session.";
+        setError(msg);
+        toast.error(msg);
       } else {
-        setError(err.message || 'Failed to update product');
+        const msg = 'Something went wrong while saving your changes. Please try clicking save again in a moment.';
+        setError(msg);
+        toast.error(msg);
       }
     } finally {
       setSaving(false);
@@ -214,6 +266,26 @@ export default function EditProduct() {
           <Loader2 size={32} className="animate-spin mb-4 text-[#0b1042]" />
           <p className="text-sm font-bold uppercase tracking-widest text-gray-500">Loading Product...</p>
         </div>
+      </div>
+    );
+  }
+
+  if (productNotFound) {
+    return (
+      <div className="bg-white p-8 md:p-16 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center justify-center text-center min-h-[500px] max-w-2xl mx-auto my-12">
+        <div className="w-16 h-16 bg-red-50 text-red-600 rounded-full flex items-center justify-center mb-4 shadow-inner">
+          <AlertCircle size={32} />
+        </div>
+        <h2 className="text-2xl font-black text-[#0b1042] mb-2">Unable to find this product</h2>
+        <p className="text-gray-500 text-sm max-w-md mx-auto mb-6 leading-relaxed">
+          Unable to find this product. It may have been removed or relocated.
+        </p>
+        <Link 
+          to="/admin/products" 
+          className="px-6 py-3 bg-[#0b1042] hover:bg-blue-900 text-white font-bold text-xs rounded-xl transition-all shadow-md inline-flex items-center gap-2"
+        >
+          <ArrowLeft size={16} /> Back to All Products
+        </Link>
       </div>
     );
   }
@@ -243,10 +315,10 @@ export default function EditProduct() {
           <button 
             onClick={handleUpdate}
             disabled={saving}
-            className="bg-[#0b1042] text-white px-6 py-2 rounded-lg text-sm font-bold flex items-center space-x-2 hover:bg-blue-900 transition-colors disabled:opacity-70"
+            className="bg-[#0b1042] text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center space-x-2 hover:bg-blue-900 transition-colors disabled:opacity-70 cursor-pointer disabled:cursor-not-allowed shadow-md"
           >
             {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-            <span>Save Changes</span>
+            <span>{saving ? 'Saving Changes...' : 'Save Changes'}</span>
           </button>
         </div>
       </div>

@@ -24,7 +24,9 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
   const hasDiscount = comparePrice > price;
   const brandName = typeof product.brand === 'object' ? product.brand?.name : (product.brand || product.brand_id);
   
-  const stockStatus = product.stock_status || (product.stock > 0 ? 'IN_STOCK' : 'OUT_OF_STOCK');
+  const rawStatus = String(product.availability_status || product.stock_status || '').toLowerCase().trim();
+  const isOnOrder = rawStatus === 'on_order' || rawStatus === 'on-order' || rawStatus === 'on order' || rawStatus === 'pre_order' || rawStatus === 'preorder';
+  const isInStock = !isOnOrder && (rawStatus === 'in_stock' || rawStatus === 'instock' || (!rawStatus && (product.stock > 0 || product.stock_quantity > 0)));
   const description = product.short_description || product.description || '';
 
   return (
@@ -81,8 +83,8 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
             )}
           </div>
 
-          <div className={`text-xs font-semibold mt-1 ${stockStatus === 'IN_STOCK' ? 'text-green-600' : 'text-red-500'}`}>
-            {stockStatus === 'IN_STOCK' ? 'In Stock' : 'Out of Stock'}
+          <div className={`text-xs font-semibold mt-1 ${isOnOrder ? 'text-amber-600' : isInStock ? 'text-green-600' : 'text-red-500'}`}>
+            {isOnOrder ? 'On Order' : isInStock ? 'In Stock' : 'Out of Stock'}
           </div>
         </div>
       </Link>

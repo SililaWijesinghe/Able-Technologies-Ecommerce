@@ -28,6 +28,7 @@ import Customers from './pages/admin/Customers';
 import Inquiries from './pages/admin/Inquiries';
 
 import Categories from './pages/admin/Categories';
+import ComingSoon from './pages/admin/ComingSoon';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -114,6 +115,8 @@ export default function App() {
               <Route path="orders" element={<Orders />} />
               <Route path="customers" element={<Customers />} />
               <Route path="inquiries" element={<Inquiries />} />
+              <Route path="banners" element={<ComingSoon />} />
+              <Route path="pages" element={<ComingSoon />} />
               {/* Additional admin routes will go here in future steps */}
             </Route>
           </Routes>

@@ -6,9 +6,7 @@ import { fetchSettings } from '../services/api';
 
 export default function FloatingControls() {
   const [settings, setSettings] = useState<any>(null);
-  const [isMobileContactOpen, setIsMobileContactOpen] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
-  const mobileMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchSettings().then(data => data && setSettings(data));
@@ -25,16 +23,6 @@ export default function FloatingControls() {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node)) {
-        setIsMobileContactOpen(false);
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   const whatsappNumber = settings?.whatsapp_number || '+94777852476';
   const whatsappUrl = `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}`;
@@ -118,49 +106,7 @@ export default function FloatingControls() {
         </a>
       </div>
 
-      {/* ---------------- MOBILE FLOATING CONTACT BUTTON ---------------- */}
-      <div className="md:hidden fixed bottom-20 right-4 z-[60] flex flex-col items-end" ref={mobileMenuRef}>
-        
-        {/* Expanded Stack */}
-        <div className={`flex flex-col items-end space-y-3 mb-3 transition-all duration-300 origin-bottom-right ${isMobileContactOpen ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-90 translate-y-4 pointer-events-none'}`}>
-          <a href={`mailto:${email}`} className="flex items-center space-x-3 group">
-            <span className="bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-700 shadow-sm border border-gray-100">Email Us</span>
-            <div className="w-12 h-12 bg-white/90 backdrop-blur-xl border border-white shadow-[0_4px_16px_rgba(0,0,0,0.1)] rounded-full flex items-center justify-center active:scale-95 transition-transform">
-              <Mail size={20} className="text-[#e11d48]" />
-            </div>
-          </a>
-          
-          <a href={`tel:${phoneNumber}`} className="flex items-center space-x-3 group">
-            <span className="bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-700 shadow-sm border border-gray-100">Call Us</span>
-            <div className="w-12 h-12 bg-white/90 backdrop-blur-xl border border-white shadow-[0_4px_16px_rgba(0,0,0,0.1)] rounded-full flex items-center justify-center active:scale-95 transition-transform">
-              <Phone size={20} className="text-[#0066ff]" />
-            </div>
-          </a>
-          
-          <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-3 group">
-            <span className="bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-700 shadow-sm border border-gray-100">WhatsApp</span>
-            <div className="w-12 h-12 bg-white/90 backdrop-blur-xl border border-white shadow-[0_4px_16px_rgba(0,0,0,0.1)] rounded-full flex items-center justify-center active:scale-95 transition-transform">
-              <WhatsAppIcon size={22} className="text-[#25D366]" />
-            </div>
-          </a>
-        </div>
 
-        {/* Main Floating Button */}
-        <button 
-          onClick={() => setIsMobileContactOpen(!isMobileContactOpen)}
-          className={`w-14 h-14 rounded-full flex items-center justify-center shadow-[0_8px_32px_rgba(0,0,0,0.15)] transition-all duration-300 active:scale-95 border ${isMobileContactOpen ? 'bg-gray-800 border-gray-700 text-white' : 'bg-white/80 backdrop-blur-xl border-white text-slate-800'}`}
-          aria-label="Contact Options"
-        >
-          {isMobileContactOpen ? (
-            <X size={24} />
-          ) : (
-            <div className="relative">
-               <WhatsAppIcon size={26} className="text-[#25D366]" />
-               <div className="absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white animate-pulse" />
-            </div>
-          )}
-        </button>
-      </div>
 
       {/* ---------------- MOBILE BOTTOM NAVIGATION (UNCHANGED) ---------------- */}
       <div className="md:hidden fixed bottom-0 left-0 w-full bg-white shadow-[0_-4px_15px_rgba(0,0,0,0.05)] z-[50] flex justify-around items-center py-2 pb-safe border-t border-gray-100">
@@ -186,23 +132,23 @@ export default function FloatingControls() {
         </Link>
       </div>
       
-      {/* ---------------- FLOATING LIQUID GLASS SCROLL-TO-TOP BUTTON ---------------- */}
+      {/* ---------------- FLOATING METALLIC RED SCROLL-TO-TOP BUTTON (RIGHT) ---------------- */}
       <button
         onClick={scrollToTop}
-        className={`fixed right-4 md:right-8 bottom-36 md:bottom-8 z-[90] w-12 h-12 md:w-14 md:h-14 bg-white/20 hover:bg-white/80 backdrop-blur-[24px] border border-white/40 hover:border-white/80 rounded-full shadow-[0_12px_40px_rgba(10,20,50,0.12),inset_0_2px_4px_rgba(255,255,255,0.9)] flex items-center justify-center text-[#060740] hover:text-[#0b1042] transition-all duration-300 active:scale-95 group overflow-hidden ${
+        className={`fixed right-4 md:right-8 bottom-20 md:bottom-8 z-[90] w-12 h-12 md:w-14 md:h-14 metallic-red-bg rounded-full shadow-[0_10px_25px_rgba(180,0,0,0.4),0_4px_12px_rgba(0,0,0,0.5)] hover:shadow-[0_14px_30px_rgba(255,50,50,0.5),0_6px_16px_rgba(0,0,0,0.6)] flex items-center justify-center text-white transition-all duration-300 hover:scale-105 active:scale-95 group overflow-hidden border border-red-400/40 ${
           showScrollTop ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-8 pointer-events-none'
         }`}
         aria-label="Scroll to top"
         title="Scroll to Top"
       >
-        {/* Light sweep reflection */}
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/90 to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-[800ms] ease-in-out pointer-events-none rounded-full" />
+        {/* Light sweep metallic sheen reflection */}
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-[700ms] ease-in-out pointer-events-none rounded-full" />
         
-        {/* Subtle hover glow */}
-        <div className="absolute inset-0 bg-[#060740]/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-full blur-md" />
+        {/* Subtle radial inner glow */}
+        <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity rounded-full" />
         
         {/* Arrow Icon */}
-        <ArrowUp size={22} className="relative z-10 text-gray-700 group-hover:text-[#060740] group-hover:-translate-y-1 transition-all duration-300" />
+        <ArrowUp size={22} className="relative z-10 text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)] group-hover:-translate-y-1 transition-all duration-300" strokeWidth={2.5} />
       </button>
 
       {/* Spacer for mobile bottom nav */}

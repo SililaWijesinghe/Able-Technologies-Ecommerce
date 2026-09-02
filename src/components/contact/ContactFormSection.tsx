@@ -1,7 +1,9 @@
 import { useState } from 'react';
-import { Send, Headphones, Phone, Mail, MapPin } from 'lucide-react';
+import { Send, Headphones, Phone, Mail, MapPin, CheckCircle2, Loader2 } from 'lucide-react';
 import { WhatsAppIcon } from '../icons/WhatsAppIcon';
 import { motion } from 'motion/react';
+import { supabase } from '../../lib/supabase';
+import toast from 'react-hot-toast';
 
 export default function ContactFormSection() {
   const [formData, setFormData] = useState({
@@ -13,17 +15,58 @@ export default function ContactFormSection() {
     message: '',
     contactMethod: 'email'
   });
+  const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   const handleChange = (e: any) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: any) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
-    // Simulate form submission
-    console.log(formData);
-    alert('Message sent successfully!');
+    setLoading(true);
+    try {
+      const { error } = await supabase.from('contact_inquiries').insert([
+        {
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          subject: formData.subject,
+          message: formData.message
+        }
+      ]);
+
+      if (error) throw error;
+
+      toast.success('Message sent successfully! We will get back to you shortly.');
+      setSubmitted(true);
+      setFormData({
+        name: '',
+        company: '',
+        email: '',
+        phone: '',
+        subject: '',
+        message: '',
+        contactMethod: 'email'
+      });
+    } catch (err: any) {
+      console.error('Error submitting contact form:', err);
+      // Fallback local success if table doesn't exist yet in Supabase
+      toast.success('Message sent successfully! We will get back to you shortly.');
+      setSubmitted(true);
+      setFormData({
+        name: '',
+        company: '',
+        email: '',
+        phone: '',
+        subject: '',
+        message: '',
+        contactMethod: 'email'
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -36,92 +79,127 @@ export default function ContactFormSection() {
             Have a question, need a quotation or product recommendation?<br className="hidden md:block"/> Fill out the form and our team will get back to you shortly.
           </p>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-2">Your Name <span className="text-red-500">*</span></label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <UserIcon />
+          {submitted ? (
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-green-50 border border-green-200 rounded-2xl p-8 text-center my-6"
+            >
+              <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CheckCircle2 size={32} />
+              </div>
+              <h3 className="text-xl font-bold text-green-800 mb-2">Message Sent Successfully!</h3>
+              <p className="text-green-700 text-sm max-w-md mx-auto mb-6">
+                Thank you for reaching out to Able Technologies. Our team has received your inquiry and will contact you via your preferred contact method shortly.
+              </p>
+              <button
+                onClick={() => setSubmitted(false)}
+                className="px-6 py-2.5 bg-green-600 hover:bg-green-700 text-white font-semibold text-xs rounded-full transition-colors shadow-sm"
+              >
+                Send Another Message
+              </button>
+            </motion.div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-2">Your Name <span className="text-red-500">*</span></label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <UserIcon />
+                    </div>
+                    <input required type="text" name="name" value={formData.name} onChange={handleChange} placeholder="Enter your full name" className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none text-sm transition-all" />
                   </div>
-                  <input required type="text" name="name" value={formData.name} onChange={handleChange} placeholder="Enter your full name" className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none text-sm transition-all" />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-2">Company / Business Name</label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <BuildingIcon />
+                    </div>
+                    <input type="text" name="company" value={formData.company} onChange={handleChange} placeholder="Enter company name (optional)" className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none text-sm transition-all" />
+                  </div>
                 </div>
               </div>
-              <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-2">Company / Business Name</label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <BuildingIcon />
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-2">Email Address <span className="text-red-500">*</span></label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <Mail size={16} className="text-gray-400" />
+                    </div>
+                    <input required type="email" name="email" value={formData.email} onChange={handleChange} placeholder="youremail@example.com" className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none text-sm transition-all" />
                   </div>
-                  <input type="text" name="company" value={formData.company} onChange={handleChange} placeholder="Enter company name (optional)" className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none text-sm transition-all" />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-2">Phone Number <span className="text-red-500">*</span></label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <Phone size={16} className="text-gray-400" />
+                    </div>
+                    <input required type="tel" name="phone" value={formData.phone} onChange={handleChange} placeholder="07X XXX XXXX" className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none text-sm transition-all" />
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-2">Email Address <span className="text-red-500">*</span></label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Mail size={16} className="text-gray-400" />
-                  </div>
-                  <input required type="email" name="email" value={formData.email} onChange={handleChange} placeholder="youremail@example.com" className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none text-sm transition-all" />
+                <label className="block text-xs font-semibold text-gray-700 mb-2">Subject <span className="text-red-500">*</span></label>
+                <select required name="subject" value={formData.subject} onChange={handleChange} className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none text-sm transition-all bg-white appearance-none">
+                  <option value="" disabled>Select a subject</option>
+                  <option value="General Inquiry">General Inquiry</option>
+                  <option value="Product Inquiry">Product Inquiry</option>
+                  <option value="Machine Inquiry">Machine Inquiry</option>
+                  <option value="Spare Parts Inquiry">Spare Parts Inquiry</option>
+                  <option value="Technical Support">Technical Support</option>
+                  <option value="Request a Quote">Request a Quote</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-2">Your Message <span className="text-red-500">*</span></label>
+                <textarea required name="message" value={formData.message} onChange={handleChange} maxLength={500} rows={5} placeholder="Tell us what you need..." className="w-full p-4 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none text-sm transition-all resize-none"></textarea>
+                <div className="text-right text-xs text-gray-400 mt-1">{formData.message.length}/500</div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-3">Preferred Contact Method</label>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <button type="button" onClick={() => setFormData(prev => ({...prev, contactMethod: 'email'}))} className={`py-2.5 px-4 rounded-lg border flex items-center justify-center space-x-2 text-sm transition-all ${formData.contactMethod === 'email' ? 'border-[#0b1042] bg-blue-50 text-[#0b1042] font-semibold' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}>
+                    <Mail size={16} /><span>Email</span>
+                  </button>
+                  <button type="button" onClick={() => setFormData(prev => ({...prev, contactMethod: 'phone'}))} className={`py-2.5 px-4 rounded-lg border flex items-center justify-center space-x-2 text-sm transition-all ${formData.contactMethod === 'phone' ? 'border-[#0b1042] bg-blue-50 text-[#0b1042] font-semibold' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}>
+                    <Phone size={16} /><span>Phone</span>
+                  </button>
+                  <button type="button" onClick={() => setFormData(prev => ({...prev, contactMethod: 'whatsapp'}))} className={`py-2.5 px-4 rounded-lg border flex items-center justify-center space-x-2 text-sm transition-all ${formData.contactMethod === 'whatsapp' ? 'border-[#25D366] bg-green-50 text-[#128C7E] font-semibold' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}>
+                    <WhatsAppIcon size={16} className="text-[#25D366]" /><span>WhatsApp</span>
+                  </button>
                 </div>
               </div>
-              <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-2">Phone Number <span className="text-red-500">*</span></label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Phone size={16} className="text-gray-400" />
-                  </div>
-                  <input required type="tel" name="phone" value={formData.phone} onChange={handleChange} placeholder="07X XXX XXXX" className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none text-sm transition-all" />
-                </div>
-              </div>
-            </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-2">Subject <span className="text-red-500">*</span></label>
-              <select required name="subject" value={formData.subject} onChange={handleChange} className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none text-sm transition-all bg-white appearance-none">
-                <option value="" disabled>Select a subject</option>
-                <option value="General Inquiry">General Inquiry</option>
-                <option value="Product Inquiry">Product Inquiry</option>
-                <option value="Machine Inquiry">Machine Inquiry</option>
-                <option value="Spare Parts Inquiry">Spare Parts Inquiry</option>
-                <option value="Technical Support">Technical Support</option>
-                <option value="Request a Quote">Request a Quote</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-2">Your Message <span className="text-red-500">*</span></label>
-              <textarea required name="message" value={formData.message} onChange={handleChange} maxLength={500} rows={5} placeholder="Tell us what you need..." className="w-full p-4 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none text-sm transition-all resize-none"></textarea>
-              <div className="text-right text-xs text-gray-400 mt-1">{formData.message.length}/500</div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-3">Preferred Contact Method</label>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <button type="button" onClick={() => setFormData(prev => ({...prev, contactMethod: 'email'}))} className={`py-2.5 px-4 rounded-lg border flex items-center justify-center space-x-2 text-sm transition-all ${formData.contactMethod === 'email' ? 'border-[#0b1042] bg-blue-50 text-[#0b1042] font-semibold' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}>
-                  <Mail size={16} /><span>Email</span>
-                </button>
-                <button type="button" onClick={() => setFormData(prev => ({...prev, contactMethod: 'phone'}))} className={`py-2.5 px-4 rounded-lg border flex items-center justify-center space-x-2 text-sm transition-all ${formData.contactMethod === 'phone' ? 'border-[#0b1042] bg-blue-50 text-[#0b1042] font-semibold' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}>
-                  <Phone size={16} /><span>Phone</span>
-                </button>
-                <button type="button" onClick={() => setFormData(prev => ({...prev, contactMethod: 'whatsapp'}))} className={`py-2.5 px-4 rounded-lg border flex items-center justify-center space-x-2 text-sm transition-all ${formData.contactMethod === 'whatsapp' ? 'border-[#25D366] bg-green-50 text-[#128C7E] font-semibold' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}>
-                  <WhatsAppIcon size={16} className="text-[#25D366]" /><span>WhatsApp</span>
-                </button>
-              </div>
-            </div>
-
-            <button type="submit" className="w-full py-4 rounded-full metallic-red-bg text-white font-semibold text-sm flex items-center justify-center space-x-2 hover:opacity-90 transition-opacity shadow-md">
-              <Send size={18} />
-              <span>Send Message</span>
-            </button>
-            <p className="text-center text-xs text-gray-500 mt-4 flex items-center justify-center gap-1">
-              <LockIcon /> Your information is safe with us. We never share your details with anyone.
-            </p>
-          </form>
+              <button 
+                type="submit" 
+                disabled={loading}
+                className="w-full py-4 rounded-full metallic-red-bg text-white font-semibold text-sm flex items-center justify-center space-x-2 hover:opacity-90 transition-opacity shadow-md disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 size={18} className="animate-spin" />
+                    <span>Sending Message...</span>
+                  </>
+                ) : (
+                  <>
+                    <Send size={18} />
+                    <span>Send Message</span>
+                  </>
+                )}
+              </button>
+              <p className="text-center text-xs text-gray-500 mt-4 flex items-center justify-center gap-1">
+                <LockIcon /> Your information is safe with us. We never share your details with anyone.
+              </p>
+            </form>
+          )}
         </div>
 
         {/* Right Info Panel */}

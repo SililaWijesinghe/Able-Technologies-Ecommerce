@@ -74,7 +74,7 @@ export default function Profile() {
   };
 
   return (
-    <div className="bg-gray-50 min-h-screen py-12">
+    <div className="bg-gray-50 min-h-screen pt-28 md:pt-12 pb-12">
       <div className="max-w-7xl mx-auto px-4 md:px-6">
         
         <div className="flex flex-col md:flex-row gap-8">
