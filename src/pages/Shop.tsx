@@ -20,6 +20,7 @@ import FilterSidebar, { getProductAvailabilityStatus } from '../components/shop/
 import ProductCard from '../components/shop/ProductCard';
 import TrustBar from '../components/TrustBar';
 import heroBg from '../assets/heroBg.webp';
+import { useStoreSettings } from '../context/StoreSettingsContext';
 
 // Helper to determine if a brand represents local / unbranded equipment
 const isLocalBrand = (brandValue: any): boolean => {
@@ -42,6 +43,7 @@ const isLocalBrand = (brandValue: any): boolean => {
 };
 
 export default function Shop() {
+  const { settings } = useStoreSettings();
   const location = useLocation();
   const navigate = useNavigate();
   
@@ -303,7 +305,7 @@ export default function Shop() {
          type: 'brand' 
        };
     }),
-    ...(priceRange[0] > 0 || priceRange[1] < maxCatalogPrice ? [{ 
+    ...(settings.show_prices && (priceRange[0] > 0 || priceRange[1] < maxCatalogPrice) ? [{ 
       id: 'price', 
       label: `Rs. ${priceRange[0].toLocaleString()} – Rs. ${priceRange[1].toLocaleString()}`, 
       type: 'price' 

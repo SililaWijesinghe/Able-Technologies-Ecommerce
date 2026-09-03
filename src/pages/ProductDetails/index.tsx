@@ -8,9 +8,11 @@ import ProductGallery from './ProductGallery';
 import ProductBuyBox from './ProductBuyBox';
 import ProductTabs from './ProductTabs';
 import RelatedProducts from './RelatedProducts';
+import { useStoreSettings } from '../../context/StoreSettingsContext';
 import QuoteModal from '../../components/shop/QuoteModal';
 
 export default function ProductDetails() {
+  const { settings } = useStoreSettings();
   const { id } = useParams<{ id: string }>();
   const [product, setProduct] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -57,7 +59,8 @@ export default function ProductDetails() {
   }
 
   const basePrice = parseFloat(product.price || 0);
-  const displayPrice = `Rs. ${basePrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+  const showPrice = settings.show_prices && !product.requires_quote;
+  const displayPrice = showPrice ? `Rs. ${basePrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}` : 'Price on Request';
 
   return (
     <div className="bg-white min-h-screen pb-24 md:pb-16 pt-4 md:pt-8">
@@ -93,17 +96,19 @@ export default function ProductDetails() {
       </div>
 
       {/* Sticky Mobile Bottom Action Bar */}
-      <div className="md:hidden fixed bottom-16 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-gray-200 px-4 py-3 z-50 flex items-center justify-between shadow-[0_-4px_20px_rgba(0,0,0,0.12)]">
-        <div className="flex flex-col">
-          <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Price</span>
-          <span className="metallic-red-text font-black text-lg">{displayPrice}</span>
-        </div>
+      <div className={`md:hidden fixed bottom-16 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-gray-200 px-4 py-3 z-50 flex items-center ${showPrice ? 'justify-between' : 'justify-center'} shadow-[0_-4px_20px_rgba(0,0,0,0.12)]`}>
+        {showPrice && (
+          <div className="flex flex-col">
+            <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Price</span>
+            <span className="metallic-red-text font-black text-lg">{displayPrice}</span>
+          </div>
+        )}
 
-        <div className="flex items-center space-x-2">
+        <div className={`flex items-center space-x-2 ${showPrice ? '' : 'w-full'}`}>
           {product.requires_quote ? (
             <button 
               onClick={() => setIsQuoteModalOpen(true)}
-              className="metallic-red-bg text-white px-5 py-2.5 rounded-full text-xs font-bold shadow-md shadow-red-900/30 active:scale-95 transition-transform"
+              className={`metallic-red-bg text-white px-5 py-2.5 rounded-full text-xs font-bold shadow-md shadow-red-900/30 active:scale-95 transition-transform ${showPrice ? '' : 'w-full'}`}
             >
               Request Quote
             </button>
@@ -116,10 +121,10 @@ export default function ProductDetails() {
                 image: product.images?.[0]?.image_url || (product.image_urls && product.image_urls[0]) || '',
                 quantity: 1
               })}
-              className="bg-[#0b1042] text-white px-6 py-2.5 rounded-full text-xs font-bold shadow-md shadow-blue-900/30 flex items-center space-x-2 active:scale-95 transition-transform"
+              className={`bg-[#0b1042] text-white px-6 py-2.5 rounded-full text-xs font-bold shadow-md shadow-blue-900/30 flex items-center justify-center space-x-2 active:scale-95 transition-transform ${showPrice ? '' : 'w-full'}`}
             >
               <ShoppingCart size={15} />
-              <span>Add to Cart</span>
+              <span>{settings.enable_checkout ? 'Add to Cart' : 'Submit Order Request'}</span>
             </button>
           )}
         </div>

@@ -3,13 +3,16 @@ import { Link } from 'react-router-dom';
 import { useToast } from '../context/ToastContext';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { useStoreSettings } from '../context/StoreSettingsContext';
 import { ChevronRight, Check, Truck, CreditCard, Landmark, Banknote, ShieldCheck, Copy, ArrowLeft, PackageCheck } from 'lucide-react';
 import LoginModal from '../components/auth/LoginModal';
+import { supabase } from '../lib/supabase';
 
 export default function Checkout() {
   const toast = useToast();
   const { cartItems, cartTotal, clearCart } = useCart();
   const { isAuthenticated, user } = useAuth();
+  const { settings } = useStoreSettings();
   
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -61,6 +64,30 @@ export default function Checkout() {
 
     setIsSubmitting(true);
     try {
+      if (!settings.enable_checkout) {
+        // B2B Catalog Mode: Save as order request inquiry
+        const orderSummary = `Order Request Items:\n${cartItems.map(item => `- ${item.quantity}x ${item.name} (Rs. ${item.price})`).join('\n')}\n\nShipping Details:\nAddress: ${formData.address1}, ${formData.address2 || ''}\nCity: ${formData.city}\nDistrict: ${formData.district}`;
+        
+        const { error } = await supabase.from('contact_inquiries').insert([{
+          name: formData.fullName,
+          email: formData.email,
+          phone: formData.phone,
+          company: 'B2B Request',
+          subject: 'Storefront Order Request',
+          message: orderSummary,
+          status: 'new'
+        }]);
+
+        if (error) throw error;
+        
+        const mockId = `REQ-${Math.floor(100000 + Math.random() * 900000)}`;
+        setOrderId(mockId);
+        setOrderConfirmed(true);
+        toast.success('Order request submitted successfully!');
+        clearCart();
+        return;
+      }
+
       const response = await fetch('/api/orders', {
         method: 'POST',
         headers: {
@@ -397,7 +424,9 @@ export default function Checkout() {
                 disabled={isSubmitting || cartItems.length === 0}
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 px-6 rounded-xl flex items-center justify-center transition-all text-sm font-black shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isSubmitting ? 'Processing Order...' : `Confirm & Pay Rs. ${grandTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                {isSubmitting 
+                  ? (settings.enable_checkout ? 'Processing Order...' : 'Submitting Request...') 
+                  : (settings.enable_checkout ? `Confirm & Pay Rs. ${grandTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 'Submit Order Request')}
               </button>
             </div>
 
@@ -432,7 +461,7 @@ export default function Checkout() {
                         <p className="text-[10px] text-slate-500">Qty: {item.quantity}</p>
                       </div>
                       <div className="text-xs font-bold text-blue-600 whitespace-nowrap">
-                        Rs. {(Number(item.price) * item.quantity).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        {settings.show_prices ? `Rs. ${(Number(item.price) * item.quantity).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 'TBD'}
                       </div>
                     </div>
                   ))
@@ -443,22 +472,22 @@ export default function Checkout() {
               <div className="space-y-2.5 pt-4 border-t border-slate-200 text-xs font-medium text-slate-600">
                 <div className="flex justify-between">
                   <span>Subtotal</span>
-                  <span className="font-bold text-slate-900">Rs. {cartTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                  <span className="font-bold text-slate-900">{settings.show_prices ? `Rs. ${cartTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 'TBD'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Shipping ({shippingMethod})</span>
-                  <span className="font-bold text-slate-900">Rs. {shippingCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                  <span className="font-bold text-slate-900">{settings.show_prices ? `Rs. ${shippingCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 'TBD'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>VAT / SVAT (18%)</span>
-                  <span className="font-bold text-slate-900">Rs. {vat.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                  <span className="font-bold text-slate-900">{settings.show_prices ? `Rs. ${vat.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 'TBD'}</span>
                 </div>
               </div>
 
               <div className="flex justify-between items-center pt-3 border-t border-slate-200">
                 <span className="text-sm font-black text-slate-900">Estimated Total</span>
                 <span className="text-lg sm:text-xl font-black text-blue-600">
-                  Rs. {grandTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  {settings.show_prices ? `Rs. ${grandTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 'TBD'}
                 </span>
               </div>
 
@@ -469,7 +498,9 @@ export default function Checkout() {
                   disabled={isSubmitting || cartItems.length === 0}
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3.5 px-6 rounded-xl flex items-center justify-center transition-all text-sm font-black shadow-md disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 >
-                  {isSubmitting ? 'Processing Order...' : 'Confirm & Pay Order'}
+                  {isSubmitting 
+                    ? (settings.enable_checkout ? 'Processing Order...' : 'Submitting Request...') 
+                    : (settings.enable_checkout ? 'Confirm & Pay Order' : 'Submit Order Request')}
                 </button>
               </div>
 

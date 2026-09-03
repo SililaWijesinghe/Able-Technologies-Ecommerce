@@ -61,7 +61,7 @@ export default function Home() {
         transition={{ duration: 0.8 }}
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
-        className="relative w-full min-h-[700px] md:h-[800px] bg-[#04081c] overflow-hidden flex flex-col justify-center bg-cover bg-center bg-no-repeat pb-10 md:pb-0"
+        className="relative w-full min-h-[700px] md:min-h-[850px] bg-[#04081c] overflow-hidden flex flex-col justify-center bg-cover bg-center bg-no-repeat pb-10 md:pb-24"
         style={{ backgroundImage: `url(${heroBg})` }}
       >
         {/* Dark Navy Faded Overlay for Text Highlight */}
@@ -91,7 +91,7 @@ export default function Home() {
         </motion.div>
 
         {/* Hero Content with AnimatePresence for smooth slide transition */}
-        <div className="relative z-20 max-w-7xl mx-auto px-6 w-full flex flex-col pt-36 md:pt-[240px]">
+        <div className="relative z-20 max-w-7xl mx-auto px-6 w-full flex flex-col pt-40 md:pt-56 lg:pt-[280px]">
           
           <AnimatePresence mode="wait">
             <motion.div 
@@ -124,7 +124,7 @@ export default function Home() {
           </AnimatePresence>
 
           {/* Features Row */}
-          <div className="grid grid-cols-2 gap-2.5 sm:gap-4 mb-8 md:mb-12 w-full max-w-5xl">
+          <div className="grid grid-cols-2 gap-2.5 sm:gap-4 mb-8 md:mb-12 w-full max-w-2xl">
             <div className="flex items-center space-x-2.5 sm:space-x-3 bg-blue-950/60 backdrop-blur-md border border-white/10 rounded-2xl p-3 sm:p-4 shadow-lg transition-transform hover:-translate-y-1">
               <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-red-600/20 border border-red-500/30 flex items-center justify-center shrink-0">
                 <ShieldCheck size={16} className="text-red-400 sm:w-5 sm:h-5" />

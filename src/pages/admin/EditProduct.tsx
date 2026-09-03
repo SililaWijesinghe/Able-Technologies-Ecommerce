@@ -151,13 +151,7 @@ export default function EditProduct() {
       setSaving(false);
       return;
     }
-    if (formData.price === '' || isNaN(parseFloat(formData.price)) || parseFloat(formData.price) < 0) {
-      const msg = 'Oops! Please enter a valid Selling Price.';
-      setError(msg);
-      toast.error(msg);
-      setSaving(false);
-      return;
-    }
+    // Removed strict price validation to support missing/zero prices in B2B catalog mode
     if (formData.stock === '' || isNaN(parseInt(formData.stock)) || parseInt(formData.stock) < 0) {
       const msg = 'Oops! Please enter a valid Stock Quantity.';
       setError(msg);
@@ -199,10 +193,16 @@ export default function EditProduct() {
         finalImageUrl = publicUrlData.publicUrl;
       }
 
+      // Determine Price and Quote Flags
+      const parsedPrice = parseFloat(formData.price);
+      const isPriceEmpty = formData.price === '' || isNaN(parsedPrice) || parsedPrice <= 0;
+      const finalPrice = isPriceEmpty ? 0 : parsedPrice;
+      const finalRequiresQuote = isPriceEmpty ? true : formData.requires_quote;
+
       const updatePayload = {
         name: formData.name,
         description: formData.description,
-        price: parseFloat(formData.price) || 0,
+        price: finalPrice,
         stock: parseInt(formData.stock) || 0,
         category_id: formData.category,
         brand: formData.brand || null,
@@ -214,7 +214,7 @@ export default function EditProduct() {
         is_service: formData.is_service,
         is_oeko_tex: formData.is_oeko_tex,
         transaction_type: formData.transaction_type,
-        requires_quote: formData.requires_quote,
+        requires_quote: finalRequiresQuote,
         is_customizable: formData.is_customizable,
         specifications: specsObject
       };
@@ -426,12 +426,11 @@ export default function EditProduct() {
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-gray-700">Selling Price (Rs.) <span className="text-red-500">*</span></label>
+                <label className="text-xs font-bold text-gray-700">Selling Price (Rs.)</label>
                 <input 
                   type="number" 
                   step="0.01"
                   name="price"
-                  required
                   value={formData.price}
                   onChange={handleChange}
                   className="w-full border border-white/60 rounded-xl p-3 text-sm focus:border-[#0b1042] focus:ring-1 focus:ring-[#0b1042] outline-none transition-all"

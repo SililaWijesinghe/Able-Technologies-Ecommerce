@@ -21,11 +21,13 @@ import {
 } from 'lucide-react';
 import { WhatsAppIcon } from '../icons/WhatsAppIcon';
 import { useCart } from '../../context/CartContext';
+import { useStoreSettings } from '../../context/StoreSettingsContext';
 import toast from 'react-hot-toast';
 
 export default function CartDrawer() {
   const navigate = useNavigate();
   const [isCopied, setIsCopied] = useState(false);
+  const { settings } = useStoreSettings();
   const { 
     isCartOpen, 
     setIsCartOpen, 
@@ -310,7 +312,7 @@ export default function CartDrawer() {
                             {/* Total Line Item Price */}
                             <div className="text-right">
                               <span className="text-xs sm:text-sm font-black text-red-400 tracking-tight">
-                                Rs. {(Number(item.price) * item.quantity).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                {settings.show_prices ? `Rs. ${(Number(item.price) * item.quantity).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 'TBD'}
                               </span>
                             </div>
                           </div>
@@ -360,7 +362,7 @@ export default function CartDrawer() {
                   <div className="flex justify-between text-slate-300">
                     <span>Subtotal</span>
                     <span className="text-white font-bold">
-                      Rs. {cartTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      {settings.show_prices ? `Rs. ${cartTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 'TBD'}
                     </span>
                   </div>
                   <div className="flex justify-between text-slate-300">
@@ -373,7 +375,7 @@ export default function CartDrawer() {
                   <div className="flex justify-between items-center">
                     <span className="text-sm font-black text-white">Estimated Total</span>
                     <span className="text-base sm:text-lg font-black text-red-400">
-                      Rs. {cartTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      {settings.show_prices ? `Rs. ${cartTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 'TBD'}
                     </span>
                   </div>
                 </div>
@@ -384,7 +386,7 @@ export default function CartDrawer() {
                     onClick={() => setIsCartOpen(false)}
                     className="w-full metallic-red-bg hover:brightness-110 text-white py-3 px-6 rounded-xl font-black text-xs sm:text-sm shadow-[0_0_25px_rgba(220,38,38,0.4)] transition-all flex items-center justify-center space-x-2 border border-red-400/40"
                   >
-                    <span>Proceed to Checkout</span>
+                    <span>{settings.enable_checkout ? 'Proceed to Checkout' : 'Submit Order Request'}</span>
                     <ArrowRight size={16} />
                   </Link>
 

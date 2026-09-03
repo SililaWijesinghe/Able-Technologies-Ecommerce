@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Sparkles, ArrowRight } from 'lucide-react';
 
 export interface GuideStep {
-  targetId: string;
+  targetId: string | string[];
   title: string;
   description: string;
   position?: 'top' | 'bottom' | 'left' | 'right';
@@ -32,9 +32,21 @@ export default function NavigatedGuide({ guideId, steps }: NavigatedGuideProps) 
     if (!isVisible || steps.length === 0) return;
 
     const updateTarget = () => {
-      const el = document.getElementById(steps[currentStepIndex].targetId);
-      if (el) {
-        setTargetRect(el.getBoundingClientRect());
+      const step = steps[currentStepIndex];
+      const targetIds = Array.isArray(step.targetId) ? step.targetId : [step.targetId];
+      
+      let foundEl: HTMLElement | null = null;
+      for (const id of targetIds) {
+        const el = document.getElementById(id);
+        // Check if element exists and is visible
+        if (el && el.offsetWidth > 0 && el.offsetHeight > 0) {
+          foundEl = el;
+          break;
+        }
+      }
+
+      if (foundEl) {
+        setTargetRect(foundEl.getBoundingClientRect());
       } else {
         setTargetRect(null);
       }

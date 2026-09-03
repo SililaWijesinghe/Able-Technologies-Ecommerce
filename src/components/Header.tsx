@@ -209,7 +209,7 @@ export default function Header() {
       <div className={`md:hidden fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled || !isHome ? 'bg-[#04081c]/90 backdrop-blur-xl shadow-[0_4px_20px_rgba(0,0,0,0.5)]' : 'bg-transparent'}`}>
         <div className="flex flex-col gap-3 p-4">
           <div className="flex justify-between items-center bg-[#0b1042]/70 backdrop-blur-md border border-white/10 rounded-2xl p-3 shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
-            <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="text-white hover:text-cyan-400 transition-colors p-1">
+            <button id="nav-menu-mobile" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="text-white hover:text-cyan-400 transition-colors p-1">
               <Menu size={24} />
             </button>
             <Link to="/">

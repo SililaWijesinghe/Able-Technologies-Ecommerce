@@ -1,3 +1,4 @@
+import { StoreSettingsProvider } from "./context/StoreSettingsContext";
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom';
 import Header from './components/Header';
@@ -26,6 +27,7 @@ import Inventory from './pages/admin/Inventory';
 import Orders from './pages/admin/Orders';
 import Customers from './pages/admin/Customers';
 import Inquiries from './pages/admin/Inquiries';
+import Settings from './pages/admin/Settings';
 
 import Categories from './pages/admin/Categories';
 import ComingSoon from './pages/admin/ComingSoon';
@@ -67,8 +69,8 @@ function StorefrontLayout() {
       <NavigatedGuide 
         guideId="storefront_tour"
         steps={[
-          { targetId: 'nav-shop', title: 'Welcome to the Store', description: 'Browse our full catalog of products here.', position: 'bottom' },
-          { targetId: 'nav-cart', title: 'Your Cart', description: 'Items you add will appear here.', position: 'bottom' },
+          { targetId: ['nav-shop', 'nav-menu-mobile'], title: 'Welcome to the Store', description: 'Browse our full catalog of products here.', position: 'bottom' },
+          { targetId: ['nav-cart', 'nav-cart-mobile'], title: 'Your Cart', description: 'Items you add will appear here.', position: 'bottom' },
         ]}
       />
   
@@ -80,6 +82,7 @@ export default function App() {
   return (
     <>
       <Toaster position="top-right" />
+      <StoreSettingsProvider>
       <ToastProvider>
       <AuthProvider>
         <CartProvider>
@@ -115,6 +118,7 @@ export default function App() {
               <Route path="orders" element={<Orders />} />
               <Route path="customers" element={<Customers />} />
               <Route path="inquiries" element={<Inquiries />} />
+              <Route path="settings" element={<Settings />} />
               <Route path="banners" element={<ComingSoon />} />
               <Route path="pages" element={<ComingSoon />} />
               {/* Additional admin routes will go here in future steps */}
@@ -124,6 +128,7 @@ export default function App() {
       </CartProvider>
     </AuthProvider>
     </ToastProvider>
+    </StoreSettingsProvider>
     </>
   );
 }

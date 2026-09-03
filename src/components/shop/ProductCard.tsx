@@ -3,12 +3,14 @@ import { ShoppingCart, FileText } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
+import { useStoreSettings } from '../../context/StoreSettingsContext';
 import { supabase } from '../../lib/supabase';
 import toast from 'react-hot-toast';
 import QuoteModal from './QuoteModal';
 
 const ProductCard: React.FC<{ product: any }> = ({ product }) => {
   const { addToCart } = useCart();
+  const { settings } = useStoreSettings();
   const navigate = useNavigate();
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
   
@@ -27,7 +29,11 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
   const rawStatus = String(product.availability_status || product.stock_status || '').toLowerCase().trim();
   const isOnOrder = rawStatus === 'on_order' || rawStatus === 'on-order' || rawStatus === 'on order' || rawStatus === 'pre_order' || rawStatus === 'preorder';
   const isInStock = !isOnOrder && (rawStatus === 'in_stock' || rawStatus === 'instock' || (!rawStatus && (product.stock > 0 || product.stock_quantity > 0)));
+  
   const description = product.short_description || product.description || '';
+
+  const showPrice = settings.show_prices && !product.requires_quote;
+  const requiresQuoteButton = product.requires_quote || product.is_service || product.is_rentable || product.transaction_type === 'rent';
 
   return (
     <motion.div 
@@ -38,7 +44,7 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
     >
       {/* Top Badges */}
       <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
-        {hasDiscount && (
+        {hasDiscount && showPrice && (
           <div className="bg-red-600/90 backdrop-blur-md text-white px-3 py-1 rounded-full text-xs font-bold w-fit">
             Sale
           </div>
@@ -76,13 +82,18 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
             <p className="text-slate-500 text-sm line-clamp-2 mt-2">{description}</p>
           )}
           
-          <div className="flex items-center mt-3">
-            <span className="text-red-600 font-extrabold text-xl">{displayPrice}</span>
-            {hasDiscount && (
-              <span className="text-slate-400 line-through text-sm ml-2">{displayComparePrice}</span>
+          <div className="flex items-center mt-3 h-7">
+            {showPrice ? (
+              <>
+                <span className="text-red-600 font-extrabold text-xl">{displayPrice}</span>
+                {hasDiscount && (
+                  <span className="text-slate-400 line-through text-sm ml-2">{displayComparePrice}</span>
+                )}
+              </>
+            ) : (
+              <span className="text-blue-900 font-bold text-base bg-blue-100 px-3 py-1 rounded-full">Price on Request</span>
             )}
           </div>
-
           <div className={`text-xs font-semibold mt-1 ${isOnOrder ? 'text-amber-600' : isInStock ? 'text-green-600' : 'text-red-500'}`}>
             {isOnOrder ? 'On Order' : isInStock ? 'In Stock' : 'Out of Stock'}
           </div>
@@ -90,13 +101,13 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
       </Link>
 
       {/* Action Buttons */}
-      {(product.is_service || product.is_rentable) ? (
+      {requiresQuoteButton ? (
         <button 
           onClick={async (e) => {
             e.preventDefault();
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) {
-              toast.error("Please log in to request a rental or quote");
+              toast.error("Please log in to request a quote");
               navigate('/login');
               return;
             }
@@ -105,7 +116,7 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
           className="w-full mt-4 bg-[#0b1042] hover:bg-[#151c5c] text-white rounded-2xl py-3 shadow-md flex items-center justify-center gap-2 transition-colors relative overflow-hidden group/btn"
         >
           <FileText size={18} className="relative z-10" />
-          <span className="font-semibold relative z-10 text-[15px]">Request Quote / Rent</span>
+          <span className="font-semibold relative z-10 text-[15px]">Request Quote</span>
           <div className="absolute inset-0 bg-white/10 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300" />
         </button>
       ) : (

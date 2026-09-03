@@ -1,11 +1,13 @@
 import { ShoppingCart, Heart, Shuffle, Star, Shield, Clock, Truck, Plus, Minus, CheckCircle2, Upload, MessageSquare } from 'lucide-react';
 import { useState, useMemo } from 'react';
 import { useCart } from '../../context/CartContext';
+import { useStoreSettings } from '../../context/StoreSettingsContext';
 import QuoteModal from '../../components/shop/QuoteModal';
 
 export default function ProductBuyBox({ product }: { product: any }) {
   const [quantity, setQuantity] = useState(1);
   const { addToCart } = useCart();
+  const { settings } = useStoreSettings();
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState(product.transaction_type === 'rent' ? 'rent' : 'buy');
   const [customNotes, setCustomNotes] = useState('');
@@ -44,8 +46,9 @@ export default function ProductBuyBox({ product }: { product: any }) {
   const basePrice = parseFloat(product.price || 0);
   const priceModifier = selectedVariant ? parseFloat(selectedVariant.price_modifier || 0) : 0;
   const totalPrice = basePrice + priceModifier;
-
   const displayPrice = `Rs. ${totalPrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+  
+  const showPrice = settings.show_prices && !product.requires_quote;
 
   const updateAttribute = (key: string, value: string) => {
     setSelectedAttributes(prev => ({ ...prev, [key]: value }));
@@ -83,8 +86,14 @@ export default function ProductBuyBox({ product }: { product: any }) {
       
       {/* Price */}
       <div className="flex items-end space-x-3 mb-4">
-        <span className="metallic-red-text font-black text-3xl">{displayPrice}</span>
-        {selectedTransaction === 'rent' && <span className="text-gray-500 text-sm font-bold mb-1">/ month</span>}
+        {showPrice ? (
+          <>
+            <span className="metallic-red-text font-black text-3xl">{displayPrice}</span>
+            {selectedTransaction === 'rent' && <span className="text-gray-500 text-sm font-bold mb-1">/ month</span>}
+          </>
+        ) : (
+          <span className="text-blue-900 font-bold text-xl bg-blue-100 px-4 py-2 rounded-lg">Price on Request</span>
+        )}
       </div>
       
       <p className="text-gray-600 text-sm mb-6 leading-relaxed">

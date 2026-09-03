@@ -1,5 +1,6 @@
 import { Filter, Search, ChevronDown, ChevronUp, X } from 'lucide-react';
 import { useState, useMemo } from 'react';
+import { useStoreSettings } from '../../context/StoreSettingsContext';
 
 // Helper to determine product availability status
 export const getProductAvailabilityStatus = (p: any): 'in_stock' | 'on_order' | 'out_of_stock' => {
@@ -70,6 +71,7 @@ export default function FilterSidebar({
   setAvailability?: (a: string) => void,
   maxPrice?: number
 }) {
+  const { settings } = useStoreSettings();
   const [categoriesExpanded, setCategoriesExpanded] = useState(true);
   const [priceExpanded, setPriceExpanded] = useState(true);
   const [brandsExpanded, setBrandsExpanded] = useState(true);
@@ -342,69 +344,71 @@ export default function FilterSidebar({
         </div>
 
         {/* Price Range */}
-        <div className="border-t border-gray-200 pt-4">
-          <button 
-            onClick={() => setPriceExpanded(!priceExpanded)}
-            className="w-full flex items-center justify-between text-xs font-bold text-[#0b1042] uppercase tracking-wider mb-4 cursor-pointer"
-          >
-            PRICE RANGE
-            {priceExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-          </button>
-          {priceExpanded && (
-            <div>
-              <div className="flex justify-between text-xs text-[#0b1042] font-semibold mb-2">
-                <span>Rs. {priceRange[0].toLocaleString()}</span>
-                <span>Rs. {priceRange[1].toLocaleString()}</span>
-              </div>
-              
-              {/* Dynamic Price Slider */}
-              <div className="mb-4">
-                <input 
-                  type="range"
-                  min={0}
-                  max={effectiveMaxPrice}
-                  step={Math.max(10, Math.round(effectiveMaxPrice / 100))}
-                  value={Math.min(priceRange[1], effectiveMaxPrice)}
-                  onChange={(e) => {
-                    const val = parseInt(e.target.value, 10) || 0;
-                    if (setPriceRange) {
-                      setPriceRange([priceRange[0], Math.max(val, priceRange[0])]);
-                    }
-                  }}
-                  className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#0b1042]"
-                />
-              </div>
+        {settings.show_prices && (
+          <div className="border-t border-gray-200 pt-4">
+            <button 
+              onClick={() => setPriceExpanded(!priceExpanded)}
+              className="w-full flex items-center justify-between text-xs font-bold text-[#0b1042] uppercase tracking-wider mb-4 cursor-pointer"
+            >
+              PRICE RANGE
+              {priceExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            </button>
+            {priceExpanded && (
+              <div>
+                <div className="flex justify-between text-xs text-[#0b1042] font-semibold mb-2">
+                  <span>Rs. {priceRange[0].toLocaleString()}</span>
+                  <span>Rs. {priceRange[1].toLocaleString()}</span>
+                </div>
+                
+                {/* Dynamic Price Slider */}
+                <div className="mb-4">
+                  <input 
+                    type="range"
+                    min={0}
+                    max={effectiveMaxPrice}
+                    step={Math.max(10, Math.round(effectiveMaxPrice / 100))}
+                    value={Math.min(priceRange[1], effectiveMaxPrice)}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value, 10) || 0;
+                      if (setPriceRange) {
+                        setPriceRange([priceRange[0], Math.max(val, priceRange[0])]);
+                      }
+                    }}
+                    className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#0b1042]"
+                  />
+                </div>
 
-              <div className="flex items-center space-x-2 mb-3">
-                <div className="relative w-full">
-                  <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-gray-400 font-bold">Rs.</span>
-                  <input 
-                    type="number" 
-                    min={0}
-                    max={effectiveMaxPrice}
-                    value={priceRange[0]} 
-                    onChange={(e) => setPriceRange && setPriceRange([Math.max(0, parseInt(e.target.value) || 0), priceRange[1]])}
-                    className="w-full text-xs border border-gray-200 rounded pl-7 pr-2 py-1.5 focus:outline-none focus:border-[#0b1042]" 
-                    placeholder="Min"
-                  />
-                </div>
-                <span className="text-gray-400 font-bold">-</span>
-                <div className="relative w-full">
-                  <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-gray-400 font-bold">Rs.</span>
-                  <input 
-                    type="number" 
-                    min={0}
-                    max={effectiveMaxPrice}
-                    value={priceRange[1]}
-                    onChange={(e) => setPriceRange && setPriceRange([priceRange[0], Math.max(0, parseInt(e.target.value) || 0)])}
-                    className="w-full text-xs border border-gray-200 rounded pl-7 pr-2 py-1.5 focus:outline-none focus:border-[#0b1042]" 
-                    placeholder="Max"
-                  />
+                <div className="flex items-center space-x-2 mb-3">
+                  <div className="relative w-full">
+                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-gray-400 font-bold">Rs.</span>
+                    <input 
+                      type="number" 
+                      min={0}
+                      max={effectiveMaxPrice}
+                      value={priceRange[0]} 
+                      onChange={(e) => setPriceRange && setPriceRange([Math.max(0, parseInt(e.target.value) || 0), priceRange[1]])}
+                      className="w-full text-xs border border-gray-200 rounded pl-7 pr-2 py-1.5 focus:outline-none focus:border-[#0b1042]" 
+                      placeholder="Min"
+                    />
+                  </div>
+                  <span className="text-gray-400 font-bold">-</span>
+                  <div className="relative w-full">
+                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-gray-400 font-bold">Rs.</span>
+                    <input 
+                      type="number" 
+                      min={0}
+                      max={effectiveMaxPrice}
+                      value={priceRange[1]}
+                      onChange={(e) => setPriceRange && setPriceRange([priceRange[0], Math.max(0, parseInt(e.target.value) || 0)])}
+                      className="w-full text-xs border border-gray-200 rounded pl-7 pr-2 py-1.5 focus:outline-none focus:border-[#0b1042]" 
+                      placeholder="Max"
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
 
         {/* Brands with Dynamic Search */}
         <div className="border-t border-gray-200 pt-4">
