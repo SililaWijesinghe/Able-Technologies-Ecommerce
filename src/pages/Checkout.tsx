@@ -66,7 +66,7 @@ export default function Checkout() {
     try {
       if (!settings.enable_checkout) {
         // B2B Catalog Mode: Save as order request inquiry
-        const orderSummary = `Order Request Items:\n${cartItems.map(item => `- ${item.quantity}x ${item.name} (Rs. ${item.price})`).join('\n')}\n\nShipping Details:\nAddress: ${formData.address1}, ${formData.address2 || ''}\nCity: ${formData.city}\nDistrict: ${formData.district}`;
+        const orderSummary = `Order Request Items:\n${cartItems.map(item => `- ${item.quantity}x ${item.name} ${settings.show_prices ? `(Rs. ${item.price})` : ''}`).join('\n')}\n\nShipping Details:\nAddress: ${formData.address1}, ${formData.address2 || ''}\nCity: ${formData.city}\nDistrict: ${formData.district}`;
         
         const { error } = await supabase.from('contact_inquiries').insert([{
           name: formData.fullName,
@@ -137,7 +137,7 @@ export default function Checkout() {
   // ---------------- ORDER CONFIRMED SUCCESS VIEW (LIGHT MODE) ----------------
   if (orderConfirmed) {
     return (
-      <div className="bg-slate-50 min-h-screen pb-16 pt-28 sm:pt-10 px-4 sm:px-6 flex items-center justify-center">
+      <div className="bg-slate-50 min-h-screen pb-16 pt-4 sm:pt-10 px-4 sm:px-6 flex items-center justify-center">
         <div className="bg-white p-6 sm:p-10 rounded-3xl shadow-xl max-w-xl w-full text-center border border-slate-200">
           <div className="w-20 h-20 sm:w-24 sm:h-24 bg-emerald-50 border border-emerald-200 rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm">
             <PackageCheck size={42} className="text-emerald-600" />
@@ -186,7 +186,7 @@ export default function Checkout() {
 
   // ---------------- CHECKOUT PAGE MAIN VIEW (LIGHT MODE) ----------------
   return (
-    <div className="bg-slate-50 min-h-screen pb-20 pt-28 sm:pt-10 text-slate-900">
+    <div className="bg-slate-50 min-h-screen pb-20 pt-4 sm:pt-10 text-slate-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         
         {/* Progress Tracker */}
@@ -382,40 +382,42 @@ export default function Checkout() {
             </div>
 
             {/* Section 3: Payment Method */}
-            <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-sm">
-              <h3 className="text-base sm:text-lg font-black text-slate-900 mb-4 flex items-center gap-2">
-                <span className="w-6 h-6 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center text-xs">3</span>
-                Payment Method
-              </h3>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {[
-                  { id: 'credit', label: 'Credit / Debit Card', desc: 'Secure online payment', icon: CreditCard },
-                  { id: 'bank', label: 'Direct Bank Transfer', desc: 'SLIPS / TT deposit', icon: Landmark },
-                  { id: 'cod', label: 'Cash on Delivery', desc: 'Pay upon delivery', icon: Banknote },
-                  { id: 'online', label: 'WebXPay / Koko', desc: 'Installments available', icon: ShieldCheck },
-                ].map(method => (
-                  <label 
-                    key={method.id} 
-                    className={`flex items-center p-4 rounded-xl cursor-pointer transition-all border ${paymentMethod === method.id ? 'border-blue-600 bg-blue-50/60 shadow-sm' : 'border-slate-200 bg-white hover:border-slate-300'}`}
-                  >
-                    <input 
-                      type="radio" 
-                      name="payment" 
-                      value={method.id} 
-                      checked={paymentMethod === method.id} 
-                      onChange={(e) => setPaymentMethod(e.target.value)}
-                      className="w-4 h-4 text-blue-600 focus:ring-blue-500 shrink-0"
-                    />
-                    <div className="ml-3 flex-1 min-w-0">
-                      <span className="text-xs sm:text-sm font-bold text-slate-900 block truncate">{method.label}</span>
-                      <span className="text-[10px] text-slate-500 block truncate">{method.desc}</span>
-                    </div>
-                    <method.icon size={20} className={`shrink-0 ml-2 ${paymentMethod === method.id ? 'text-blue-600' : 'text-slate-400'}`} />
-                  </label>
-                ))}
+            {settings.enable_checkout && (
+              <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <h3 className="text-base sm:text-lg font-black text-slate-900 mb-4 flex items-center gap-2">
+                  <span className="w-6 h-6 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center text-xs">3</span>
+                  Payment Method
+                </h3>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {[
+                    { id: 'credit', label: 'Credit / Debit Card', desc: 'Secure online payment', icon: CreditCard },
+                    { id: 'bank', label: 'Direct Bank Transfer', desc: 'SLIPS / TT deposit', icon: Landmark },
+                    { id: 'cod', label: 'Cash on Delivery', desc: 'Pay upon delivery', icon: Banknote },
+                    { id: 'online', label: 'WebXPay / Koko', desc: 'Installments available', icon: ShieldCheck },
+                  ].map(method => (
+                    <label 
+                      key={method.id} 
+                      className={`flex items-center p-4 rounded-xl cursor-pointer transition-all border ${paymentMethod === method.id ? 'border-blue-600 bg-blue-50/60 shadow-sm' : 'border-slate-200 bg-white hover:border-slate-300'}`}
+                    >
+                      <input 
+                        type="radio" 
+                        name="payment" 
+                        value={method.id} 
+                        checked={paymentMethod === method.id} 
+                        onChange={(e) => setPaymentMethod(e.target.value)}
+                        className="w-4 h-4 text-blue-600 focus:ring-blue-500 shrink-0"
+                      />
+                      <div className="ml-3 flex-1 min-w-0">
+                        <span className="text-xs sm:text-sm font-bold text-slate-900 block truncate">{method.label}</span>
+                        <span className="text-[10px] text-slate-500 block truncate">{method.desc}</span>
+                      </div>
+                      <method.icon size={20} className={`shrink-0 ml-2 ${paymentMethod === method.id ? 'text-blue-600' : 'text-slate-400'}`} />
+                    </label>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Mobile Confirm Button */}
             <div className="block lg:hidden pt-2">
@@ -460,36 +462,42 @@ export default function Checkout() {
                         <h4 className="text-xs font-bold text-slate-900 truncate">{item.name}</h4>
                         <p className="text-[10px] text-slate-500">Qty: {item.quantity}</p>
                       </div>
-                      <div className="text-xs font-bold text-blue-600 whitespace-nowrap">
-                        {settings.show_prices ? `Rs. ${(Number(item.price) * item.quantity).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 'TBD'}
-                      </div>
+                      {settings.show_prices && settings.enable_checkout && (
+                        <div className="text-xs font-bold text-blue-600 whitespace-nowrap">
+                          Rs. {(Number(item.price) * item.quantity).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </div>
+                      )}
                     </div>
                   ))
                 )}
               </div>
 
               {/* Pricing Breakdown */}
-              <div className="space-y-2.5 pt-4 border-t border-slate-200 text-xs font-medium text-slate-600">
-                <div className="flex justify-between">
-                  <span>Subtotal</span>
-                  <span className="font-bold text-slate-900">{settings.show_prices ? `Rs. ${cartTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 'TBD'}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Shipping ({shippingMethod})</span>
-                  <span className="font-bold text-slate-900">{settings.show_prices ? `Rs. ${shippingCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 'TBD'}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>VAT / SVAT (18%)</span>
-                  <span className="font-bold text-slate-900">{settings.show_prices ? `Rs. ${vat.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 'TBD'}</span>
-                </div>
-              </div>
+              {settings.enable_checkout && (
+                <>
+                  <div className="space-y-2.5 pt-4 border-t border-slate-200 text-xs font-medium text-slate-600">
+                    <div className="flex justify-between">
+                      <span>Subtotal</span>
+                      <span className="font-bold text-slate-900">{settings.show_prices ? `Rs. ${cartTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 'TBD'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Shipping ({shippingMethod})</span>
+                      <span className="font-bold text-slate-900">{settings.show_prices ? `Rs. ${shippingCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 'TBD'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>VAT / SVAT (18%)</span>
+                      <span className="font-bold text-slate-900">{settings.show_prices ? `Rs. ${vat.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 'TBD'}</span>
+                    </div>
+                  </div>
 
-              <div className="flex justify-between items-center pt-3 border-t border-slate-200">
-                <span className="text-sm font-black text-slate-900">Estimated Total</span>
-                <span className="text-lg sm:text-xl font-black text-blue-600">
-                  {settings.show_prices ? `Rs. ${grandTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 'TBD'}
-                </span>
-              </div>
+                  <div className="flex justify-between items-center pt-3 border-t border-slate-200">
+                    <span className="text-sm font-black text-slate-900">Estimated Total</span>
+                    <span className="text-lg sm:text-xl font-black text-blue-600">
+                      {settings.show_prices ? `Rs. ${grandTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 'TBD'}
+                    </span>
+                  </div>
+                </>
+              )}
 
               {/* Desktop Confirm Button */}
               <div className="hidden lg:block pt-2">

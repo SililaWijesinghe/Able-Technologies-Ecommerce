@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
+import toast from 'react-hot-toast';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { fetchSettings, fetchCategories } from '../services/api';
+import { useScrollDirection } from '../hooks/useScrollDirection';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
@@ -70,6 +72,12 @@ const defaultSearchProducts = [
 ];
 
 export default function Header() {
+
+  const handleComingSoon = (e: any) => {
+    e.preventDefault();
+    toast('Coming soon!', { icon: '🚧', style: { borderRadius: '10px', background: '#0b1042', color: '#fff' } });
+  };
+
   const [settings, setSettings] = useState<any>(null);
   const [categories, setCategories] = useState<any[]>([]);
   const { cartCount, cartTotal, setIsCartOpen } = useCart();
@@ -81,11 +89,12 @@ export default function Header() {
   const [isMobileContactExpanded, setIsMobileContactExpanded] = useState(false);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const { scrollDirection, isAtTop } = useScrollDirection();
 
-  const whatsappNumber = settings?.whatsapp_number || '+94777852476';
+  const whatsappNumber = settings?.whatsapp_number || '+94 777 852 476';
   const whatsappUrl = `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}`;
-  const phoneNumber = settings?.whatsapp_number || '+94777852476';
-  const email = settings?.support_email || 'info@abletech.com';
+  const phoneNumber = settings?.whatsapp_number || '+94 777 852 476';
+  const email = settings?.support_email || 'able@ablero.com';
 
   // Search States
   const [searchQuery, setSearchQuery] = useState('');
@@ -103,7 +112,14 @@ export default function Header() {
       setIsScrolled(window.scrollY > 20);
     };
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+
+    const handleOpenLoginModal = () => setIsLoginModalOpen(true);
+    window.addEventListener('open-login-modal', handleOpenLoginModal);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('open-login-modal', handleOpenLoginModal);
+    };
   }, []);
 
   // Close dropdown on click outside
@@ -192,7 +208,7 @@ export default function Header() {
 
   const navLinks = [
     { name: 'Home', path: '/' },
-    { name: 'About Us', path: '/about' },
+    { name: 'About Us', path: '#!', available: false },
     { name: 'Shop', path: '/shop', id: 'nav-shop' },
     { name: 'Machines', path: '/shop?category=machines' },
     { name: 'Spare Parts', path: '/shop?category=spare-parts' },
@@ -206,7 +222,7 @@ export default function Header() {
   return (
     <>
       {/* ---------------- MOBILE HEADER ---------------- */}
-      <div className={`md:hidden fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled || !isHome ? 'bg-[#04081c]/90 backdrop-blur-xl shadow-[0_4px_20px_rgba(0,0,0,0.5)]' : 'bg-transparent'}`}>
+      <div className={`md:hidden fixed top-0 w-full z-50 transition-all duration-300 ease-in-out ${scrollDirection === 'down' && !isAtTop ? '-translate-y-full' : 'translate-y-0'} ${isScrolled || !isHome ? 'bg-[#04081c]/90 backdrop-blur-xl shadow-[0_4px_20px_rgba(0,0,0,0.5)]' : 'bg-transparent'}`}>
         <div className="flex flex-col gap-3 p-4">
           <div className="flex justify-between items-center bg-[#0b1042]/70 backdrop-blur-md border border-white/10 rounded-2xl p-3 shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
             <button id="nav-menu-mobile" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="text-white hover:text-cyan-400 transition-colors p-1">
@@ -357,7 +373,10 @@ export default function Header() {
                   <Link 
                     key={link.name} 
                     to={link.path} 
-                    onClick={() => setIsMobileMenuOpen(false)}
+                    onClick={(e) => { 
+                      if (link.available === false) { handleComingSoon(e); return; }
+                      setIsMobileMenuOpen(false); 
+                    }}
                     className="text-gray-300 hover:text-cyan-300 hover:bg-white/5 px-4 py-3 rounded-xl text-lg font-medium transition-colors"
                   >
                     {link.name}
@@ -399,13 +418,13 @@ export default function Header() {
             <div className="flex items-center space-x-6">
               <div className="flex items-center space-x-2">
                 <Phone size={12} className="text-cyan-400" />
-                <span className="opacity-90">Need Help? {settings?.whatsapp_number || '+1-555-019-8372'}</span>
+                <span className="opacity-90">Need Help? {settings?.whatsapp_number || '+94 777 852 476'}</span>
               </div>
               <div className="flex items-center space-x-4 opacity-90">
                 <a href="#" className="hover:text-cyan-400 hover:opacity-100 transition-colors" title="Facebook"><Facebook size={13} /></a>
                 <a href="#" className="hover:text-cyan-400 hover:opacity-100 transition-colors" title="LinkedIn"><Linkedin size={13} /></a>
                 <a 
-                  href={`https://wa.me/${(settings?.whatsapp_number || '+94777852476').replace(/[^0-9]/g, '')}`} 
+                  href={`https://wa.me/${(settings?.whatsapp_number || '+94 777 852 476').replace(/[^0-9]/g, '')}`} 
                   target="_blank" 
                   rel="noopener noreferrer" 
                   className="hover:text-[#25D366] hover:opacity-100 transition-colors"
@@ -613,6 +632,7 @@ export default function Header() {
                     key={link.name} 
                     id={link.id}
                     to={link.path} 
+                    onClick={link.available === false ? handleComingSoon : undefined}
                     className="relative px-2 py-2 text-[15px] font-semibold text-white/90 hover:text-white transition-all hover:-translate-y-0.5 group/link tracking-wide"
                   >
                     {link.name}

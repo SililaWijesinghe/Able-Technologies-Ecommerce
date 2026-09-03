@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ChevronRight, ShoppingCart } from 'lucide-react';
-import { fetchProduct } from '../../services/api';
+import { fetchProduct, fetchCategories } from '../../services/api';
 import { useCart } from '../../context/CartContext';
 
 import ProductGallery from './ProductGallery';
@@ -9,12 +9,16 @@ import ProductBuyBox from './ProductBuyBox';
 import ProductTabs from './ProductTabs';
 import RelatedProducts from './RelatedProducts';
 import { useStoreSettings } from '../../context/StoreSettingsContext';
+import { useScrollDirection } from '../../hooks/useScrollDirection';
 import QuoteModal from '../../components/shop/QuoteModal';
+import { Skeleton } from '../../components/ui/Skeleton';
 
 export default function ProductDetails() {
   const { settings } = useStoreSettings();
   const { id } = useParams<{ id: string }>();
+  const { scrollDirection, isAtTop } = useScrollDirection();
   const [product, setProduct] = useState<any>(null);
+  const [categories, setCategories] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
@@ -25,26 +29,56 @@ export default function ProductDetails() {
     if (!id) return;
 
     setIsLoading(true);
-    fetchProduct(id)
-      .then(data => {
-        if (data) {
-          setProduct(data);
+    Promise.all([
+      fetchProduct(id),
+      fetchCategories()
+    ])
+      .then(([productData, categoriesData]) => {
+        if (productData) {
+          setProduct(productData);
         } else {
           setError('Product not found');
+        }
+        if (categoriesData && Array.isArray(categoriesData)) {
+          setCategories(categoriesData);
         }
         setIsLoading(false);
       })
       .catch(err => {
         console.error(err);
-        setError('Failed to load product');
+        setError('Failed to load product details');
         setIsLoading(false);
       });
   }, [id]);
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-gray-200 border-t-[#0b1042] rounded-full animate-spin"></div>
+      <div className="min-h-screen bg-gray-50 pt-24 md:pt-32 pb-16">
+        <div className="max-w-7xl mx-auto px-4 md:px-6">
+          <Skeleton className="w-64 h-4 mb-8" />
+          <div className="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden mb-12">
+            <div className="grid grid-cols-1 lg:grid-cols-2">
+              <div className="p-6 md:p-10 border-b lg:border-b-0 lg:border-r border-gray-100">
+                <Skeleton className="w-full aspect-square rounded-2xl" />
+                <div className="flex gap-4 mt-6">
+                  <Skeleton className="w-20 h-20 rounded-xl" />
+                  <Skeleton className="w-20 h-20 rounded-xl" />
+                  <Skeleton className="w-20 h-20 rounded-xl" />
+                </div>
+              </div>
+              <div className="p-6 md:p-10 md:py-12 bg-gray-50/50 flex flex-col justify-between relative">
+                <div>
+                  <Skeleton className="w-32 h-6 rounded-full mb-6" />
+                  <Skeleton className="w-3/4 h-10 mb-4" />
+                  <Skeleton className="w-full h-24 mb-6" />
+                  <Skeleton className="w-1/2 h-8 mb-8" />
+                  <Skeleton className="w-full h-12 rounded-xl mb-4" />
+                  <Skeleton className="w-full h-12 rounded-xl" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -61,24 +95,28 @@ export default function ProductDetails() {
   const basePrice = parseFloat(product.price || 0);
   const showPrice = settings.show_prices && !product.requires_quote;
   const displayPrice = showPrice ? `Rs. ${basePrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}` : 'Price on Request';
+  
+  // Find category name
+  const categoryObj = categories.find(c => c.id === product.category_id || c.slug === product.category_id);
+  const categoryName = categoryObj ? categoryObj.name : (product.category_id ? product.category_id.replace('-', ' ') : '');
 
   return (
     <div className="bg-white min-h-screen pb-24 md:pb-16 pt-4 md:pt-8">
       <div className="max-w-7xl mx-auto px-4 md:px-6">
         
         {/* Breadcrumbs */}
-        <div className="flex items-center text-xs font-semibold text-gray-500 space-x-2 mb-6 md:mb-8 overflow-x-auto whitespace-nowrap pb-2">
-          <Link to="/" className="hover:text-[#0b1042] transition-colors">Home</Link>
-          <ChevronRight size={14} />
-          <Link to="/shop" className="hover:text-[#0b1042] transition-colors">Shop</Link>
-          <ChevronRight size={14} />
+        <div className="flex flex-wrap items-center gap-2 text-[13px] md:text-sm font-bold text-slate-700 mb-6 md:mb-8 pb-2">
+          <Link to="/" className="hover:text-red-600 transition-colors">Home</Link>
+          <ChevronRight size={15} className="text-slate-400 shrink-0" />
+          <Link to="/shop" className="hover:text-red-600 transition-colors">Shop</Link>
+          <ChevronRight size={15} className="text-slate-400 shrink-0" />
           {product.category_id && (
              <>
-               <span className="hover:text-[#0b1042] transition-colors cursor-pointer capitalize">{product.category_id.replace('-', ' ')}</span>
-               <ChevronRight size={14} />
+               <span className="hover:text-red-600 transition-colors cursor-pointer capitalize">{categoryName}</span>
+               <ChevronRight size={15} className="text-slate-400 shrink-0" />
              </>
           )}
-          <span className="text-gray-400 truncate max-w-[200px]">{product.name}</span>
+          <span className="text-[#0b1042] truncate max-w-[200px] sm:max-w-[300px]">{product.name}</span>
         </div>
 
         {/* Top Section: Gallery & Buy Box */}
@@ -96,7 +134,8 @@ export default function ProductDetails() {
       </div>
 
       {/* Sticky Mobile Bottom Action Bar */}
-      <div className={`md:hidden fixed bottom-16 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-gray-200 px-4 py-3 z-50 flex items-center ${showPrice ? 'justify-between' : 'justify-center'} shadow-[0_-4px_20px_rgba(0,0,0,0.12)]`}>
+      <div className={`md:hidden fixed left-0 right-0 bg-white/95 backdrop-blur-md border-t border-gray-200 px-4 pt-3 z-[60] flex items-center ${showPrice ? 'justify-between' : 'justify-center'} shadow-[0_-4px_20px_rgba(0,0,0,0.12)] transition-all duration-300 ease-in-out ${scrollDirection === 'down' && !isAtTop ? 'bottom-0' : 'bottom-[64px]'}`}
+        style={{ paddingBottom: scrollDirection === 'down' && !isAtTop ? 'max(env(safe-area-inset-bottom), 12px)' : '12px' }}>
         {showPrice && (
           <div className="flex flex-col">
             <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Price</span>

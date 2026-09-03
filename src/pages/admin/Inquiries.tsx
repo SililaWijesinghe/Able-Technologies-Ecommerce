@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
-import { Loader2, CheckCircle2, Clock, Mail, Wrench, Trash2, Eye, X, Phone, User, Calendar, MessageSquare, Tag } from 'lucide-react';
+import { Loader2, Loader } from 'lucide-react';
+import { SkeletonTable } from '../../components/ui/Skeleton';
+//, CheckCircle2, Clock, Mail, Wrench, Trash2, Eye, X, Phone, User, Calendar, MessageSquare, Tag } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function Inquiries() {
@@ -111,7 +113,7 @@ export default function Inquiries() {
     }
   };
 
-  if (loading) return <div className="p-12 text-center"><Loader2 className="animate-spin mx-auto text-blue-600" size={32} /></div>;
+  if (loading) return <div className="p-6"><SkeletonTable /></div>;
 
   return (
     <div className="bg-white p-6 md:p-8 rounded-2xl border border-gray-100 shadow-sm relative">

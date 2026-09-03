@@ -1,5 +1,6 @@
 import { StoreSettingsProvider } from "./context/StoreSettingsContext";
 import React from 'react';
+import ScrollToTop from './components/ScrollToTop';
 import { BrowserRouter as Router, Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -58,7 +59,7 @@ function StorefrontLayout() {
       </svg>
       <Header />
       
-      <main className={!isHome ? 'pt-0 bg-gradient-to-b from-[#060740] to-[#04081c]' : ''}>
+      <main className={!isHome ? 'pt-[140px] md:pt-0 bg-gradient-to-b from-[#060740] to-[#04081c]' : ''}>
         <Outlet />
       </main>
       
@@ -87,6 +88,7 @@ export default function App() {
       <AuthProvider>
         <CartProvider>
           <Router>
+            <ScrollToTop />
             <Routes>
             {/* Storefront Routes */}
             <Route element={<StorefrontLayout />}>

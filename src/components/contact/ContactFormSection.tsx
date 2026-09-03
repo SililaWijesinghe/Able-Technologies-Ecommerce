@@ -224,8 +224,9 @@ export default function ContactFormSection() {
                   <div className="flex-1 flex justify-between items-center">
                     <div>
                       <h4 className="font-semibold text-sm mb-1">Call Us</h4>
-                      <p className="text-lg font-bold">038 222 1613</p>
-                      <p className="text-lg font-bold">077 785 2476</p>
+                      <p className="text-base font-bold">+94 38 222 1613</p>
+                      <p className="text-base font-bold">+94 777 852 476</p>
+                      <p className="text-base font-bold">+94 77 869 2075</p>
                     </div>
                     <div className="bg-green-500/20 text-green-400 text-[10px] px-3 py-1.5 rounded-md font-semibold text-center border border-green-500/30">
                       Mon - Sat<br/>8.00 AM - 5.30 PM
@@ -278,8 +279,9 @@ export default function ContactFormSection() {
                     <h4 className="font-semibold text-sm mb-1">Visit Us</h4>
                     <p className="text-blue-200 text-sm leading-relaxed">
                       No.10, Hathbodhi Mawatha,<br/>
-                      Udahamulla, Panadura,<br/>
-                      Sri Lanka.
+                      Udahamulla, Panadura, Sri Lanka. 12500.<br/><br/>
+                      No.26, Kulathunga Road,<br/>
+                      Udahamulla, Panadura, Sri Lanka. 12500.
                     </p>
                   </div>
                 </div>

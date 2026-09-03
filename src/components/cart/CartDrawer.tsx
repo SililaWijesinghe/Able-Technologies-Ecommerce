@@ -312,7 +312,7 @@ export default function CartDrawer() {
                             {/* Total Line Item Price */}
                             <div className="text-right">
                               <span className="text-xs sm:text-sm font-black text-red-400 tracking-tight">
-                                {settings.show_prices ? `Rs. ${(Number(item.price) * item.quantity).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 'TBD'}
+                                {settings.show_prices && settings.enable_checkout ? `Rs. ${(Number(item.price) * item.quantity).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : ''}
                               </span>
                             </div>
                           </div>
@@ -358,27 +358,29 @@ export default function CartDrawer() {
             {/* ---------------- STICKY BOTTOM CHECKOUT SUMMARY ---------------- */}
             {cartItems.length > 0 && (
               <div className="p-4 sm:p-5 border-t border-white/10 bg-[#040e2b]/95 backdrop-blur-2xl space-y-3 shrink-0">
-                <div className="space-y-1.5 text-xs">
-                  <div className="flex justify-between text-slate-300">
-                    <span>Subtotal</span>
-                    <span className="text-white font-bold">
-                      {settings.show_prices ? `Rs. ${cartTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 'TBD'}
-                    </span>
+                {settings.enable_checkout && (
+                  <div className="space-y-1.5 text-xs">
+                    <div className="flex justify-between text-slate-300">
+                      <span>Subtotal</span>
+                      <span className="text-white font-bold">
+                        {settings.show_prices ? `Rs. ${cartTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 'TBD'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-slate-300">
+                      <span>Corporate Warranty</span>
+                      <span className="text-emerald-400 font-bold flex items-center gap-1">
+                        <ShieldCheck size={12} /> Guaranteed
+                      </span>
+                    </div>
+                    <div className="h-px bg-white/10 my-1" />
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-black text-white">Estimated Total</span>
+                      <span className="text-base sm:text-lg font-black text-red-400">
+                        {settings.show_prices ? `Rs. ${cartTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 'TBD'}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex justify-between text-slate-300">
-                    <span>Corporate Warranty</span>
-                    <span className="text-emerald-400 font-bold flex items-center gap-1">
-                      <ShieldCheck size={12} /> Guaranteed
-                    </span>
-                  </div>
-                  <div className="h-px bg-white/10 my-1" />
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-black text-white">Estimated Total</span>
-                    <span className="text-base sm:text-lg font-black text-red-400">
-                      {settings.show_prices ? `Rs. ${cartTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 'TBD'}
-                    </span>
-                  </div>
-                </div>
+                )}
 
                 <div className="space-y-2">
                   <Link

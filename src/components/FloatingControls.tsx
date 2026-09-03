@@ -1,12 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Phone, Mail, LayoutGrid, Search, User, ChevronRight, X, ArrowUp } from 'lucide-react';
 import { WhatsAppIcon } from './icons/WhatsAppIcon';
 import { fetchSettings } from '../services/api';
+import { useScrollDirection } from '../hooks/useScrollDirection';
+import { useAuth } from '../context/AuthContext';
 
 export default function FloatingControls() {
   const [settings, setSettings] = useState<any>(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const { scrollDirection, isAtTop } = useScrollDirection();
+  const { isAuthenticated, user } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchSettings().then(data => data && setSettings(data));
@@ -24,10 +29,23 @@ export default function FloatingControls() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const whatsappNumber = settings?.whatsapp_number || '+94777852476';
+  const handleAccountClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (isAuthenticated) {
+      if (user?.role === 'ADMIN') {
+        navigate('/admin');
+      } else {
+        navigate('/profile');
+      }
+    } else {
+      window.dispatchEvent(new CustomEvent('open-login-modal'));
+    }
+  };
+
+  const whatsappNumber = settings?.whatsapp_number || '+94 777 852 476';
   const whatsappUrl = `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}`;
-  const phoneNumber = settings?.whatsapp_number || '+94777852476';
-  const email = settings?.support_email || 'info@abletech.com';
+  const phoneNumber = settings?.whatsapp_number || '+94 777 852 476';
+  const email = settings?.support_email || 'able@ablero.com';
 
   return (
     <>
@@ -109,7 +127,7 @@ export default function FloatingControls() {
 
 
       {/* ---------------- MOBILE BOTTOM NAVIGATION (UNCHANGED) ---------------- */}
-      <div className="md:hidden fixed bottom-0 left-0 w-full bg-white shadow-[0_-4px_15px_rgba(0,0,0,0.05)] z-[50] flex justify-around items-center py-2 pb-safe border-t border-gray-100">
+      <div className={`md:hidden fixed bottom-0 left-0 w-full bg-white shadow-[0_-4px_15px_rgba(0,0,0,0.05)] z-[50] flex justify-around items-center py-2 pb-safe border-t border-gray-100 transition-transform duration-300 ease-in-out ${scrollDirection === 'down' && !isAtTop ? 'translate-y-full' : 'translate-y-0'}`}>
         <Link to="/" className="flex flex-col items-center p-2 metallic-red-text">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="url(#metal-red)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
           <span className="text-[10px] font-medium mt-1">Home</span>
@@ -126,16 +144,16 @@ export default function FloatingControls() {
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
           <span className="text-[10px] font-medium mt-1">Quote</span>
         </Link>
-        <Link to="/account" className="flex flex-col items-center p-2 text-gray-500 hover:text-gray-900">
+        <button onClick={handleAccountClick} className="flex flex-col items-center p-2 text-gray-500 hover:text-gray-900 cursor-pointer">
           <User size={20} />
           <span className="text-[10px] font-medium mt-1">Account</span>
-        </Link>
+        </button>
       </div>
       
       {/* ---------------- FLOATING METALLIC RED SCROLL-TO-TOP BUTTON (RIGHT) ---------------- */}
       <button
         onClick={scrollToTop}
-        className={`fixed right-4 md:right-8 bottom-20 md:bottom-8 z-[90] w-12 h-12 md:w-14 md:h-14 metallic-red-bg rounded-full shadow-[0_10px_25px_rgba(180,0,0,0.4),0_4px_12px_rgba(0,0,0,0.5)] hover:shadow-[0_14px_30px_rgba(255,50,50,0.5),0_6px_16px_rgba(0,0,0,0.6)] flex items-center justify-center text-white transition-all duration-300 hover:scale-105 active:scale-95 group overflow-hidden border border-red-400/40 ${
+        className={`fixed right-4 md:right-8 bottom-32 md:bottom-8 z-[90] w-12 h-12 md:w-14 md:h-14 metallic-red-bg rounded-full shadow-[0_10px_25px_rgba(180,0,0,0.4),0_4px_12px_rgba(0,0,0,0.5)] hover:shadow-[0_14px_30px_rgba(255,50,50,0.5),0_6px_16px_rgba(0,0,0,0.6)] flex items-center justify-center text-white transition-all duration-300 hover:scale-105 active:scale-95 group overflow-hidden border border-red-400/40 ${
           showScrollTop ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-8 pointer-events-none'
         }`}
         aria-label="Scroll to top"

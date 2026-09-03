@@ -12,12 +12,12 @@ export default function ProductTabs({ product }: { product: any }) {
     <div className="flex flex-col lg:flex-row gap-8 mt-16 border-t border-gray-200 pt-10">
       <div className="flex-1">
         {/* Tab Navigation */}
-        <div className="flex overflow-x-auto border-b border-gray-200 hide-scrollbar mb-8">
+        <div className="flex flex-wrap gap-2.5 mb-8">
           {tabs.map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-6 py-4 text-sm font-bold whitespace-nowrap border-b-2 transition-colors ${activeTab === tab ? 'border-red-600 text-red-600' : 'border-transparent text-gray-500 hover:text-[#0b1042]'}`}
+              className={`px-5 py-2.5 md:px-6 md:py-3 text-[13px] md:text-[14px] font-sans font-semibold rounded-full transition-all duration-200 ${activeTab === tab ? 'metallic-red-bg text-white shadow-md shadow-red-900/30' : 'bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-[#0b1042] border border-gray-200/60'}`}
             >
               {tab}
             </button>

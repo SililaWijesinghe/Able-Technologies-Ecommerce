@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import FilterSidebar, { getProductAvailabilityStatus } from '../components/shop/FilterSidebar';
 import ProductCard from '../components/shop/ProductCard';
+import { SkeletonProductCard, SkeletonProductList } from '../components/ui/Skeleton';
 import TrustBar from '../components/TrustBar';
 import heroBg from '../assets/heroBg.webp';
 import { useStoreSettings } from '../context/StoreSettingsContext';
@@ -394,7 +395,7 @@ export default function Shop() {
           1. HERO BANNER
           ======================================================== */}
       <section 
-        className="relative w-full h-[260px] md:h-[290px] bg-[#0b1042] overflow-hidden flex flex-col justify-center bg-cover bg-center pt-16 md:pt-0"
+        className="relative w-full h-[260px] md:h-[290px] bg-[#0b1042] overflow-hidden flex flex-col justify-center bg-cover bg-center md:pt-0"
         style={{ backgroundImage: `url(${heroBg})` }}
       >
         <div className="absolute inset-0 bg-gradient-to-r from-[#03071e] via-[#08123b]/90 to-transparent z-0" />
@@ -635,11 +636,14 @@ export default function Shop() {
               4. PRODUCT GRID & USER-FRIENDLY EMPTY STATE
               ======================================================== */}
           {isLoading ? (
-            <div className="flex flex-col items-center justify-center py-28 space-y-4">
-              <div className="w-10 h-10 border-4 border-slate-200 border-t-[#0b1042] rounded-full animate-spin shadow-md" />
-              <p className="text-sm font-semibold text-slate-500 animate-pulse">
-                Fetching industrial equipment...
-              </p>
+            <div className={
+              viewMode === 'grid'
+                ? "grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 md:gap-6 mb-10"
+                : "flex flex-col space-y-4 mb-10"
+            }>
+              {[1, 2, 3, 4, 5, 6].map(i => (
+                viewMode === 'grid' ? <SkeletonProductCard key={i} /> : <SkeletonProductList key={i} />
+              ))}
             </div>
           ) : displayedProducts.length > 0 ? (
             <div className={

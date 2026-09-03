@@ -1,7 +1,13 @@
 import { Check, ArrowRight, Award } from 'lucide-react';
 import { motion } from 'motion/react';
+import toast from 'react-hot-toast';
 
 export default function WhyChooseUs() {
+
+  const handleComingSoon = () => {
+    toast('Coming soon!', { icon: '🚧', style: { borderRadius: '10px', background: '#0b1042', color: '#fff' } });
+  };
+
   return (
     <div className="bg-gray-50 py-16 md:py-24">
       <div className="max-w-7xl mx-auto px-4 md:px-6 grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-16 items-center">
@@ -17,24 +23,24 @@ export default function WhyChooseUs() {
             <span className="metallic-red-text text-[10px] font-bold uppercase tracking-wider">Why Choose Us</span>
             <div className="w-8 h-px metallic-red-bg border-none shadow-none"></div>
           </div>
-          <h2 className="text-3xl md:text-5xl font-black text-[#0b1042] mb-4 md:mb-6 leading-[1.1] tracking-tight">
+          <h2 className="font-poppins text-3xl md:text-5xl font-extrabold text-[#0b1042] mb-4 md:mb-6 leading-[1.15] tracking-tight">
             We Deliver More<br/>Than Just Products
           </h2>
-          <p className="text-gray-600 mb-6 md:mb-8 max-w-md leading-relaxed text-sm">
+          <p className="font-sans text-gray-600 mb-6 md:mb-8 max-w-md leading-[1.6] text-[15px]">
             We are committed to providing the best industrial solutions with unmatched quality, reliability and customer service.
           </p>
           
           <ul className="space-y-3 md:space-y-4 mb-8 md:mb-10">
             {['Genuine & High Quality Products', 'Expert Technical Support', 'Competitive Prices', 'On-time Delivery'].map((item, i) => (
-              <li key={i} className="flex items-center text-gray-800 font-semibold text-xs md:text-sm">
-                <Check size={16} className="text-[#0b1042] mr-3 font-bold md:w-4 md:h-4 w-3.5 h-3.5" />
+              <li key={i} className="font-sans flex items-center text-gray-800 font-semibold text-[13px] md:text-[15px]">
+                <Check size={18} className="text-[#0b1042] mr-3" strokeWidth={3} />
                 {item}
               </li>
             ))}
           </ul>
 
-          <button className="metallic-red-bg border-none text-white font-semibold py-3 md:py-3.5 px-6 md:px-8 rounded-full flex items-center transition-transform hover:scale-105 shadow-lg shadow-red-900/40 text-xs md:text-sm w-fit">
-            Learn More About Us <ArrowRight size={14} className="ml-2 md:w-4 md:h-4" />
+          <button onClick={handleComingSoon} className="metallic-red-bg font-sans border-none text-white font-semibold py-3 md:py-3.5 px-6 md:px-8 rounded-full flex items-center transition-transform hover:-translate-y-0.5 shadow-lg shadow-red-900/40 text-[13px] md:text-[15px] w-fit">
+            Learn More About Us <ArrowRight size={16} className="ml-2 transition-transform group-hover:translate-x-1" />
           </button>
         </motion.div>
 

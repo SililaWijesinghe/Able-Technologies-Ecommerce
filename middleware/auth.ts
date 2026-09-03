@@ -1,18 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { createClient } from '@supabase/supabase-js';
-
-let supabaseClient: ReturnType<typeof createClient> | null = null;
-function getSupabase() {
-    if (!supabaseClient) {
-        const url = process.env.SUPABASE_URL;
-        const key = process.env.SUPABASE_SERVICE_KEY;
-        if (!url || !key) {
-            throw new Error('Missing SUPABASE_URL or SUPABASE_SERVICE_KEY environment variables.');
-        }
-        supabaseClient = createClient(url, key);
-    }
-    return supabaseClient;
-}
+import { getSupabase } from '../src/lib/supabaseServer';
 
 // Extend Express Request to include the authenticated user
 export interface AuthRequest extends Request {

@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { 
   Shield, 
   RefreshCw, 
@@ -24,6 +25,12 @@ import whiteAbleLogo from '../assets/whiteAbleLogo.png';
 import { fetchSettings } from '../services/api';
 
 export default function Footer() {
+
+  const handleComingSoon = (e: any) => {
+    e.preventDefault();
+    toast('Coming soon!', { icon: '🚧', style: { borderRadius: '10px', background: '#0b1042', color: '#fff' } });
+  };
+
   const [settings, setSettings] = useState<any>(null);
 
   useEffect(() => {
@@ -231,8 +238,8 @@ export default function Footer() {
           {/* Top CTA Row */}
           <div className="bg-[#0a0f33]/60 backdrop-blur-md border border-white/10 rounded-3xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between mb-16 shadow-2xl">
             <div className="mb-6 md:mb-0 text-center md:text-left">
-              <h3 className="text-xl md:text-2xl font-black text-white mb-2">Need a Custom Industrial Solution?</h3>
-              <p className="text-sm text-blue-200/70">Talk to our team and find the right solution for your business.</p>
+              <h3 className="font-poppins text-xl md:text-2xl font-extrabold text-white mb-2 tracking-tight">Need a Custom Industrial Solution?</h3>
+              <p className="font-sans text-[14px] md:text-[15px] text-blue-200/70">Talk to our team and find the right solution for your business.</p>
             </div>
             <div className="flex flex-col sm:flex-row items-center space-y-3 sm:space-y-0 sm:space-x-4">
               <a 
@@ -268,13 +275,13 @@ export default function Footer() {
               </p>
               
               <div className="flex items-center space-x-3">
-                <a href="#" className="group w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-blue-100/70 hover:text-white hover:bg-[#1877F2] hover:border-transparent hover:shadow-[0_0_20px_rgba(24,119,242,0.4)] transition-all duration-300" title="Facebook">
+                <a href="#!" onClick={handleComingSoon} className="group w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-blue-100/70 hover:text-white hover:bg-[#1877F2] hover:border-transparent hover:shadow-[0_0_20px_rgba(24,119,242,0.4)] transition-all duration-300" title="Facebook">
                   <Facebook size={16} className="group-hover:scale-110 transition-transform" />
                 </a>
-                <a href="#" className="group w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-blue-100/70 hover:text-white hover:bg-[#0A66C2] hover:border-transparent hover:shadow-[0_0_20px_rgba(10,102,194,0.4)] transition-all duration-300" title="LinkedIn">
+                <a href="#!" onClick={handleComingSoon} className="group w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-blue-100/70 hover:text-white hover:bg-[#0A66C2] hover:border-transparent hover:shadow-[0_0_20px_rgba(10,102,194,0.4)] transition-all duration-300" title="LinkedIn">
                   <Linkedin size={16} className="group-hover:scale-110 transition-transform" />
                 </a>
-                <a href="#" className="group w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-blue-100/70 hover:text-white hover:bg-[#E4405F] hover:border-transparent hover:shadow-[0_0_20px_rgba(228,64,95,0.4)] transition-all duration-300" title="Instagram">
+                <a href="#!" onClick={handleComingSoon} className="group w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-blue-100/70 hover:text-white hover:bg-[#E4405F] hover:border-transparent hover:shadow-[0_0_20px_rgba(228,64,95,0.4)] transition-all duration-300" title="Instagram">
                   <Instagram size={16} className="group-hover:scale-110 transition-transform" />
                 </a>
                 <a 
@@ -291,13 +298,13 @@ export default function Footer() {
 
             {/* Col 2 - Quick Links */}
             <div className="lg:col-span-2">
-              <h4 className="text-white font-black mb-6 text-sm tracking-wider uppercase flex items-center">
+              <h4 className="font-poppins text-white font-bold mb-6 text-[15px] tracking-wider uppercase flex items-center">
                 <span className="w-2 h-2 bg-red-600 rounded-sm mr-2 inline-block"></span> Quick Links
               </h4>
               <ul className="space-y-3">
                 {[
                   { name: 'Home', path: '/' },
-                  { name: 'About Us', path: '/about' },
+                  { name: 'About Us', path: '#!', available: false },
                   { name: 'Shop', path: '/shop' },
                   { name: 'Machines', path: '/shop?category=machines' },
                   { name: 'Spare Parts', path: '/shop?category=spare-parts' },
@@ -307,8 +314,9 @@ export default function Footer() {
                 ].map((link, i) => (
                   <li key={i}>
                     <Link 
-                      to={link.path} 
-                      className="group flex items-center text-blue-100/60 hover:text-white text-sm font-medium transition-colors"
+                       to={link.path} 
+                       onClick={link.available === false ? handleComingSoon : undefined}
+                       className="group flex items-center text-blue-100/60 hover:text-white text-sm font-medium transition-colors"
                     >
                       <ChevronRight size={14} className="opacity-0 -ml-4 mr-2 group-hover:opacity-100 group-hover:ml-0 text-red-500 transition-all duration-300" />
                       <span className="group-hover:translate-x-1 transition-transform duration-300">{link.name}</span>
@@ -320,19 +328,28 @@ export default function Footer() {
 
             {/* Col 3 - Customer Service */}
             <div className="lg:col-span-3">
-              <h4 className="text-white font-black mb-6 text-sm tracking-wider uppercase flex items-center">
+              <h4 className="font-poppins text-white font-bold mb-6 text-[15px] tracking-wider uppercase flex items-center">
                 <span className="w-2 h-2 bg-blue-600 rounded-sm mr-2 inline-block"></span> Customer Service
               </h4>
               <ul className="space-y-3">
-                {['My Account', 'Order History', 'Shipping Policy', 'Return & Refund', 'Terms & Conditions', 'Privacy Policy', 'FAQ\'s'].map((link, i) => (
+                {[
+                  { name: 'My Account', path: '/profile', available: true },
+                  { name: 'Order History', path: '/profile', available: true },
+                  { name: 'Shipping Policy', path: '#!', available: false },
+                  { name: 'Return & Refund', path: '#!', available: false },
+                  { name: 'Terms & Conditions', path: '#!', available: false },
+                  { name: 'Privacy Policy', path: '#!', available: false },
+                  { name: 'FAQ\'s', path: '#!', available: false }
+                ].map((link, i) => (
                   <li key={i}>
-                    <a 
-                      href="#" 
-                      className="group flex items-center text-blue-100/60 hover:text-white text-sm font-medium transition-colors"
+                    <Link 
+                       to={link.path}
+                       onClick={link.available === false ? handleComingSoon : undefined}
+                       className="group flex items-center text-blue-100/60 hover:text-white text-sm font-medium transition-colors"
                     >
                       <ChevronRight size={14} className="opacity-0 -ml-4 mr-2 group-hover:opacity-100 group-hover:ml-0 text-blue-500 transition-all duration-300" />
-                      <span className="group-hover:translate-x-1 transition-transform duration-300">{link}</span>
-                    </a>
+                      <span className="group-hover:translate-x-1 transition-transform duration-300">{link.name}</span>
+                    </Link>
                   </li>
                 ))}
               </ul>
@@ -340,7 +357,7 @@ export default function Footer() {
 
             {/* Col 4 - Contact Us */}
             <div className="lg:col-span-3">
-              <h4 className="text-white font-black mb-6 text-sm tracking-wider uppercase flex items-center">
+              <h4 className="font-poppins text-white font-bold mb-6 text-[15px] tracking-wider uppercase flex items-center">
                 <span className="w-2 h-2 bg-gray-500 rounded-sm mr-2 inline-block"></span> Contact Us
               </h4>
               <ul className="space-y-5">
@@ -348,19 +365,25 @@ export default function Footer() {
                   <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0 mr-3 mt-0.5 group-hover:bg-blue-900/30 group-hover:border-blue-500/30 transition-colors">
                     <MapPin size={14} className="text-blue-400" />
                   </div>
-                  <span className="text-blue-100/70 text-sm leading-relaxed font-medium">No 10, Hathbodhi Mawatha,<br/>Udahamulla, Panadura, Sri Lanka.</span>
+                  <span className="text-blue-100/70 text-sm leading-relaxed font-medium">No.10, Hathbodhi Mawatha,<br/>Udahamulla, Panadura, Sri Lanka. 12500.<br/><br/>No.26, Kulathunga Road,<br/>Udahamulla, Panadura, Sri Lanka. 12500.</span>
                 </li>
-                <li className="flex items-center group">
-                  <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0 mr-3 group-hover:bg-blue-900/30 group-hover:border-blue-500/30 transition-colors">
+                <li className="flex items-start group">
+                  <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0 mr-3 mt-0.5 group-hover:bg-blue-900/30 group-hover:border-blue-500/30 transition-colors">
                     <Phone size={14} className="text-blue-400" />
                   </div>
-                  <span className="text-blue-100/70 text-sm font-medium">{settings?.whatsapp_number || '077 785 2476'}</span>
+                  <span className="text-blue-100/70 text-sm font-medium leading-relaxed">+94 38 222 1613<br/>{settings?.whatsapp_number || '+94 777 852 476'}<br/>+94 77 869 2075</span>
                 </li>
                 <li className="flex items-center group">
                   <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0 mr-3 group-hover:bg-blue-900/30 group-hover:border-blue-500/30 transition-colors">
                     <Mail size={14} className="text-blue-400" />
                   </div>
                   <span className="text-blue-100/70 text-sm font-medium">{settings?.support_email || 'able@ablero.com'}</span>
+                </li>
+                <li className="flex items-center group">
+                  <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0 mr-3 group-hover:bg-blue-900/30 group-hover:border-blue-500/30 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-400"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                  </div>
+                  <a href="https://www.ablero.com" target="_blank" rel="noopener noreferrer" className="text-blue-100/70 text-sm font-medium hover:text-white transition-colors">www.ablero.com</a>
                 </li>
               </ul>
             </div>

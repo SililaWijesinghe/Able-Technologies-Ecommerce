@@ -27,18 +27,19 @@ async function startServer() {
   const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
   
   let supabase: ReturnType<typeof createClient> | null = null;
-  if (supabaseUrl && supabaseKey) {
+  if (supabaseUrl && supabaseKey && !supabaseUrl.includes('placeholder.supabase.co')) {
     supabase = createClient(supabaseUrl, supabaseKey);
     console.log("Supabase client initialized successfully.");
   } else {
-    console.warn("Missing SUPABASE_URL or SUPABASE_SERVICE_KEY environment variables.");
+    console.info("Using in-memory mock database for Able Technologies store preview.");
   }
 
   // Health Endpoint
   app.get('/api/health', (req, res) => {
     res.json({ 
       status: 'Backend is active',
-      supabase: !!supabase
+      supabase: !!supabase,
+      mockMode: !supabase
     });
   });
 

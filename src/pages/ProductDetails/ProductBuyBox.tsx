@@ -155,29 +155,26 @@ export default function ProductBuyBox({ product }: { product: any }) {
       </div>
 
       {/* Actions */}
-      {product.requires_quote ? (
-        <button 
-          onClick={() => setIsQuoteModalOpen(true)}
-          className="w-full metallic-red-bg hover:bg-red-700 text-white py-3 rounded-lg flex items-center justify-center transition-colors text-sm font-bold shadow-lg shadow-red-900/20"
-        >
-          Request Quote
-        </button>
-      ) : (
-        <button 
-          onClick={() => addToCart({
-            productId: product.id,
-            name: product.name,
-            price: totalPrice,
-            image: product.images?.[0]?.image_url || (product.image_urls && product.image_urls[0]) || '',
-            quantity: quantity,
-            variant: JSON.stringify({ ...selectedAttributes, type: selectedTransaction, notes: customNotes })
-          })}
-          className="w-full bg-[#0b1042] hover:bg-[#1a237e] text-white py-3 rounded-lg flex items-center justify-center transition-colors text-sm font-bold shadow-lg shadow-blue-900/20"
-        >
-          <ShoppingCart size={18} className="mr-2" />
-          Add to Cart
-        </button>
-      )}
+      <button 
+        onClick={() => {
+          if (product.requires_quote) {
+            setIsQuoteModalOpen(true);
+          } else {
+            addToCart({
+              productId: product.id,
+              name: product.name,
+              price: totalPrice,
+              image: product.images?.[0]?.image_url || (product.image_urls && product.image_urls[0]) || '',
+              quantity: quantity,
+              variant: JSON.stringify({ ...selectedAttributes, type: selectedTransaction, notes: customNotes })
+            });
+          }
+        }}
+        className={`w-full ${product.requires_quote ? 'metallic-red-bg hover:bg-red-700 shadow-red-900/20' : 'bg-[#0b1042] hover:bg-[#1a237e] shadow-blue-900/20'} text-white py-3 rounded-lg flex items-center justify-center transition-colors text-sm font-bold shadow-lg`}
+      >
+        {!product.requires_quote && <ShoppingCart size={18} className="mr-2" />}
+        {product.requires_quote ? 'Request Quote' : (settings.enable_checkout ? 'Add to Cart' : 'Request Quote')}
+      </button>
 
       <QuoteModal isOpen={isQuoteModalOpen} onClose={() => setIsQuoteModalOpen(false)} product={product} />
     </div>

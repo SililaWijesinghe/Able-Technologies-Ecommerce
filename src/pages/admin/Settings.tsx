@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../../lib/supabase';
 import { Save, Loader2, Phone, Mail, Clock, Store, ShoppingCart } from 'lucide-react';
-import { useToast } from '../../context/ToastContext';
+import toast from 'react-hot-toast';
+import { supabase } from '../../lib/supabase';
 
 export default function Settings() {
-  const toast = useToast();
   const [supportEmail, setSupportEmail] = useState('');
   const [whatsappNumber, setWhatsappNumber] = useState('');
   const [showPrices, setShowPrices] = useState(true);
@@ -65,17 +64,25 @@ export default function Settings() {
         whatsapp_number: whatsappNumber,
         show_prices: showPrices,
         enable_checkout: enableCheckout,
-        updated_at: new Date().toISOString()
       };
 
-      // Upsert the singleton row
-      const { data, error } = await supabase
-        .from('store_settings')
-        .upsert({ id: 1, ...payload })
-        .select()
-        .single();
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
 
-      if (error) throw error;
+      const response = await fetch('/api/settings', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update settings');
+      }
+
+      const data = await response.json();
 
       if (data) {
         setUpdatedAt(data.updated_at);

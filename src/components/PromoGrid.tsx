@@ -196,10 +196,10 @@ export default function PromoGrid() {
                 FEATURED SOLUTIONS
               </span>
             </div>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#0b1042] tracking-tight">
+            <h2 className="font-poppins text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#0b1042] tracking-tight">
               Explore Our Industrial Solutions
             </h2>
-            <p className="text-slate-500 text-xs sm:text-sm mt-1.5 max-w-2xl leading-relaxed">
+            <p className="font-sans text-slate-500 text-[13px] sm:text-[15px] mt-1.5 max-w-2xl leading-[1.6]">
               From complete machinery to essential spare parts and precision accessories.
             </p>
           </div>
@@ -276,7 +276,7 @@ export default function PromoGrid() {
                   </div>
 
                   {/* Headline */}
-                  <h3 className="text-2xl sm:text-[28px] font-black italic tracking-tight leading-[1.1] mb-2 uppercase">
+                  <h3 className="font-poppins text-2xl sm:text-[32px] font-extrabold italic tracking-tight leading-[1.15] mb-2 uppercase">
                     <span className="text-[#0b1042] block">{banner.titleTop}</span>
                     <span className={`block ${isRed ? 'text-red-600' : 'text-blue-600'}`}>
                       {banner.titleHighlight}
@@ -284,7 +284,7 @@ export default function PromoGrid() {
                   </h3>
 
                   {/* Supporting Copy */}
-                  <p className="text-xs sm:text-sm text-slate-500 font-medium mb-5 max-w-[220px] leading-relaxed">
+                  <p className="font-sans text-[13px] sm:text-[14px] text-slate-500 font-medium mb-5 max-w-[220px] leading-[1.5]">
                     {banner.description}
                   </p>
 

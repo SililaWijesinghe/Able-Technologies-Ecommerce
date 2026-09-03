@@ -106,18 +106,18 @@ export default function Home() {
                 <div className="w-1.5 md:w-2 h-4 md:h-5 bg-gradient-to-b from-red-200 via-red-600 to-red-800 transform -skew-x-[20deg] mr-2 shadow-[0_0_8px_rgba(255,0,0,0.5)]"></div>
                 <div className="relative flex items-center pr-12 md:pr-20 pl-2 md:pl-3 py-1 md:py-1.5">
                   <div className="absolute inset-0 bg-gradient-to-r from-[#b30000] via-[#7a0000]/70 to-transparent transform -skew-x-[20deg] origin-left border-l-[3px] border-[#ff3333]"></div>
-                  <span className="relative text-white font-bold italic tracking-widest text-[10px] md:text-[11px] z-10 drop-shadow-sm">
+                  <span className="relative font-sans text-white font-bold italic tracking-widest text-[10px] md:text-[11px] uppercase z-10 drop-shadow-sm">
                     {slide.tagline}
                   </span>
                 </div>
               </div>
 
-              <h2 className="text-4xl md:text-6xl font-black italic tracking-tight uppercase leading-[1.1] mb-4 md:mb-6">
+              <h2 className="font-poppins text-4xl md:text-6xl font-extrabold italic tracking-tight uppercase leading-[1.1] mb-4 md:mb-6">
                 <span className="text-white block">{slide.headingTitle1}</span>
                 <span className="metallic-red-text block">{slide.headingTitle2}</span>
               </h2>
 
-              <p className="text-gray-300 text-sm md:text-lg max-w-[85%] md:max-w-xl mb-6 md:mb-10 leading-relaxed">
+              <p className="font-sans text-gray-300 text-[15px] md:text-[18px] max-w-[85%] md:max-w-xl mb-6 md:mb-10 leading-[1.6]">
                 {slide.description}
               </p>
             </motion.div>
@@ -130,8 +130,8 @@ export default function Home() {
                 <ShieldCheck size={16} className="text-red-400 sm:w-5 sm:h-5" />
               </div>
               <div className="flex flex-col min-w-0 pr-1">
-                <span className="text-white text-[11px] sm:text-sm font-bold tracking-tight truncate">Premium Quality</span>
-                <span className="text-gray-300 text-[10px] sm:text-xs truncate">Industrial grade</span>
+                <span className="font-sans text-white text-[11px] sm:text-[13px] font-semibold tracking-tight truncate">Premium Quality</span>
+                <span className="font-sans text-gray-300 text-[10px] sm:text-[12px] truncate">Industrial grade</span>
               </div>
             </div>
             
@@ -140,8 +140,8 @@ export default function Home() {
                 <Award size={16} className="text-blue-400 sm:w-5 sm:h-5" />
               </div>
               <div className="flex flex-col min-w-0 pr-1">
-                <span className="text-white text-[11px] sm:text-sm font-bold tracking-tight truncate">Reliable Performance</span>
-                <span className="text-gray-300 text-[10px] sm:text-xs truncate">Tested for durability</span>
+                <span className="font-sans text-white text-[11px] sm:text-[13px] font-semibold tracking-tight truncate">Reliable Performance</span>
+                <span className="font-sans text-gray-300 text-[10px] sm:text-[12px] truncate">Tested for durability</span>
               </div>
             </div>
 
@@ -150,8 +150,8 @@ export default function Home() {
                 <Truck size={16} className="text-red-400 sm:w-5 sm:h-5" />
               </div>
               <div className="flex flex-col min-w-0 pr-1">
-                <span className="text-white text-[11px] sm:text-sm font-bold tracking-tight truncate">Fast Delivery</span>
-                <span className="text-gray-300 text-[10px] sm:text-xs truncate">Islandwide delivery</span>
+                <span className="font-sans text-white text-[11px] sm:text-[13px] font-semibold tracking-tight truncate">Fast Delivery</span>
+                <span className="font-sans text-gray-300 text-[10px] sm:text-[12px] truncate">Islandwide delivery</span>
               </div>
             </div>
 
@@ -160,8 +160,8 @@ export default function Home() {
                 <Headphones size={16} className="text-blue-400 sm:w-5 sm:h-5" />
               </div>
               <div className="flex flex-col min-w-0 pr-1">
-                <span className="text-white text-[11px] sm:text-sm font-bold tracking-tight truncate">Expert Support</span>
-                <span className="text-gray-300 text-[10px] sm:text-xs truncate">Technical assistance</span>
+                <span className="font-sans text-white text-[11px] sm:text-[13px] font-semibold tracking-tight truncate">Expert Support</span>
+                <span className="font-sans text-gray-300 text-[10px] sm:text-[12px] truncate">Technical assistance</span>
               </div>
             </div>
           </div>
@@ -174,12 +174,12 @@ export default function Home() {
               transition={{ duration: 0.6, delay: 0.8 }}
               className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-3 sm:space-y-0 sm:space-x-4 w-full sm:w-auto"
             >
-              <Link to={slide.ctaLink} className="metallic-red-bg text-white rounded-full px-6 py-3.5 md:px-8 md:py-3.5 flex items-center justify-center space-x-3 font-semibold transition-transform hover:scale-105 shadow-lg shadow-red-900/40 text-sm md:text-base w-full sm:w-auto">
+              <Link to={slide.ctaLink} className="metallic-red-bg font-sans text-white rounded-full px-6 py-3.5 md:px-8 md:py-3.5 flex items-center justify-center space-x-3 font-semibold transition-transform hover:-translate-y-0.5 hover:shadow-xl hover:shadow-red-900/50 shadow-lg shadow-red-900/40 text-sm md:text-[15px] w-full sm:w-auto">
                 <span>{slide.ctaText}</span>
-                <ArrowRight size={18} />
+                <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
               </Link>
               
-              <Link to="/shop" className="bg-transparent border border-blue-400 text-white rounded-full px-6 py-3.5 md:px-8 md:py-3.5 flex items-center justify-center space-x-3 font-semibold hover:bg-blue-900/50 transition-colors backdrop-blur-sm text-sm md:text-base w-full sm:w-auto">
+              <Link to="/shop" className="bg-transparent font-sans border border-blue-400 text-white rounded-full px-6 py-3.5 md:px-8 md:py-3.5 flex items-center justify-center space-x-3 font-semibold hover:bg-blue-900/50 transition-colors backdrop-blur-sm text-sm md:text-[15px] w-full sm:w-auto hover:-translate-y-0.5">
                 <span>View Categories</span>
                 <LayoutGrid size={18} />
               </Link>

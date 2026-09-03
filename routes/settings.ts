@@ -1,20 +1,10 @@
 import express from 'express';
-import { createClient } from '@supabase/supabase-js';
+import { getSupabase } from '../src/lib/supabaseServer';
+import { requireAuth } from '../middleware/auth';
+import { requireRole } from '../middleware/role';
 
 const router = express.Router();
 
-let supabaseClient: ReturnType<typeof createClient> | null = null;
-function getSupabase() {
-    if (!supabaseClient) {
-        const url = process.env.SUPABASE_URL;
-        const key = process.env.SUPABASE_SERVICE_KEY;
-        if (!url || !key) {
-            throw new Error('Missing SUPABASE_URL or SUPABASE_SERVICE_KEY environment variables.');
-        }
-        supabaseClient = createClient(url, key);
-    }
-    return supabaseClient;
-}
 
 // GET /api/settings/public
 router.get('/public', async (req, res): Promise<void> => {
@@ -34,6 +24,34 @@ router.get('/public', async (req, res): Promise<void> => {
     } catch (err) {
         console.error('[Settings API Error]:', err);
         res.status(500).json({ error: 'An unexpected error occurred retrieving store settings.' });
+    }
+});
+
+// PUT /api/settings
+router.put('/', requireAuth, requireRole('ADMIN'), async (req, res): Promise<void> => {
+    try {
+        const { support_email, whatsapp_number, show_prices, enable_checkout } = req.body;
+        
+        const payload = {
+            support_email,
+            whatsapp_number,
+            show_prices,
+            enable_checkout,
+            updated_at: new Date().toISOString()
+        };
+
+        const { data, error } = await getSupabase()
+            .from('store_settings')
+            .upsert({ id: 1, ...payload })
+            .select()
+            .single();
+
+        if (error) throw error;
+
+        res.status(200).json(data);
+    } catch (err) {
+        console.error('[Settings API Update Error]:', err);
+        res.status(500).json({ error: 'An unexpected error occurred updating store settings.' });
     }
 });
 

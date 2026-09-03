@@ -16,8 +16,8 @@ interface StoreSettingsContextType {
 const defaultSettings: StoreSettings = {
   show_prices: true,
   enable_checkout: true,
-  support_email: null,
-  whatsapp_number: null,
+  support_email: 'able@ablero.com',
+  whatsapp_number: '+94 777 852 476',
 };
 
 const StoreSettingsContext = createContext<StoreSettingsContextType>({

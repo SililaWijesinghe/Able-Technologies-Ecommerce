@@ -33,7 +33,7 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
   const description = product.short_description || product.description || '';
 
   const showPrice = settings.show_prices && !product.requires_quote;
-  const requiresQuoteButton = product.requires_quote || product.is_service || product.is_rentable || product.transaction_type === 'rent';
+  const requiresQuoteButton = !settings.enable_checkout || product.requires_quote || product.is_service || product.is_rentable || product.transaction_type === 'rent';
 
   return (
     <motion.div 

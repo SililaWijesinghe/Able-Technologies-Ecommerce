@@ -87,16 +87,7 @@ export default function Orders() {
     return true;
   });
 
-  if (loading && orders.length === 0) {
-    return (
-      <div className="flex h-full items-center justify-center min-h-[400px]">
-        <div className="flex flex-col items-center text-slate-500">
-          <Loader2 size={32} className="animate-spin mb-4 text-[#0b1042]" />
-          <p className="text-sm font-bold uppercase tracking-widest text-gray-500">Loading Orders...</p>
-        </div>
-      </div>
-    );
-  }
+  if (loading) return <div className="p-6"><SkeletonTable /></div>;
 
   return (
     <div className="space-y-6">

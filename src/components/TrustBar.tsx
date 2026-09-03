@@ -14,32 +14,32 @@ export default function TrustBar() {
         <div className="flex items-center space-x-4">
           <ShieldCheck size={28} className="text-blue-900" strokeWidth={1.5} />
           <div>
-            <h4 className="font-bold text-sm text-slate-800">100% Original Products</h4>
-            <p className="text-xs text-slate-600">Sourced from trusted brands</p>
+            <h4 className="font-sans font-semibold text-[15px] text-slate-800 tracking-tight">100% Genuine Products</h4>
+            <p className="font-sans text-[13px] text-slate-600 mt-0.5">Sourced from trusted brands</p>
           </div>
         </div>
         <div className="hidden md:block w-px h-10 bg-gray-200"></div>
         <div className="flex items-center space-x-4">
           <Tag size={28} className="text-blue-900" strokeWidth={1.5} />
           <div>
-            <h4 className="font-bold text-sm text-slate-800">Best Prices</h4>
-            <p className="text-xs text-slate-600">Competitive pricing always</p>
+            <h4 className="font-sans font-semibold text-[15px] text-slate-800 tracking-tight">Best Prices</h4>
+            <p className="font-sans text-[13px] text-slate-600 mt-0.5">Competitive pricing always</p>
           </div>
         </div>
         <div className="hidden md:block w-px h-10 bg-gray-200"></div>
         <div className="flex items-center space-x-4">
           <Truck size={28} className="text-blue-900" strokeWidth={1.5} />
           <div>
-            <h4 className="font-bold text-sm text-slate-800">Fast Delivery</h4>
-            <p className="text-xs text-slate-600">Islandwide delivery</p>
+            <h4 className="font-sans font-semibold text-[15px] text-slate-800 tracking-tight">Fast Delivery</h4>
+            <p className="font-sans text-[13px] text-slate-600 mt-0.5">Islandwide delivery</p>
           </div>
         </div>
         <div className="hidden md:block w-px h-10 bg-gray-200"></div>
         <div className="flex items-center space-x-4">
           <CreditCard size={28} className="text-blue-900" strokeWidth={1.5} />
           <div>
-            <h4 className="font-bold text-sm text-slate-800">Secure Payments</h4>
-            <p className="text-xs text-slate-600">Safe & secure checkout</p>
+            <h4 className="font-sans font-semibold text-[15px] text-slate-800 tracking-tight">Secure Payments</h4>
+            <p className="font-sans text-[13px] text-slate-600 mt-0.5">Safe & secure checkout</p>
           </div>
         </div>
       </motion.div>

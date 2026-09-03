@@ -26,6 +26,11 @@ import { useCart } from '../context/CartContext';
 import toolImg from '../assets/Tool.png';
 import toast from 'react-hot-toast';
 
+import { useStoreSettings } from '../context/StoreSettingsContext';
+import { supabase } from '../lib/supabase';
+import { SkeletonProductCard } from './ui/Skeleton';
+import QuoteModal from './shop/QuoteModal';
+
 interface ProductItem {
   id: string;
   name: string;
@@ -50,8 +55,10 @@ interface ProductItem {
 
 export default function BestSellers() {
   const { addToCart } = useCart();
+  const { settings } = useStoreSettings();
   const navigate = useNavigate();
   const [products, setProducts] = useState<ProductItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [favorites, setFavorites] = useState<Record<string, boolean>>({});
   const [quickViewProduct, setQuickViewProduct] = useState<ProductItem | null>(null);
@@ -59,6 +66,8 @@ export default function BestSellers() {
   const [addedItemIds, setAddedItemIds] = useState<Record<string, boolean>>({});
   const [itemsPerView, setItemsPerView] = useState(3);
   const touchStartX = useRef<number | null>(null);
+  const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
+  const [quoteProduct, setQuoteProduct] = useState<any>(null);
 
   // Authoritative curated reference catalog matching the exact reference image
   const defaultBestSellers: ProductItem[] = useMemo(() => [
@@ -151,6 +160,7 @@ export default function BestSellers() {
 
   // Fetch real database products and gracefully merge with rich industrial best-seller schema
   useEffect(() => {
+    setIsLoading(true);
     fetchProducts().then((apiData: any[]) => {
       if (apiData && Array.isArray(apiData) && apiData.length > 0) {
         // Map API records into standard structure
@@ -194,9 +204,11 @@ export default function BestSellers() {
         }
       } else {
         setProducts(defaultBestSellers);
+        setIsLoading(false);
       }
     }).catch(() => {
       setProducts(defaultBestSellers);
+      setIsLoading(false);
     });
   }, [defaultBestSellers]);
 
@@ -403,12 +415,12 @@ export default function BestSellers() {
             </div>
 
             {/* Main Heading */}
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight leading-none mb-2">
+            <h2 className="font-poppins text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-none mb-2">
               Best Sellers
             </h2>
 
             {/* Supporting Text */}
-            <p className="text-slate-400 text-sm md:text-base font-normal max-w-xl">
+            <p className="font-sans text-slate-400 text-sm md:text-[15px] font-normal max-w-xl">
               Most trusted industrial equipment by our customers
             </p>
           </div>
@@ -430,10 +442,10 @@ export default function BestSellers() {
             3. LIQUID-GLASS TRUST & BENEFIT STRIP
             ======================================================== */}
         <div className="w-full bg-[#071333]/85 backdrop-blur-2xl border border-white/10 rounded-2xl md:rounded-3xl p-4 md:p-5 mb-10 md:mb-12 shadow-[0_12px_35px_rgba(0,0,0,0.45)]">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 divide-y sm:divide-y-0 sm:divide-x-0 lg:divide-x divide-white/10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-0 sm:gap-4 lg:gap-6 divide-y sm:divide-y-0 sm:divide-x-0 lg:divide-x divide-white/10">
             
             {/* Item 1: Premium Quality */}
-            <div className="flex items-center space-x-3.5 pt-2 sm:pt-0 lg:px-3">
+            <div className="flex items-center space-x-3.5 py-3 sm:py-0 lg:px-3">
               <div className="w-11 h-11 rounded-full bg-blue-600/20 border border-blue-400/35 flex items-center justify-center text-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.25)] shrink-0">
                 <ShieldCheck size={20} />
               </div>
@@ -444,7 +456,7 @@ export default function BestSellers() {
             </div>
 
             {/* Item 2: Reliable Performance */}
-            <div className="flex items-center space-x-3.5 pt-3 sm:pt-0 lg:px-4">
+            <div className="flex items-center space-x-3.5 py-3 sm:py-0 lg:px-4">
               <div className="w-11 h-11 rounded-full bg-blue-600/20 border border-blue-400/35 flex items-center justify-center text-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.25)] shrink-0">
                 <Settings size={20} />
               </div>
@@ -455,7 +467,7 @@ export default function BestSellers() {
             </div>
 
             {/* Item 3: Fast Delivery */}
-            <div className="flex items-center space-x-3.5 pt-3 sm:pt-0 lg:px-4">
+            <div className="flex items-center space-x-3.5 py-3 sm:py-0 lg:px-4">
               <div className="w-11 h-11 rounded-full bg-red-600/20 border border-red-500/35 flex items-center justify-center text-red-400 shadow-[0_0_15px_rgba(239,68,68,0.25)] shrink-0">
                 <Truck size={20} />
               </div>
@@ -466,7 +478,7 @@ export default function BestSellers() {
             </div>
 
             {/* Item 4: Expert Support */}
-            <div className="flex items-center space-x-3.5 pt-3 sm:pt-0 lg:px-4">
+            <div className="flex items-center space-x-3.5 py-3 sm:py-0 lg:px-4">
               <div className="w-11 h-11 rounded-full bg-red-600/20 border border-red-500/35 flex items-center justify-center text-red-400 shadow-[0_0_15px_rgba(239,68,68,0.25)] shrink-0">
                 <Headphones size={20} />
               </div>
@@ -591,7 +603,7 @@ export default function BestSellers() {
                           <h3 
                             onClick={() => navigate(`/product/${product.slug || product.id}`)}
                             title={product.name}
-                            className="text-[#060e2c] font-black text-lg md:text-xl leading-tight line-clamp-1 hover:text-blue-600 transition-colors cursor-pointer mb-2"
+                            className="font-sans text-[#0b1042] font-semibold text-[15px] md:text-[17px] leading-[1.4] line-clamp-2 hover:text-red-600 transition-colors cursor-pointer mb-2"
                           >
                             {product.name}
                           </h3>
@@ -600,13 +612,19 @@ export default function BestSellers() {
                         {/* Pricing and Stock Status */}
                         <div>
                           <div className="flex items-baseline space-x-2 mb-1.5">
-                            <span className="text-xl sm:text-2xl font-black text-[#dc2626] tracking-tight">
-                              {displayPrice}
-                            </span>
-                            {displayComparePrice && (
-                              <span className="text-slate-400 line-through text-xs sm:text-sm font-semibold">
-                                {displayComparePrice}
-                              </span>
+                            {settings.show_prices ? (
+                              <>
+                                <span className="font-sans text-[18px] sm:text-[20px] md:text-[22px] font-bold text-[#dc2626] tracking-tight">
+                                  {displayPrice}
+                                </span>
+                                {displayComparePrice && (
+                                  <span className="font-sans text-slate-400 line-through text-[13px] sm:text-[14px] font-medium ml-2">
+                                    {displayComparePrice}
+                                  </span>
+                                )}
+                              </>
+                            ) : (
+                              <span className="text-blue-900 font-bold text-base bg-blue-100 px-3 py-1 rounded-full">Price on Request</span>
                             )}
                           </div>
 
@@ -620,7 +638,7 @@ export default function BestSellers() {
                         {/* Action Footer: Add to Cart (Primary) + Quick View (Secondary) */}
                         <div className="flex items-center space-x-2.5 pt-1">
                           
-                          {/* Primary Add to Cart CTA */}
+                          {/* Primary CTA */}
                           <button
                             onClick={() => handleAddToCart(product)}
                             className={`flex-1 py-3 px-4 rounded-xl font-bold text-sm flex items-center justify-center space-x-2 shadow-md hover:shadow-lg transition-all duration-200 active:scale-95 cursor-pointer ${
@@ -637,7 +655,7 @@ export default function BestSellers() {
                             ) : (
                               <>
                                 <ShoppingCart size={16} />
-                                <span>Add to Cart</span>
+                                <span>{settings.enable_checkout ? 'Add to Cart' : 'Request Quote'}</span>
                               </>
                             )}
                           </button>
@@ -709,143 +727,154 @@ export default function BestSellers() {
 
       </div>
 
-      {/* ========================================================
-          6. QUICK VIEW MODAL (LIQUID GLASS INDUSTRIAL UI)
-          ======================================================== */}
-      <AnimatePresence>
-        {quickViewProduct && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            
-            {/* Dark Liquid-Glass Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setQuickViewProduct(null)}
-              className="absolute inset-0 bg-[#000a23]/75 backdrop-blur-[12px]"
-            />
-
-            {/* Modal Dialog Body */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className="relative w-full max-w-2xl bg-gradient-to-b from-[#08173e] via-[#040e29] to-[#020718] border border-blue-400/30 rounded-3xl p-6 sm:p-8 shadow-[0_25px_60px_rgba(0,0,0,0.85)] z-10 overflow-hidden"
-            >
-              {/* Close Button */}
-              <button
+        {/* ========================================================
+            6. QUICK VIEW MODAL (LIQUID GLASS INDUSTRIAL UI)
+            ======================================================== */}
+        <AnimatePresence>
+          {quickViewProduct && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+              
+              {/* Dark Liquid-Glass Backdrop */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
                 onClick={() => setQuickViewProduct(null)}
-                className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all cursor-pointer z-20"
+                className="absolute inset-0 bg-[#000a23]/75 backdrop-blur-[12px]"
+              />
+  
+              {/* Modal Dialog Body */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                className="relative w-full max-w-2xl bg-gradient-to-b from-[#08173e] via-[#040e29] to-[#020718] border border-blue-400/30 rounded-3xl p-6 sm:p-8 shadow-[0_25px_60px_rgba(0,0,0,0.85)] z-10 overflow-hidden"
               >
-                <X size={18} />
-              </button>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-center">
-                
-                {/* Product Image Container in Modal */}
-                <div className="w-full h-64 sm:h-72 bg-gradient-to-b from-white to-[#edf2f7] rounded-2xl p-4 flex items-center justify-center border border-white/80 shadow-inner relative overflow-hidden">
-                  <img
-                    src={quickViewProduct.image}
-                    alt={quickViewProduct.name}
-                    className="max-h-full max-w-full object-contain drop-shadow-md"
-                  />
-                  <div className="absolute top-3 left-3">
-                    {renderBadge(quickViewProduct.badge)}
+                {/* Close Button */}
+                <button
+                  onClick={() => setQuickViewProduct(null)}
+                  className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all cursor-pointer z-20"
+                >
+                  <X size={18} />
+                </button>
+  
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-center">
+                  
+                  {/* Product Image Container in Modal */}
+                  <div className="w-full h-64 sm:h-72 bg-gradient-to-b from-white to-[#edf2f7] rounded-2xl p-4 flex items-center justify-center border border-white/80 shadow-inner relative overflow-hidden">
+                    <img
+                      src={quickViewProduct.image}
+                      alt={quickViewProduct.name}
+                      className="max-h-full max-w-full object-contain drop-shadow-md"
+                    />
+                    <div className="absolute top-3 left-3">
+                      {renderBadge(quickViewProduct.badge)}
+                    </div>
                   </div>
-                </div>
-
-                {/* Details Column */}
-                <div className="flex flex-col justify-between">
-                  <div>
-                    <span className="text-xs font-bold text-blue-400 uppercase tracking-wider">
-                      {quickViewProduct.category || 'Industrial Equipment'}
-                    </span>
-                    <h3 className="text-xl sm:text-2xl font-black text-white leading-tight mt-1 mb-2">
-                      {quickViewProduct.name}
-                    </h3>
-                    
-                    {quickViewProduct.sku && (
-                      <p className="text-[11px] text-slate-400 font-mono mb-3">
-                        SKU: {quickViewProduct.sku}
-                      </p>
-                    )}
-
-                    <div className="flex items-baseline space-x-3 mb-3">
-                      <span className="text-2xl font-black text-[#dc2626]">
-                        Rs. {quickViewProduct.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+  
+                  {/* Details Column */}
+                  <div className="flex flex-col justify-between">
+                    <div>
+                      <span className="text-xs font-bold text-blue-400 uppercase tracking-wider">
+                        {quickViewProduct.category || 'Industrial Equipment'}
                       </span>
-                      {quickViewProduct.compare_at_price && (
-                        <span className="text-slate-400 line-through text-sm">
-                          Rs. {quickViewProduct.compare_at_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        </span>
+                      <h3 className="text-xl sm:text-2xl font-black text-white leading-tight mt-1 mb-2">
+                        {quickViewProduct.name}
+                      </h3>
+                      
+                      {quickViewProduct.sku && (
+                        <p className="text-[11px] text-slate-400 font-mono mb-3">
+                          SKU: {quickViewProduct.sku}
+                        </p>
                       )}
-                    </div>
-
-                    <p className="text-slate-300 text-xs sm:text-sm leading-relaxed mb-4">
-                      {quickViewProduct.short_description}
-                    </p>
-
-                    <div className="flex items-center space-x-2 text-xs font-bold text-emerald-400 mb-6">
-                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                      <span>In Stock • Ready for Dispatch</span>
-                    </div>
-                  </div>
-
-                  {/* Quantity and Actions */}
-                  <div className="space-y-3">
-                    <div className="flex items-center space-x-3">
-                      <span className="text-xs text-slate-400 font-semibold">Qty:</span>
-                      <div className="flex items-center bg-[#020719] border border-white/15 rounded-xl p-1 shadow-inner">
-                        <button
-                          onClick={() => setQuickViewQuantity(q => Math.max(1, q - 1))}
-                          className="w-7 h-7 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors"
-                        >
-                          <Minus size={13} />
-                        </button>
-                        <span className="w-10 text-center text-sm font-bold text-white">
-                          {quickViewQuantity}
-                        </span>
-                        <button
-                          onClick={() => setQuickViewQuantity(q => q + 1)}
-                          className="w-7 h-7 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors"
-                        >
-                          <Plus size={13} />
-                        </button>
+  
+                      <div className="flex items-baseline space-x-3 mb-3">
+                        {settings.show_prices ? (
+                          <>
+                            <span className="text-2xl font-black text-[#dc2626]">
+                              Rs. {quickViewProduct.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </span>
+                            {quickViewProduct.compare_at_price && (
+                              <span className="text-slate-400 line-through text-sm">
+                                Rs. {quickViewProduct.compare_at_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                              </span>
+                            )}
+                          </>
+                        ) : (
+                          <span className="text-blue-200 font-bold text-base bg-blue-900/50 px-3 py-1 rounded-full">Price on Request</span>
+                        )}
+                      </div>
+  
+                      <p className="text-slate-300 text-xs sm:text-sm leading-relaxed mb-4">
+                        {quickViewProduct.short_description}
+                      </p>
+  
+                      <div className="flex items-center space-x-2 text-xs font-bold text-emerald-400 mb-6">
+                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                        <span>In Stock • Ready for Dispatch</span>
                       </div>
                     </div>
-
-                    <div className="flex items-center space-x-2.5 pt-1">
-                      <button
-                        onClick={() => {
-                          handleAddToCart(quickViewProduct, quickViewQuantity);
-                          setQuickViewProduct(null);
-                        }}
-                        className="flex-1 metallic-red-bg hover:opacity-95 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center space-x-2 shadow-lg shadow-red-900/40 active:scale-95 transition-all"
-                      >
-                        <ShoppingCart size={16} />
-                        <span>Add {quickViewQuantity > 1 ? `(${quickViewQuantity})` : ''} to Cart</span>
-                      </button>
-
-                      <Link
-                        to={`/product/${quickViewProduct.slug || quickViewProduct.id}`}
-                        onClick={() => setQuickViewProduct(null)}
-                        className="px-3.5 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold flex items-center space-x-1.5 transition-colors"
-                      >
-                        <span>Details</span>
-                        <ArrowRight size={14} />
-                      </Link>
+  
+                    {/* Quantity and Actions */}
+                    <div className="space-y-3">
+                      <div className="flex items-center space-x-3">
+                        <span className="text-xs text-slate-400 font-semibold">Qty:</span>
+                        <div className="flex items-center bg-[#020719] border border-white/15 rounded-xl p-1 shadow-inner">
+                          <button
+                            onClick={() => setQuickViewQuantity(q => Math.max(1, q - 1))}
+                            className="w-7 h-7 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors"
+                          >
+                            <Minus size={13} />
+                          </button>
+                          <span className="w-10 text-center text-sm font-bold text-white">
+                            {quickViewQuantity}
+                          </span>
+                          <button
+                            onClick={() => setQuickViewQuantity(q => q + 1)}
+                            className="w-7 h-7 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors"
+                          >
+                            <Plus size={13} />
+                          </button>
+                        </div>
+                      </div>
+  
+                      <div className="flex items-center space-x-2.5 pt-1">
+                        <button
+                          onClick={() => {
+                            handleAddToCart(quickViewProduct, quickViewQuantity);
+                            setQuickViewProduct(null);
+                          }}
+                          className="flex-1 metallic-red-bg hover:opacity-95 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center space-x-2 shadow-lg shadow-red-900/40 active:scale-95 transition-all"
+                        >
+                          <ShoppingCart size={16} />
+                          <span>{settings.enable_checkout ? 'Add' : 'Request'} {quickViewQuantity > 1 ? `(${quickViewQuantity})` : ''} {settings.enable_checkout ? 'to Cart' : 'Quote'}</span>
+                        </button>
+  
+                        <Link
+                          to={`/product/${quickViewProduct.slug || quickViewProduct.id}`}
+                          onClick={() => setQuickViewProduct(null)}
+                          className="px-3.5 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold flex items-center space-x-1.5 transition-colors"
+                        >
+                          <span>Details</span>
+                          <ArrowRight size={14} />
+                        </Link>
+                      </div>
                     </div>
+  
                   </div>
-
+  
                 </div>
-
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-
-    </section>
-  );
-}
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+  
+        <QuoteModal
+          isOpen={isQuoteModalOpen}
+          onClose={() => setIsQuoteModalOpen(false)}
+          product={quoteProduct}
+        />
+      </section>
+    );
+  }
