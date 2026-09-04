@@ -56,11 +56,7 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
         )}
       </div>
       
-      {brandName && (
-        <div className="bg-blue-950/80 backdrop-blur-md text-white px-3 py-1 rounded-full text-xs absolute top-4 right-4 z-10 shadow-sm">
-          {brandName}
-        </div>
-      )}
+      
 
       <Link to={`/product/${product.id}`} className="flex-1 flex flex-col group/link mt-2">
         {/* Image */}
@@ -76,11 +72,29 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
 
         {/* Details */}
         <div className="flex flex-col flex-1">
-          <h3 className="text-slate-800 font-bold text-lg leading-tight mt-4 group-hover/link:text-blue-600 transition-colors">{product.name}</h3>
           
-          {description && (
-            <p className="text-slate-500 text-sm line-clamp-2 mt-2">{description}</p>
+          {brandName && (
+            <div className="text-[11px] font-extrabold text-blue-600 uppercase tracking-widest mb-1 mt-3 flex items-center">
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-600 mr-1.5 inline-block animate-pulse"></span>
+              {brandName}
+            </div>
           )}
+          <h3 className="text-slate-800 font-bold text-lg leading-tight group-hover/link:text-blue-600 transition-colors">{product.name}</h3>
+
+          
+          
+          {/* Specifications Capsules */}
+          {product.specifications && Object.keys(product.specifications).length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mt-3">
+              {Object.entries(product.specifications).slice(0, 3).map(([key, value]) => (
+                <div key={key} className="bg-slate-100 text-slate-600 text-[10px] font-semibold px-2 py-0.5 rounded flex items-center shadow-sm border border-slate-200">
+                  <span className="text-slate-400 mr-1">{key}:</span>
+                  <span className="truncate max-w-[80px]" title={value as string}>{value as string}</span>
+                </div>
+              ))}
+            </div>
+          )}
+
           
           <div className="flex items-center mt-3 h-7">
             {showPrice ? (

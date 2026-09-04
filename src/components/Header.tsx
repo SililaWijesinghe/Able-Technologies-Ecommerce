@@ -4,6 +4,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { fetchSettings, fetchCategories } from '../services/api';
 import { useScrollDirection } from '../hooks/useScrollDirection';
 import { useCart } from '../context/CartContext';
+import { useStoreSettings } from '../context/StoreSettingsContext';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 import LoginModal from './auth/LoginModal';
@@ -72,13 +73,14 @@ const defaultSearchProducts = [
 ];
 
 export default function Header() {
+  const { settings } = useStoreSettings();
 
   const handleComingSoon = (e: any) => {
     e.preventDefault();
     toast('Coming soon!', { icon: '🚧', style: { borderRadius: '10px', background: '#0b1042', color: '#fff' } });
   };
 
-  const [settings, setSettings] = useState<any>(null);
+  
   const [categories, setCategories] = useState<any[]>([]);
   const { cartCount, cartTotal, setIsCartOpen } = useCart();
   const { isAuthenticated, user, logout } = useAuth();
@@ -105,7 +107,7 @@ export default function Header() {
   const mobileSearchRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    fetchSettings().then(data => data && setSettings(data));
+    
     fetchCategories().then(data => data && setCategories(data));
 
     const handleScroll = () => {
@@ -342,7 +344,9 @@ export default function Header() {
                           </div>
                           <div className="flex-1 min-w-0">
                             <h4 className="text-slate-100 font-semibold text-xs truncate group-hover:text-cyan-300 transition-colors">{item.name}</h4>
-                            <span className="text-red-400 font-bold text-xs">Rs. {typeof item.price === 'number' ? item.price.toLocaleString('en-US', { minimumFractionDigits: 2 }) : item.price}</span>
+                            {settings?.show_prices && (
+                              <span className="text-red-400 font-bold text-xs">Rs. {typeof item.price === 'number' ? item.price.toLocaleString('en-US', { minimumFractionDigits: 2 }) : item.price}</span>
+                            )}
                           </div>
                         </Link>
                       );
@@ -522,9 +526,11 @@ export default function Header() {
                             </div>
                             <div className="flex-1 min-w-0">
                               <h4 className="text-slate-100 font-semibold text-sm truncate group-hover:text-white transition-colors">{item.name}</h4>
+                              {settings?.show_prices && (
                               <p className="text-red-400 font-bold text-xs mt-0.5">
                                 Rs. {typeof item.price === 'number' ? item.price.toLocaleString('en-US', { minimumFractionDigits: 2 }) : item.price}
                               </p>
+                            )}
                             </div>
                           </Link>
                         );

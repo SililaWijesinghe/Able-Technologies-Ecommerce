@@ -1,3 +1,4 @@
+import { SkeletonTable } from '../../components/ui/Skeleton';
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Search, Filter, Eye, Users, UserCheck, UserPlus, DollarSign, Activity, FileText, Loader2, Download, Plus, MoreVertical, Edit2, Phone } from 'lucide-react';

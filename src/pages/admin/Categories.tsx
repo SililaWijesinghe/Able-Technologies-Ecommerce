@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
-import { useToast } from '../../context/ToastContext';
+import toast from 'react-hot-toast';
 import { Plus, Edit, Trash2, LayoutGrid, Loader2, Image as ImageIcon, AlertCircle, Upload, Link as LinkIcon, X } from 'lucide-react';
 
 export default function Categories() {
@@ -31,7 +31,7 @@ export default function Categories() {
   const [deleteId, setDeleteId] = useState('');
   const [deleteName, setDeleteName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { toast } = useToast();
+  
 
   const fetchData = async () => {
     try {

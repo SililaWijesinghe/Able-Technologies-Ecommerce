@@ -54,6 +54,54 @@ export default function ProductBuyBox({ product }: { product: any }) {
     setSelectedAttributes(prev => ({ ...prev, [key]: value }));
   };
 
+  
+  const renderFormattedDescription = (text: string) => {
+    if (!text) return null;
+    
+    // Check if it uses the custom arrow bullet
+    if (text.includes('➢') || text.includes('➤') || text.includes('➣')) {
+      const char = text.includes('➢') ? '➢' : text.includes('➤') ? '➤' : '➣';
+      const parts = text.split(char).filter(p => p.trim().length > 0);
+      
+      return (
+        <ul className="space-y-2 mb-6">
+          {parts.map((part, idx) => (
+            <li key={idx} className="flex items-start text-gray-600 text-sm leading-relaxed">
+              <span className="text-red-500 font-bold mr-2 mt-0.5 shrink-0 text-xs">➢</span>
+              <span>{part.trim()}</span>
+            </li>
+          ))}
+        </ul>
+      );
+    }
+    
+    // Check if it uses newlines
+    if (text.includes('\n')) {
+      const lines = text.split('\n').filter(p => p.trim().length > 0);
+      return (
+        <ul className="space-y-2 mb-6">
+          {lines.map((line, idx) => {
+            const trimmed = line.trim();
+            const isBullet = trimmed.startsWith('-') || trimmed.startsWith('•') || trimmed.startsWith('*');
+            const content = isBullet ? trimmed.substring(1).trim() : trimmed;
+            
+            return (
+              <li key={idx} className={`flex items-start text-gray-600 text-sm leading-relaxed`}>
+                {isBullet ? (
+                  <span className="text-red-500 font-bold mr-2 mt-0.5 shrink-0 text-xs">•</span>
+                ) : null}
+                <span>{content}</span>
+              </li>
+            );
+          })}
+        </ul>
+      );
+    }
+    
+    // Default paragraph fallback
+    return <p className="text-gray-600 text-sm leading-relaxed mb-6">{text}</p>;
+  };
+
   return (
     <div className="flex flex-col">
       {/* Stock & Shipping */}
@@ -96,9 +144,7 @@ export default function ProductBuyBox({ product }: { product: any }) {
         )}
       </div>
       
-      <p className="text-gray-600 text-sm mb-6 leading-relaxed">
-        {product.description}
-      </p>
+      {renderFormattedDescription(product.description)}
 
       {/* Dynamic Selectors */}
       {attributeKeys.map(key => (

@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from '../context/ToastContext';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
@@ -10,7 +11,8 @@ import { supabase } from '../lib/supabase';
 
 export default function Checkout() {
   const toast = useToast();
-  const { cartItems, cartTotal, clearCart } = useCart();
+  const { cartItems, cartTotal, clearCart, setIsCartOpen } = useCart();
+  const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
   const { settings } = useStoreSettings();
   
@@ -513,10 +515,18 @@ export default function Checkout() {
               </div>
 
               <div className="pt-2">
-                <Link to="/cart" className="text-xs text-slate-500 hover:text-slate-900 flex items-center justify-center space-x-1.5 transition-colors">
+                <button 
+                  onClick={() => {
+                    if (window.confirm("Are you sure you want to return to shopping? Any unsaved checkout information will be lost.")) {
+                      setIsCartOpen(true);
+                      navigate('/');
+                    }
+                  }}
+                  className="w-full text-xs text-slate-500 hover:text-slate-900 flex items-center justify-center space-x-1.5 transition-colors cursor-pointer"
+                >
                   <ArrowLeft size={13} />
                   <span>Return to Shopping Cart</span>
-                </Link>
+                </button>
               </div>
 
             </div>

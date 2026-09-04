@@ -122,6 +122,7 @@ export default function App() {
               <Route path="inquiries" element={<Inquiries />} />
               <Route path="settings" element={<Settings />} />
               <Route path="banners" element={<ComingSoon />} />
+              <Route path="brands" element={<ComingSoon />} />
               <Route path="pages" element={<ComingSoon />} />
               {/* Additional admin routes will go here in future steps */}
             </Route>

@@ -5,6 +5,7 @@ import {
   ArrowRight, Eye, Plus, Grid, ImageIcon, FileText, Settings, Loader2
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import OrderDetailsModal from '../../components/admin/OrderDetailsModal';
 
 export default function Dashboard() {
   const [loading, setLoading] = useState(true);
@@ -17,9 +18,10 @@ export default function Dashboard() {
   });
   const [recentOrders, setRecentOrders] = useState<any[]>([]);
   const [lowStock, setLowStock] = useState<any[]>([]);
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function fetchDashboardData() {
+  async function fetchDashboardData() {
+
       try {
         setLoading(true);
         const [
@@ -84,8 +86,9 @@ export default function Dashboard() {
       } finally {
         setLoading(false);
       }
-    }
+  }
 
+  useEffect(() => {
     fetchDashboardData();
   }, []);
 
@@ -231,9 +234,9 @@ export default function Dashboard() {
                         </span>
                       </td>
                       <td className="p-4 text-center">
-                        <Link to={`/admin/orders/${order.rawId}`} className="inline-flex text-slate-500 hover:text-gray-900 transition-colors p-1.5 border border-white/60 rounded-lg hover:bg-white shadow-sm">
+                        <button onClick={() => setSelectedOrderId(order.rawId)} className="inline-flex text-slate-500 hover:text-gray-900 transition-colors p-1.5 border border-white/60 rounded-lg hover:bg-white shadow-sm cursor-pointer" title="View Order">
                           <Eye size={14} />
-                        </Link>
+                        </button>
                       </td>
                     </tr>
                   ))
@@ -302,6 +305,12 @@ export default function Dashboard() {
         <span>Version 1.0.0</span>
       </div>
 
+      <OrderDetailsModal 
+        isOpen={!!selectedOrderId}
+        onClose={() => setSelectedOrderId(null)}
+        orderId={selectedOrderId}
+        onStatusUpdate={fetchDashboardData}
+      />
     </div>
   );
 }

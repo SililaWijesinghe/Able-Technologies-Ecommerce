@@ -51,6 +51,8 @@ interface ProductItem {
   short_description?: string;
   description?: string;
   icon_type?: 'cylinder' | 'robot' | 'jack' | 'printer' | 'fitting' | 'gear';
+  specifications?: any;
+  attributes?: any;
 }
 
 export default function BestSellers() {
@@ -184,7 +186,7 @@ export default function BestSellers() {
             sku: p.sku || `SKU-${idx + 100}`,
             category: p.brand || (typeof p.category === 'object' ? p.category?.name : p.category) || defaultBestSellers[idx % defaultBestSellers.length].category,
             category_name: typeof p.category === 'object' ? p.category?.name : p.category || 'Industrial Equipment',
-            brand: p.brand || 'Able Technologies',
+            
             price: priceVal > 0 ? priceVal : defaultBestSellers[idx % defaultBestSellers.length].price,
             compare_at_price: compareVal && compareVal > priceVal ? compareVal : defaultBestSellers[idx % defaultBestSellers.length].compare_at_price,
             image: imgUrl,
@@ -192,7 +194,10 @@ export default function BestSellers() {
             stock_status: p.stock_status || (p.stock_quantity > 0 ? 'IN_STOCK' : 'IN_STOCK'),
             stock_quantity: p.stock_quantity || 25,
             short_description: p.short_description || p.description || defaultBestSellers[idx % defaultBestSellers.length].short_description,
-            icon_type: defaultBestSellers[idx % defaultBestSellers.length].icon_type
+            icon_type: defaultBestSellers[idx % defaultBestSellers.length].icon_type,
+            specifications: p.specifications || defaultBestSellers[idx % defaultBestSellers.length].specifications,
+            attributes: p.attributes || defaultBestSellers[idx % defaultBestSellers.length].attributes,
+            brand: typeof p.brand === 'object' ? p.brand?.name : (p.brand || p.brand_id || defaultBestSellers[idx % defaultBestSellers.length].brand)
           };
         });
 
@@ -594,10 +599,18 @@ export default function BestSellers() {
                       {/* Product Meta & Information */}
                       <div className="flex-1 flex flex-col justify-between pt-1">
                         <div>
-                          {/* Product Category / Subtitle */}
-                          <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">
-                            {product.category || 'Industrial Equipment'}
-                          </div>
+                          {/* Brand Name */}
+                          {product.brand && (
+                            <div className="text-[11px] font-extrabold text-blue-600 uppercase tracking-widest mb-1 flex items-center">
+                              <span className="w-1.5 h-1.5 rounded-full bg-blue-600 mr-1.5 inline-block animate-pulse"></span>
+                              {product.brand}
+                            </div>
+                          )}
+                          {!product.brand && (
+                            <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                              {product.category || 'ABLE'}
+                            </div>
+                          )}
 
                           {/* Product Name */}
                           <h3 
@@ -607,6 +620,18 @@ export default function BestSellers() {
                           >
                             {product.name}
                           </h3>
+                          
+                          {/* Specifications Capsules */}
+                          {(product.specifications || product.attributes) && Object.keys(product.specifications || product.attributes || {}).length > 0 && (
+                            <div className="flex flex-wrap gap-1.5 mt-2 mb-3">
+                              {Object.entries(product.specifications || product.attributes || {}).slice(0, 3).map(([key, value]) => (
+                                <div key={key} className="bg-slate-100 text-slate-600 text-[10px] font-semibold px-2 py-0.5 rounded flex items-center shadow-sm border border-slate-200">
+                                  <span className="text-slate-400 mr-1">{key}:</span>
+                                  <span className="truncate max-w-[80px]" title={value as string}>{value as string}</span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
                         </div>
 
                         {/* Pricing and Stock Status */}

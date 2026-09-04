@@ -15,29 +15,14 @@ export default function LocationAndWhyUs() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         {/* Map Area */}
         <div className="relative h-[300px] lg:h-[400px] bg-gray-200">
-          {/* Simple map placeholder matching the design */}
-          <div className="absolute inset-0 bg-[#e8eaed]">
-             {/* Fake map image using CSS background or SVG. Here we use a subtle pattern to simulate map */}
-             <div className="w-full h-full opacity-50" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'#9C92AC\' fill-opacity=\'0.2\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")' }}></div>
-          </div>
-          
-          {/* Map Pin Overlay */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <motion.div 
-              initial={{ y: -20, opacity: 0 }}
-              whileInView={{ y: 0, opacity: 1 }}
-              viewport={{ once: true }}
-              className="flex items-center bg-white rounded-full shadow-lg p-2 pr-6"
-            >
-              <div className="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0 text-white shadow-md">
-                <MapPin size={20} className="fill-red-600 text-white" />
-              </div>
-              <div className="ml-3">
-                <h4 className="font-bold text-sm text-[#0b1042]">Able Technologies (PVT) LTD</h4>
-                <p className="text-xs text-gray-500">Panadura, Sri Lanka</p>
-              </div>
-            </motion.div>
-          </div>
+          <iframe 
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3962.379162190262!2d79.90854557499469!3d6.723504093272458!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ae246042903b98f%3A0x819e1a562e791e8f!2sAble%20Technologies%20(PVT)%20LTD%20-%20Head%20Office!5e0!3m2!1sen!2slk!4v1788511897387!5m2!1sen!2slk" 
+            className="absolute inset-0 w-full h-full"
+            style={{ border: 0 }} 
+            allowFullScreen={false} 
+            loading="lazy" 
+            referrerPolicy="strict-origin-when-cross-origin"
+          ></iframe>
         </div>
 
         {/* Why Choose Us */}

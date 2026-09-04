@@ -1,4 +1,5 @@
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import AdminErrorBoundary from '../admin/AdminErrorBoundary';
 import NavigatedGuide from '../ui/NavigatedGuide';
 import { useAuth } from '../../context/AuthContext';
 import { 
@@ -155,7 +156,9 @@ export default function AdminLayout() {
 
         {/* Dynamic Outlet */}
         <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
-          <Outlet />
+          <AdminErrorBoundary>
+            <Outlet />
+          </AdminErrorBoundary>
         </div>
         
       </main>

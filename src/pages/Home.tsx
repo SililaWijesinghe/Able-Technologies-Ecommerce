@@ -6,6 +6,7 @@ import CategoryCards from '../components/CategoryCards';
 import TrustBar from '../components/TrustBar';
 import PromoGrid from '../components/PromoGrid';
 import BestSellers from '../components/BestSellers';
+import SparePartsShowcase from '../components/SparePartsShowcase';
 import WhyChooseUs from '../components/WhyChooseUs';
 import NewsletterCTA from '../components/NewsletterCTA';
 import heroBg from '../assets/heroBg.webp';
@@ -224,6 +225,7 @@ export default function Home() {
       <TrustBar />
       <PromoGrid />
       <BestSellers />
+      <SparePartsShowcase />
       <WhyChooseUs />
       <NewsletterCTA />
     </>

@@ -1,11 +1,12 @@
+import { SkeletonTable } from '../../components/ui/Skeleton';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useToast } from '../../context/ToastContext';
+import toast from 'react-hot-toast';
 import { Plus, Search, X, Tag, Box, AlertCircle, Info, Shield, Activity, FileText, List, Filter, Eye, Edit, Trash, Package, CheckCircle, Clock, XCircle, Loader2 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
 export default function Products() {
-  const toast = useToast();
+  
   const [viewProduct, setViewProduct] = useState<any>(null);
   const [productToDelete, setProductToDelete] = useState<any>(null);
   const [products, setProducts] = useState<any[]>([]);
@@ -28,7 +29,7 @@ export default function Products() {
       setLoading(true);
       const { data, error } = await supabase
         .from('products')
-        .select('*')
+        .select('*, categories(name), brands(name)')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -54,7 +55,7 @@ export default function Products() {
       });
 
     } catch (err) {
-      toast.error('Failed to delete product');
+      toast.error('Failed to fetch products');
       console.error('Error fetching products:', err);
     } finally {
       setLoading(false);
@@ -222,8 +223,8 @@ export default function Products() {
                         </div>
                       </td>
                       <td className="p-4 text-sm text-gray-500 font-medium">{product.sku || '-'}</td>
-                      <td className="p-4 text-sm text-gray-500 font-medium">{product.category_id || '-'}</td>
-                      <td className="p-4 text-sm text-gray-500 font-medium">{product.brand || '-'}</td>
+                      <td className="p-4 text-sm text-gray-500 font-medium">{product.categories?.name || product.category_id || '-'}</td>
+                      <td className="p-4 text-sm text-gray-500 font-medium">{product.brands?.name || product.brand_id || product.brand || '-'}</td>
                       <td className="p-4 text-sm font-black text-gray-900">
                         {Number(product.price || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </td>

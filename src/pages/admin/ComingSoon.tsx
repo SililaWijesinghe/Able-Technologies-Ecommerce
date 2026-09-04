@@ -4,11 +4,14 @@ import { Sparkles, ArrowLeft, Clock, Construction } from 'lucide-react';
 export default function ComingSoon() {
   const location = useLocation();
   const isBanners = location.pathname.includes('banners');
+  const isBrands = location.pathname.includes('brands');
   
-  const title = isBanners ? 'Banner Management' : 'Pages & CMS Management';
-  const description = isBanners 
-    ? 'Dynamic promotional banner editing, hero slider configuration, and scheduled marketing banner tools are currently under active development.'
-    : 'Custom CMS page builder, SEO metadata configuration, and legal document editors are currently under active development.';
+  let title = 'Pages & CMS Management';
+  if (isBanners) title = 'Banner Management';
+  if (isBrands) title = 'Brand Management';
+  let description = 'Custom CMS page builder, SEO metadata configuration, and legal document editors are currently under active development.';
+  if (isBanners) description = 'Dynamic promotional banner editing, hero slider configuration, and scheduled marketing banner tools are currently under active development.';
+  if (isBrands) description = 'Adding, editing, and mapping top-tier brands to products is currently under active development.';
 
   return (
     <div className="bg-white p-8 md:p-16 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center justify-center text-center min-h-[500px]">
