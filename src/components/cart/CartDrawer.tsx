@@ -258,7 +258,7 @@ export default function CartDrawer() {
                               alt={item.name}
                               className="w-full h-full object-contain"
                               onError={(e) => {
-                                (e.currentTarget as HTMLImageElement).src = '/src/assets/Tool.png';
+                                (e.currentTarget as HTMLImageElement).src = '/src/assets/Tool1.png';
                               }}
                             />
                           ) : (

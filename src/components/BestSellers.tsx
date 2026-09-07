@@ -23,7 +23,7 @@ import {
 } from 'lucide-react';
 import { fetchProducts } from '../services/api';
 import { useCart } from '../context/CartContext';
-import toolImg from '../assets/Tool.png';
+import toolImg from '../assets/Tool1.png';
 import toast from 'react-hot-toast';
 
 import { useStoreSettings } from '../context/StoreSettingsContext';

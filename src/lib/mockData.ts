@@ -76,8 +76,8 @@ export const INITIAL_CATEGORIES: CategoryItem[] = [
     id: 'cat-2',
     name: 'Industrial Robotics',
     slug: 'industrial-robotics',
-    image_url: '/src/assets/Tool.png',
-    icon_url: '/src/assets/Tool.png',
+    image_url: '/src/assets/Tool1.png',
+    icon_url: '/src/assets/Tool1.png',
     created_at: '2025-01-01T00:00:00.000Z'
   },
   {
@@ -205,10 +205,10 @@ export const INITIAL_PRODUCTS: ProductItem[] = [
     availability_status: 'in_stock',
     description: 'High-precision 6-axis articulated industrial robotic arm engineered for precision assembly, welding, packaging, and high-speed pick & place operations with sub-millimeter accuracy.',
     short_description: 'High-precision 6-axis articulated industrial robotic arm engineered for automated assembly.',
-    image_url: '/src/assets/Tool.png',
-    image_urls: ['/src/assets/Tool.png'],
+    image_url: '/src/assets/Tool1.png',
+    image_urls: ['/src/assets/Tool1.png'],
     images: [
-      { id: 'img-2', image_url: '/src/assets/Tool.png', display_order: 1 }
+      { id: 'img-2', image_url: '/src/assets/Tool1.png', display_order: 1 }
     ],
     specifications: {
       'Payload': '20 kg',

@@ -10,7 +10,8 @@ import SparePartsShowcase from '../components/SparePartsShowcase';
 import WhyChooseUs from '../components/WhyChooseUs';
 import NewsletterCTA from '../components/NewsletterCTA';
 import heroBg from '../assets/heroBg.webp';
-import toolImg from '../assets/Tool.png';
+import toolImg1 from '../assets/Tool1.png';
+import toolImg2 from '../assets/Tool2.png';
 
 const HERO_SLIDES = [
   {
@@ -19,7 +20,8 @@ const HERO_SLIDES = [
     headingTitle2: "MACHINE MAKERS",
     description: "Your one-stop solution for high-quality machines, spare parts, gauges and industrial supplies.",
     ctaText: "Shop Now",
-    ctaLink: "/shop"
+    ctaLink: "/shop",
+    image: toolImg1
   },
   {
     tagline: "ADVANCED ENGINEERING & AUTOMATION",
@@ -27,7 +29,8 @@ const HERO_SLIDES = [
     headingTitle2: "HEAVY MACHINERY",
     description: "Explore cutting-edge multi-axis machining centers, laser cutters, and high-precision production gear.",
     ctaText: "Explore Machinery",
-    ctaLink: "/shop"
+    ctaLink: "/shop",
+    image: toolImg2
   },
   {
     tagline: "CERTIFIED DURABILITY & SUPPORT",
@@ -35,7 +38,8 @@ const HERO_SLIDES = [
     headingTitle2: "SPARE PARTS",
     description: "Genuine replacement components, calibration gauges, and expert technical support for zero downtime.",
     ctaText: "View Spare Parts",
-    ctaLink: "/shop"
+    ctaLink: "/shop",
+    image: toolImg1
   }
 ];
 
@@ -70,26 +74,30 @@ export default function Home() {
         <div className="absolute top-0 right-0 w-[60%] h-full bg-gradient-to-l from-red-600/20 via-red-900/10 to-transparent z-0 mix-blend-screen pointer-events-none"></div>
         <div className="absolute top-[30%] left-[20%] w-[40%] h-[40%] bg-cyan-600/10 blur-[120px] pointer-events-none mix-blend-screen z-0"></div>
 
-        {/* Floating Tool Image (Robotic Arm) */}
-        <motion.div 
-          initial={{ opacity: 0, x: 100 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8, delay: 0.3 }}
-          className="absolute right-[-15%] md:right-0 bottom-[10%] md:bottom-[-5%] w-[85%] md:w-[55%] h-[60%] md:h-[115%] z-10 pointer-events-none flex items-end justify-center opacity-40 md:opacity-100"
-        >
-          <div className="relative w-full h-full flex justify-center items-end">
-            <motion.img 
-              animate={{ y: [0, -15, 0] }}
-              transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-              src={toolImg} 
-              alt="Industrial Robotic Arm" 
-              className="h-full w-auto object-contain relative z-10 drop-shadow-[-25px_15px_25px_rgba(0,0,0,0.6)]"
-            />
-            {/* Ground Shadow for Base */}
-            <div className="absolute bottom-[3%] left-[45%] -translate-x-1/2 w-[35%] h-[40px] bg-black/70 blur-[20px] rounded-[100%] z-0"></div>
-            <div className="absolute bottom-[2%] left-[45%] -translate-x-1/2 w-[25%] h-[20px] bg-black/90 blur-[10px] rounded-[100%] z-0"></div>
-          </div>
-        </motion.div>
+        {/* Floating Tool Image */}
+        <AnimatePresence mode="wait">
+          <motion.div 
+            key={`img-${currentSlide}`}
+            initial={{ opacity: 0, x: 100 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -100 }}
+            transition={{ duration: 0.8, delay: 0.1 }}
+            className="absolute right-[-15%] md:right-0 bottom-[10%] md:bottom-[-5%] w-[85%] md:w-[55%] h-[60%] md:h-[115%] z-10 pointer-events-none flex items-end justify-center opacity-40 md:opacity-100"
+          >
+            <div className="relative w-full h-full flex justify-center items-end">
+              <motion.img 
+                animate={{ y: [0, -15, 0] }}
+                transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+                src={slide.image} 
+                alt="Industrial Machinery" 
+                className="h-full w-auto object-contain relative z-10 drop-shadow-[-25px_15px_25px_rgba(0,0,0,0.6)]"
+              />
+              {/* Ground Shadow for Base */}
+              <div className="absolute bottom-[3%] left-[45%] -translate-x-1/2 w-[35%] h-[40px] bg-black/70 blur-[20px] rounded-[100%] z-0"></div>
+              <div className="absolute bottom-[2%] left-[45%] -translate-x-1/2 w-[25%] h-[20px] bg-black/90 blur-[10px] rounded-[100%] z-0"></div>
+            </div>
+          </motion.div>
+        </AnimatePresence>
 
         {/* Hero Content with AnimatePresence for smooth slide transition */}
         <div className="relative z-20 max-w-7xl mx-auto px-6 w-full flex flex-col pt-40 md:pt-56 lg:pt-[280px]">

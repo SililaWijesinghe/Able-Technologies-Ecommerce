@@ -1,6 +1,6 @@
 import { ArrowRight, UserCheck, FileText, Package, Wrench } from 'lucide-react';
 import { motion } from 'motion/react';
-import toolImg from '../../assets/Tool.png';
+import toolImg from '../../assets/Tool1.png';
 
 export default function CustomSolutionCTA() {
   const steps = [
