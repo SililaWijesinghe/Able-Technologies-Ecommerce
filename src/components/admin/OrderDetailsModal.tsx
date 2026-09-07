@@ -207,11 +207,11 @@ export default function OrderDetailsModal({ isOpen, onClose, orderId, onStatusUp
                                 <img src={item.products.image_urls[0]} alt="" className="w-full h-full object-cover mix-blend-multiply" />
                               ) : <Package size={16} className="text-gray-400" />}
                             </div>
-                            <span className="font-medium text-gray-900 truncate max-w-[200px]">{item.products?.name || 'Unknown Product'}</span>
+                            <span className="font-medium text-gray-900 truncate max-w-[200px]">{item.products?.name || item.product_name || 'Unknown Product'}</span>
                           </td>
                           <td className="p-3 text-center font-bold text-gray-600">{item.quantity}</td>
-                          <td className="p-3 text-right font-medium text-gray-600">Rs. {Number(item.price).toLocaleString()}</td>
-                          <td className="p-3 text-right font-black text-gray-900">Rs. {(Number(item.price) * item.quantity).toLocaleString()}</td>
+                          <td className="p-3 text-right font-medium text-gray-600">Rs. {Number(item.unit_price || item.price || 0).toLocaleString()}</td>
+                          <td className="p-3 text-right font-black text-gray-900">Rs. {(Number(item.unit_price || item.price || 0) * item.quantity).toLocaleString()}</td>
                         </tr>
                       ))}
                     </tbody>

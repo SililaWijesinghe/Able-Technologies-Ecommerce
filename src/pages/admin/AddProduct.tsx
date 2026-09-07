@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
-import { Loader2, ArrowLeft, Image as ImageIcon, Save, Check, Plus, Trash2 } from 'lucide-react';
+import { Loader2, X, ArrowLeft, Image as ImageIcon, Save, Check, Plus, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
+
+
+const COMMON_SPECS = ['Power Supply', 'Air Pressure', 'Power Consumption', 'Temperature', 'Timmer', 'Piston Diameter', 'Bed Dimensions', 'Net Weight', 'Machine Weight', 'Frequency'];
 
 export default function AddProduct() {
   const navigate = useNavigate();
@@ -10,22 +13,53 @@ export default function AddProduct() {
   const [error, setError] = useState('');
   const [skuError, setSkuError] = useState('');
   const [categories, setCategories] = useState<any[]>([]);
-  const [uploadMethod, setUploadMethod] = useState<'url' | 'file'>('url');
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [brands, setBrands] = useState<any[]>([]);
+  const [existingImages, setExistingImages] = useState<string[]>([]);
+  const [newFiles, setNewFiles] = useState<File[]>([]);
+  const [previews, setPreviews] = useState<string[]>([]);
+
+  useEffect(() => {
+    const objectUrls = newFiles.map(file => URL.createObjectURL(file));
+    setPreviews(objectUrls);
+    return () => objectUrls.forEach(url => URL.revokeObjectURL(url));
+  }, [newFiles]);
   
+  
+  
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const files = Array.from(e.target.files);
+      const validFiles = files.filter(file => {
+        if (!file.type.startsWith('image/')) {
+          toast.error(file.name + ' is not an image');
+          return false;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+          toast.error(file.name + ' exceeds 5MB limit');
+          return false;
+        }
+        return true;
+      });
+      setNewFiles(prev => [...prev, ...validFiles]);
+    }
+  };
+
+  const removeNewFile = (index: number) => {
+    setNewFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
   // Form State
   const [formData, setFormData] = useState({
     name: '',
     sku: '',
     category: '',
-    brand: '',
+    brand_id: '',
     description: '',
     price: '',
     compare_at_price: '',
     cost_price: '',
     stock: '',
     low_stock_threshold: '5',
-    image_url: '',
     status: 'active',
     is_service: false,
     is_oeko_tex: false,
@@ -40,12 +74,25 @@ export default function AddProduct() {
     supabase.from('categories').select('*').then(({ data }) => {
       if (data) setCategories(data);
     });
+    supabase.from('brands').select('*').then(({ data }) => {
+      if (data) setBrands(data);
+    });
   }, []);
 
   const handleSpecChange = (index: number, field: 'key' | 'value', val: string) => {
     const newSpecs = [...specifications];
     newSpecs[index][field] = val;
     setSpecifications(newSpecs);
+  };
+
+  
+  const addQuickSpec = (newKey: string) => {
+    if (specifications.some(spec => spec.key.trim().toLowerCase() === newKey.toLowerCase())) return;
+    if (specifications.length === 1 && specifications[0].key === '' && specifications[0].value === '') {
+      setSpecifications([{ key: newKey, value: '' }]);
+    } else {
+      setSpecifications([...specifications, { key: newKey, value: '' }]);
+    }
   };
 
   const addSpecRow = () => {
@@ -106,28 +153,25 @@ export default function AddProduct() {
       });
 
       // 0.5 Handle File Upload
-      let finalImageUrl = formData.image_url;
-      if (uploadMethod === 'file' && selectedFile) {
+      let uploadedUrls: string[] = [];
+      if (newFiles.length > 0) {
         const category = categories.find(c => c.id === formData.category);
         const folder = category?.slug || category?.name || 'uncategorized';
-        const timestamp = Date.now();
-        const fileName = `${timestamp}_${selectedFile.name.replace(/[^a-zA-Z0-9.\-_]/g, '_')}`;
-        const dynamicPath = `${folder}/${fileName}`;
-
-        const { error: uploadError } = await supabase.storage
-          .from('uploads')
-          .upload(dynamicPath, selectedFile);
+        const uploadPromises = newFiles.map(async (file) => {
+          const timestamp = Date.now();
+          const fileName = `${timestamp}_${file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_')}`;
+          const dynamicPath = `${folder}/${fileName}`;
+          const { error: uploadError } = await supabase.storage.from('uploads').upload(dynamicPath, file);
           
-        if (uploadError) {
-          throw new Error('STORAGE_ERROR: ' + uploadError.message);
-        }
-
-        const { data: publicUrlData } = supabase.storage
-          .from('uploads')
-          .getPublicUrl(dynamicPath);
-
-        finalImageUrl = publicUrlData.publicUrl;
+          if (uploadError) throw new Error('STORAGE_ERROR: ' + uploadError.message);
+          
+          const { data: publicUrlData } = supabase.storage.from('uploads').getPublicUrl(dynamicPath);
+          return publicUrlData.publicUrl;
+        });
+        uploadedUrls = await Promise.all(uploadPromises);
       }
+      
+      const primaryImageUrl = uploadedUrls[0] || '';
 
       // 1. Determine Price and Quote Flags
       const parsedPrice = parseFloat(formData.price);
@@ -142,12 +186,14 @@ export default function AddProduct() {
         price: finalPrice,
         stock: parseInt(formData.stock) || 0,
         category_id: formData.category,
-        brand: formData.brand || null,
+        brand_id: formData.brand_id || null,
         sku: formData.sku || null,
         compare_at_price: formData.compare_at_price ? parseFloat(formData.compare_at_price) : null,
         cost_price: formData.cost_price ? parseFloat(formData.cost_price) : null,
         low_stock_threshold: parseInt(formData.low_stock_threshold) || 5,
-        image_urls: finalImageUrl ? [finalImageUrl] : [],
+        
+        image_urls: uploadedUrls,
+        
         is_service: formData.is_service,
         is_oeko_tex: formData.is_oeko_tex,
         transaction_type: formData.transaction_type,
@@ -300,14 +346,12 @@ export default function AddProduct() {
 
               <div className="space-y-1.5 md:col-span-2">
                 <label className="text-xs font-bold text-gray-700">Brand</label>
-                <input 
-                  type="text" 
-                  name="brand"
-                  value={formData.brand}
-                  onChange={handleChange}
-                  className="w-full border border-white/60 rounded-xl p-3 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
-                  placeholder="e.g. SMC, Festo, Loctite"
-                />
+                <select name="brand_id" value={formData.brand_id} onChange={handleChange} className="w-full border border-white/60 rounded-xl p-3 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all">
+                  <option value="">Select a brand...</option>
+                  {brands.map((b: any) => (
+                    <option key={b.id} value={b.id}>{b.name}</option>
+                  ))}
+                </select>
               </div>
 
               <div className="space-y-1.5 md:col-span-2">
@@ -402,6 +446,28 @@ export default function AddProduct() {
               <h2 className="text-lg font-black text-gray-900">Technical Specifications</h2>
             </div>
             
+            <div className="flex flex-wrap gap-2 mb-4">
+              {COMMON_SPECS.map(specName => {
+                const isAdded = specifications.some(s => s.key.trim().toLowerCase() === specName.toLowerCase());
+                return (
+                  <button
+                    key={specName}
+                    type="button"
+                    onClick={() => addQuickSpec(specName)}
+                    disabled={isAdded}
+                    className={`inline-flex items-center gap-1 text-xs px-3 py-1.5 rounded-full border font-medium transition-colors ${
+                      isAdded 
+                        ? 'bg-gray-50 border-gray-100 text-gray-400 cursor-not-allowed' 
+                        : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-200'
+                    }`}
+                  >
+                    {!isAdded && <Plus size={12} />}
+                    {specName}
+                  </button>
+                );
+              })}
+            </div>
+
             <div className="space-y-3">
               {specifications.map((spec, idx) => (
                 <div key={idx} className="flex items-center space-x-3">
@@ -451,64 +517,48 @@ export default function AddProduct() {
             </div>
             
             <div className="space-y-4">
-              <div className="flex items-center space-x-4 mb-4">
-                <label className="flex items-center space-x-2 cursor-pointer">
-                  <input type="radio" checked={uploadMethod === 'url'} onChange={() => setUploadMethod('url')} className="text-blue-600" />
-                  <span className="text-sm text-gray-700 font-medium">Image URL</span>
-                </label>
-                <label className="flex items-center space-x-2 cursor-pointer">
-                  <input type="radio" checked={uploadMethod === 'file'} onChange={() => setUploadMethod('file')} className="text-blue-600" />
-                  <span className="text-sm text-gray-700 font-medium">File Upload</span>
-                </label>
-              </div>
-
-              {uploadMethod === 'url' ? (
-                <div className="border-2 border-dashed border-white/60 rounded-xl p-6 text-center hover:bg-white/40 transition-colors">
-                  <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3 text-blue-500">
-                    <ImageIcon size={24} />
-                  </div>
-                  <p className="text-sm font-bold text-gray-700 mb-1">Enter Image URL</p>
-                  <p className="text-xs text-gray-500 mb-4">Paste a direct link to an image (e.g. Unsplash)</p>
-                  <input 
-                    key="url-input"
-                    type="url"
-                    name="image_url"
-                    value={formData.image_url || ''}
-                    onChange={handleChange}
-                    placeholder="https://..."
-                    className="w-full border border-white/60 rounded-lg p-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
-                  />
+              <div className="border-2 border-dashed border-white/60 rounded-xl p-6 text-center hover:bg-white/40 transition-colors">
+                <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3 text-blue-500">
+                  <ImageIcon size={24} />
                 </div>
-              ) : (
-                <div className="border-2 border-dashed border-white/60 rounded-xl p-6 text-center hover:bg-white/40 transition-colors">
-                  <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3 text-blue-500">
-                    <ImageIcon size={24} />
+                <p className="text-sm font-bold text-gray-700 mb-1">Upload Product Images</p>
+                <p className="text-xs text-gray-500 mb-4">Select multiple images (JPEG/PNG/WEBP, max 5MB)</p>
+                <input 
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleFileChange}
+                  className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                />
+              </div>
+              
+              {previews.length > 0 && (
+                <div className="mt-4">
+                  <p className="text-xs font-bold text-gray-700 mb-2">Selected Images:</p>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                    {previews.map((preview, index) => (
+                      <div key={index} className="relative aspect-square bg-gray-100 rounded-lg border border-white/60 overflow-hidden group">
+                        <img src={preview} alt="Preview" className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
+                          <button 
+                            type="button"
+                            onClick={() => removeNewFile(index)} 
+                            className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition-colors shadow-lg"
+                            title="Remove image"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                        {index === 0 && (
+                          <div className="absolute top-2 left-2 bg-blue-600 text-white text-[10px] font-bold px-2 py-1 rounded shadow">
+                            Primary
+                          </div>
+                        )}
+                      </div>
+                    ))}
                   </div>
-                  <p className="text-sm font-bold text-gray-700 mb-1">Upload File</p>
-                  <p className="text-xs text-gray-500 mb-4">Select an image from your computer</p>
-                  <input 
-                    key="file-input"
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
-                    className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                  />
                 </div>
               )}
-              
-              {(uploadMethod === 'url' && formData.image_url) || (uploadMethod === 'file' && selectedFile) ? (
-                <div className="mt-4">
-                  <p className="text-xs font-bold text-gray-700 mb-2">Preview:</p>
-                  <div className="w-full h-40 bg-gray-100 rounded-lg border border-white/60 overflow-hidden">
-                    <img 
-                      src={uploadMethod === 'file' && selectedFile ? URL.createObjectURL(selectedFile) : formData.image_url} 
-                      alt="Preview" 
-                      className="w-full h-full object-contain mix-blend-multiply p-2" 
-                      onError={(e) => (e.currentTarget.style.display = 'none')} 
-                    />
-                  </div>
-                </div>
-              ) : null}
             </div>
           </div>
 

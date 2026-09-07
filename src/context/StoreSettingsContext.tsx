@@ -17,7 +17,7 @@ const defaultSettings: StoreSettings = {
   show_prices: true,
   enable_checkout: true,
   support_email: 'able@ablero.com',
-  whatsapp_number: '+94 777 852 476',
+  whatsapp_number: '94778692075',
 };
 
 const StoreSettingsContext = createContext<StoreSettingsContextType>({

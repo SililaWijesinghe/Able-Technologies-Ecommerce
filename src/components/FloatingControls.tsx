@@ -42,9 +42,9 @@ export default function FloatingControls() {
     }
   };
 
-  const whatsappNumber = settings?.whatsapp_number || '+94 777 852 476';
+  const whatsappNumber = settings?.whatsapp_number || '94778692075';
   const whatsappUrl = `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}`;
-  const phoneNumber = settings?.whatsapp_number || '+94 777 852 476';
+  const phoneNumber = settings?.whatsapp_number || '94778692075';
   const email = settings?.support_email || 'able@ablero.com';
 
   return (

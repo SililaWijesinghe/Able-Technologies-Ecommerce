@@ -93,9 +93,9 @@ export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const { scrollDirection, isAtTop } = useScrollDirection();
 
-  const whatsappNumber = settings?.whatsapp_number || '+94 777 852 476';
+  const whatsappNumber = settings?.whatsapp_number || '077 869 2075';
   const whatsappUrl = `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}`;
-  const phoneNumber = settings?.whatsapp_number || '+94 777 852 476';
+  const phoneNumber = settings?.whatsapp_number || '077 869 2075';
   const email = settings?.support_email || 'able@ablero.com';
 
   // Search States
@@ -210,7 +210,7 @@ export default function Header() {
 
   const navLinks = [
     { name: 'Home', path: '/' },
-    { name: 'About Us', path: '#!', available: false },
+    { name: 'About Us', path: '/about' },
     { name: 'Shop', path: '/shop', id: 'nav-shop' },
     { name: 'Machines', path: '/shop?category=machines' },
     { name: 'Spare Parts', path: '/shop?category=spare-parts' },
@@ -264,7 +264,7 @@ export default function Header() {
               {isMobileContactExpanded && (
                 <div className="absolute top-[120%] left-0 bg-[#0b1042]/95 backdrop-blur-2xl border border-white/20 rounded-2xl shadow-[0_15px_40px_rgba(0,0,0,0.6)] p-2.5 flex flex-col space-y-2 z-[100] min-w-[170px] animate-in fade-in slide-in-from-top-2 duration-200">
                   <a 
-                    href={`tel:${phoneNumber}`} 
+                    href={`tel:+${phoneNumber.replace(/[^0-9]/g, '')}`} 
                     onClick={() => setIsMobileContactExpanded(false)}
                     className="flex items-center space-x-2.5 text-white hover:bg-white/10 p-2 rounded-xl text-xs font-semibold transition-colors"
                   >
@@ -422,13 +422,13 @@ export default function Header() {
             <div className="flex items-center space-x-6">
               <div className="flex items-center space-x-2">
                 <Phone size={12} className="text-cyan-400" />
-                <span className="opacity-90">Need Help? {settings?.whatsapp_number || '+94 777 852 476'}</span>
+                <span className="opacity-90">Need Help? 077 869 2075</span>
               </div>
               <div className="flex items-center space-x-4 opacity-90">
                 <a href="#" className="hover:text-cyan-400 hover:opacity-100 transition-colors" title="Facebook"><Facebook size={13} /></a>
                 <a href="#" className="hover:text-cyan-400 hover:opacity-100 transition-colors" title="LinkedIn"><Linkedin size={13} /></a>
                 <a 
-                  href={`https://wa.me/${(settings?.whatsapp_number || '+94 777 852 476').replace(/[^0-9]/g, '')}`} 
+                  href={`https://wa.me/${(settings?.whatsapp_number || '077 869 2075').replace(/[^0-9]/g, '')}`} 
                   target="_blank" 
                   rel="noopener noreferrer" 
                   className="hover:text-[#25D366] hover:opacity-100 transition-colors"

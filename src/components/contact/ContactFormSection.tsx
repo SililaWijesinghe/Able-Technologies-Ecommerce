@@ -204,7 +204,7 @@ export default function ContactFormSection() {
 
         {/* Right Info Panel */}
         <div className="lg:col-span-2">
-          <div className="bg-[#0b1042] rounded-2xl p-6 md:p-8 text-white shadow-xl relative overflow-hidden h-full">
+          <div className="bg-gradient-to-br from-[#0b1042] via-[#161c57] to-[#060a2b] bg-[length:200%_200%] animate-gradient rounded-2xl p-6 md:p-8 text-white shadow-xl relative overflow-hidden h-full">
             {/* Background design */}
             <div className="absolute -right-20 -top-20 w-64 h-64 bg-blue-900/40 rounded-full blur-3xl pointer-events-none"></div>
             
@@ -221,14 +221,14 @@ export default function ContactFormSection() {
                   <div className="w-10 h-10 rounded-full bg-blue-600/20 flex items-center justify-center flex-shrink-0 mt-1">
                     <Phone size={18} className="text-blue-300" />
                   </div>
-                  <div className="flex-1 flex justify-between items-center">
+                  <div className="flex-1 flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-3 sm:gap-0">
                     <div>
                       <h4 className="font-semibold text-sm mb-1">Call Us</h4>
-                      <p className="text-base font-bold">+94 38 222 1613</p>
-                      <p className="text-base font-bold">+94 777 852 476</p>
-                      <p className="text-base font-bold">+94 77 869 2075</p>
+                      <p className="text-sm sm:text-base font-bold whitespace-nowrap">Main: 077 869 2075</p>
+                      <p className="text-sm sm:text-base font-bold whitespace-nowrap">Trade: (077) 575 4020</p>
+                      <p className="text-sm sm:text-base font-bold whitespace-nowrap">Finance: +94 (76) 140 5518</p>
                     </div>
-                    <div className="bg-green-500/20 text-green-400 text-[10px] px-3 py-1.5 rounded-md font-semibold text-center border border-green-500/30">
+                    <div className="bg-green-500/20 text-green-400 text-[10px] px-3 py-1.5 rounded-md font-semibold text-center border border-green-500/30 whitespace-nowrap">
                       Mon - Sat<br/>8.00 AM - 5.30 PM
                     </div>
                   </div>
@@ -243,7 +243,7 @@ export default function ContactFormSection() {
                     <h4 className="font-semibold text-sm mb-1">WhatsApp Chat</h4>
                     <p className="text-blue-200 text-xs mb-3">Chat with us for quick support</p>
                     <a 
-                      href="https://wa.me/94777852476"
+                      href="https://wa.me/94778692075"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="bg-[#25D366] hover:bg-[#20ba59] text-white text-xs font-semibold px-4 py-2 rounded-lg inline-flex items-center space-x-2 transition-colors shadow-md"

@@ -371,7 +371,11 @@ export default function Footer() {
                   <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0 mr-3 mt-0.5 group-hover:bg-blue-900/30 group-hover:border-blue-500/30 transition-colors">
                     <Phone size={14} className="text-blue-400" />
                   </div>
-                  <span className="text-blue-100/70 text-sm font-medium leading-relaxed">+94 38 222 1613<br/>{settings?.whatsapp_number || '+94 777 852 476'}<br/>+94 77 869 2075</span>
+                  <span className="text-blue-100/70 text-sm font-medium leading-relaxed">
+                    Main: 077 869 2075<br/>
+                    Trade: (077) 575 4020<br/>
+                    Finance: +94 (76) 140 5518
+                  </span>
                 </li>
                 <li className="flex items-center group">
                   <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0 mr-3 group-hover:bg-blue-900/30 group-hover:border-blue-500/30 transition-colors">

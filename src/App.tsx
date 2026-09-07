@@ -7,6 +7,7 @@ import Footer from './components/Footer';
 import NavigatedGuide from './components/ui/NavigatedGuide';
 import FloatingControls from './components/FloatingControls';
 import Home from './pages/Home';
+import AboutUs from './pages/AboutUs';
 import Shop from './pages/Shop';
 import ProductDetails from './pages/ProductDetails';
 import Checkout from './pages/Checkout';
@@ -93,6 +94,7 @@ export default function App() {
             {/* Storefront Routes */}
             <Route element={<StorefrontLayout />}>
               <Route path="/" element={<Home />} />
+              <Route path="/about" element={<AboutUs />} />
               <Route path="/shop" element={<Shop />} />
               <Route path="/product/:id" element={<ProductDetails />} />
               <Route path="/checkout" element={<Checkout />} />
