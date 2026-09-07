@@ -95,7 +95,7 @@ export default function CartDrawer() {
       `${idx + 1}. ${item.name}${item.variant ? ` (${item.variant})` : ''} - Qty: ${item.quantity} × Rs. ${Number(item.price).toLocaleString()} = Rs. ${(Number(item.price) * item.quantity).toLocaleString()}`
     ).join('\n');
 
-    const proformaText = `*ABLE TECHNOLOGIES (PVT) LTD - PROFORMA CART QUOTATION*\nDate: ${dateStr}\nTotal Line Items: ${cartCount}\n----------------------------------------\n${itemsList}\n----------------------------------------\n*ESTIMATED TOTAL: Rs. ${cartTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}*\n* Official VAT/SVAT Invoicing & Manufacturer Warranty Included.\n* Factory Inspection & Colombo Showroom Support.\nHotline / WhatsApp: +94 77 000 0000 | Web: abletechnologies.lk`;
+    const proformaText = `*ABLE TECHNOLOGIES (PVT) LTD - PROFORMA CART QUOTATION*\nDate: ${dateStr}\nTotal Line Items: ${cartCount}\n----------------------------------------\n${itemsList}\n----------------------------------------\n*ESTIMATED TOTAL: Rs. ${cartTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}*\n* Official VAT/SVAT Invoicing & Manufacturer Warranty Included.\n* Factory Inspection & Colombo Showroom Support.\nHotline / WhatsApp: 077 869 2075 | Web: abletechnologies.lk`;
 
     navigator.clipboard.writeText(proformaText).then(() => {
       setIsCopied(true);
@@ -118,7 +118,7 @@ export default function CartDrawer() {
     if (cartItems.length === 0) return;
     const itemsSummary = cartItems.map(i => `• ${i.name} (Qty: ${i.quantity})`).join('%0A');
     const msg = `Hello Able Technologies, I would like to verify technical compatibility / request a corporate invoice for the following items in my cart:%0A%0A${itemsSummary}%0A%0ATotal: Rs. ${cartTotal.toLocaleString()}`;
-    window.open(`https://wa.me/94770000000?text=${msg}`, '_blank');
+    window.open(`https://wa.me/94778692075?text=${msg}`, '_blank');
   };
 
   return (

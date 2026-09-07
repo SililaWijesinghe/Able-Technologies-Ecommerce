@@ -59,7 +59,7 @@ export const INITIAL_STORE_SETTINGS = {
   show_prices: true,
   enable_checkout: true,
   support_email: 'info@abletechnologies.lk',
-  whatsapp_number: '+94771234567',
+  whatsapp_number: '94778692075',
   created_at: '2025-01-01T00:00:00.000Z'
 };
 

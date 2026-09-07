@@ -42,9 +42,9 @@ export default function FloatingControls() {
     }
   };
 
-  const whatsappNumber = settings?.whatsapp_number || '94778692075';
-  const whatsappUrl = `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}`;
-  const phoneNumber = settings?.whatsapp_number || '94778692075';
+  const whatsappNumber = '94778692075';
+  const whatsappUrl = 'https://wa.me/94778692075';
+  const phoneNumber = '94778692075';
   const email = settings?.support_email || 'able@ablero.com';
 
   return (
@@ -66,7 +66,7 @@ export default function FloatingControls() {
               WhatsApp
               <ChevronRight size={14} className="ml-1 text-[#25D366] group-hover:translate-x-1 transition-transform" />
             </span>
-            <span className="text-[10px] font-semibold text-gray-500">Chat with us</span>
+            <span className="text-[10px] font-semibold text-gray-500">077 869 2075</span>
           </div>
 
           {/* Icon Sphere */}
@@ -81,7 +81,7 @@ export default function FloatingControls() {
 
         {/* Call Us */}
         <a 
-          href={`tel:${phoneNumber}`}
+          href="tel:+94778692075"
           className="group relative flex items-center justify-end h-14 w-14 hover:w-[220px] bg-transparent hover:bg-white/80 backdrop-blur-sm border border-transparent hover:border-white/80 rounded-full shadow-none hover:shadow-[0_8px_32px_rgba(10,20,50,0.1),inset_0_2px_4px_rgba(255,255,255,0.9)] overflow-hidden transition-all duration-[400ms] ease-out pointer-events-auto active:scale-[0.97]"
           aria-label="Call Us"
         >
@@ -90,7 +90,7 @@ export default function FloatingControls() {
               Call Us
               <ChevronRight size={14} className="ml-1 text-[#0066ff] group-hover:translate-x-1 transition-transform" />
             </span>
-            <span className="text-[10px] font-semibold text-gray-500">Speak to our team</span>
+            <span className="text-[10px] font-semibold text-gray-500">077 869 2075</span>
           </div>
 
           <div className="w-14 h-14 shrink-0 flex items-center justify-center relative rounded-full">
@@ -113,7 +113,7 @@ export default function FloatingControls() {
               Email Us
               <ChevronRight size={14} className="ml-1 text-[#e11d48] group-hover:translate-x-1 transition-transform" />
             </span>
-            <span className="text-[10px] font-semibold text-gray-500">Send us an email</span>
+            <span className="text-[10px] font-semibold text-gray-500">able@ablero.com</span>
           </div>
 
           <div className="w-14 h-14 shrink-0 flex items-center justify-center relative rounded-full">

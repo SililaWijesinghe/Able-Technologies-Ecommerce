@@ -249,12 +249,12 @@ export default function Footer() {
                 Get a Quote <ArrowRight size={16} className="ml-2 group-hover:translate-x-1 transition-transform" />
               </a>
               <a 
-                href={`https://wa.me/${(settings?.whatsapp_number || '0777852476').replace(/\D/g, '')}`} 
+                href="https://wa.me/94778692075" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-white font-bold rounded-xl transition-all duration-300 flex items-center group"
               >
-                <WhatsAppIcon size={18} className="mr-2 text-[#25D366] group-hover:scale-110 transition-transform" /> WhatsApp Us
+                <WhatsAppIcon size={18} className="mr-2 text-[#25D366] group-hover:scale-110 transition-transform" /> 077 869 2075
               </a>
             </div>
           </div>
@@ -285,7 +285,7 @@ export default function Footer() {
                   <Instagram size={16} className="group-hover:scale-110 transition-transform" />
                 </a>
                 <a 
-                  href={`https://wa.me/${(settings?.whatsapp_number || '0777852476').replace(/\D/g, '')}`}
+                  href="https://wa.me/94778692075"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-blue-100/70 hover:text-white hover:bg-[#25D366] hover:border-transparent hover:shadow-[0_0_20px_rgba(37,211,102,0.4)] transition-all duration-300"

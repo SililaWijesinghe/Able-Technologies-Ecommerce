@@ -249,7 +249,7 @@ export default function ContactFormSection() {
                       className="bg-[#25D366] hover:bg-[#20ba59] text-white text-xs font-semibold px-4 py-2 rounded-lg inline-flex items-center space-x-2 transition-colors shadow-md"
                     >
                       <WhatsAppIcon size={14} className="text-white mr-1" />
-                      <span>Chat on WhatsApp</span>
+                      <span>077 869 2075</span>
                       <ArrowRightIcon />
                     </a>
                   </div>

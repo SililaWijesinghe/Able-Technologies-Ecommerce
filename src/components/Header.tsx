@@ -93,9 +93,9 @@ export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const { scrollDirection, isAtTop } = useScrollDirection();
 
-  const whatsappNumber = settings?.whatsapp_number || '077 869 2075';
-  const whatsappUrl = `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}`;
-  const phoneNumber = settings?.whatsapp_number || '077 869 2075';
+  const whatsappNumber = '94778692075';
+  const whatsappUrl = 'https://wa.me/94778692075';
+  const phoneNumber = '94778692075';
   const email = settings?.support_email || 'able@ablero.com';
 
   // Search States
@@ -264,14 +264,14 @@ export default function Header() {
               {isMobileContactExpanded && (
                 <div className="absolute top-[120%] left-0 bg-[#0b1042]/95 backdrop-blur-2xl border border-white/20 rounded-2xl shadow-[0_15px_40px_rgba(0,0,0,0.6)] p-2.5 flex flex-col space-y-2 z-[100] min-w-[170px] animate-in fade-in slide-in-from-top-2 duration-200">
                   <a 
-                    href={`tel:+${phoneNumber.replace(/[^0-9]/g, '')}`} 
+                    href="tel:+94778692075" 
                     onClick={() => setIsMobileContactExpanded(false)}
                     className="flex items-center space-x-2.5 text-white hover:bg-white/10 p-2 rounded-xl text-xs font-semibold transition-colors"
                   >
                     <div className="w-7 h-7 bg-blue-600/20 border border-blue-500/40 rounded-full flex items-center justify-center shrink-0">
                       <Phone size={14} className="text-blue-400" />
                     </div>
-                    <span>Call Us</span>
+                    <span>077 869 2075</span>
                   </a>
                   <a 
                     href={whatsappUrl} 
@@ -283,7 +283,7 @@ export default function Header() {
                     <div className="w-7 h-7 bg-emerald-600/20 border border-emerald-500/40 rounded-full flex items-center justify-center shrink-0">
                       <WhatsAppIcon size={16} className="text-emerald-400" />
                     </div>
-                    <span>WhatsApp</span>
+                    <span>077 869 2075</span>
                   </a>
                   <a 
                     href={`mailto:${email}`} 
@@ -428,7 +428,7 @@ export default function Header() {
                 <a href="#" className="hover:text-cyan-400 hover:opacity-100 transition-colors" title="Facebook"><Facebook size={13} /></a>
                 <a href="#" className="hover:text-cyan-400 hover:opacity-100 transition-colors" title="LinkedIn"><Linkedin size={13} /></a>
                 <a 
-                  href={`https://wa.me/${(settings?.whatsapp_number || '077 869 2075').replace(/[^0-9]/g, '')}`} 
+                  href="https://wa.me/94778692075" 
                   target="_blank" 
                   rel="noopener noreferrer" 
                   className="hover:text-[#25D366] hover:opacity-100 transition-colors"
