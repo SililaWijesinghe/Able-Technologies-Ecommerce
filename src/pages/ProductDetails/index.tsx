@@ -94,7 +94,9 @@ export default function ProductDetails() {
 
   const basePrice = parseFloat(product.price || 0);
   const showPrice = settings.show_prices && !product.requires_quote;
-  const displayPrice = showPrice ? `Rs. ${basePrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}` : 'Price on Request';
+  const hasVariants = product.product_variants && product.product_variants.length > 0;
+  const pricePrefix = hasVariants ? 'From Rs. ' : 'Rs. ';
+  const displayPrice = showPrice ? `${pricePrefix}${basePrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}` : 'Price on Request';
   
   // Find category name
   const categoryObj = categories.find(c => c.id === product.category_id || c.slug === product.category_id);
@@ -126,6 +128,15 @@ export default function ProductDetails() {
         </div>
 
         {/* Middle Section: Tabs & Custom Solution */}
+        {/* Product Description */}
+        {product.description && (
+          <div className="mt-12 bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+            <h2 className="text-xl font-black text-[#0b1042] mb-6">Product Description</h2>
+            <div className="text-gray-600 leading-relaxed whitespace-pre-wrap">
+              {product.description}
+            </div>
+          </div>
+        )}
         <ProductTabs product={product} />
 
         {/* Related Products */}
@@ -144,7 +155,14 @@ export default function ProductDetails() {
         )}
 
         <div className={`flex items-center space-x-2 ${showPrice ? '' : 'w-full'}`}>
-          {product.requires_quote ? (
+          {product.product_variants && product.product_variants.length > 0 ? (
+            <button 
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              className={`bg-[#0b1042] text-white px-6 py-2.5 rounded-full text-xs font-bold shadow-md shadow-blue-900/30 flex items-center justify-center space-x-2 active:scale-95 transition-transform ${showPrice ? '' : 'w-full'}`}
+            >
+              <span>Select Model</span>
+            </button>
+          ) : product.requires_quote ? (
             <button 
               onClick={() => setIsQuoteModalOpen(true)}
               className={`metallic-red-bg text-white px-5 py-2.5 rounded-full text-xs font-bold shadow-md shadow-red-900/30 active:scale-95 transition-transform ${showPrice ? '' : 'w-full'}`}

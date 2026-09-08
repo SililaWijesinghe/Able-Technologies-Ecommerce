@@ -61,14 +61,24 @@ router.post('/', async (req, res): Promise<void> => {
         const actualOrderId = orderData.id;
 
         // 2. Insert order items
-        const orderItemsData = cartItems.map((item: any) => ({
-            order_id: actualOrderId,
-            product_id: item.productId,
-            product_name: item.name, // Snapshot name
-            unit_price: item.price, // Snapshot price
-            quantity: item.quantity,
-            variant: item.variant || null
-        }));
+        const orderItemsData = cartItems.map((item: any) => {
+            let variantData = null;
+            if (item.variant) {
+                try {
+                    variantData = typeof item.variant === 'string' ? JSON.parse(item.variant) : item.variant;
+                } catch (e) {
+                    variantData = { raw: item.variant };
+                }
+            }
+            return {
+                order_id: actualOrderId,
+                product_id: item.productId,
+                product_name: item.name,
+                unit_price: item.price,
+                quantity: item.quantity,
+                variant: variantData
+            };
+        });
 
         const { error: itemsError } = await supabase
             .from('order_items')

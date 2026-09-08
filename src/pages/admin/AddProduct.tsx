@@ -69,7 +69,10 @@ export default function AddProduct() {
   });
 
   const [specifications, setSpecifications] = useState([{ key: '', value: '' }]);
-  const [variants, setVariants] = useState<{ sku: string; price_modifier: number; inventory_count: number }[]>([]);
+  const [variants, setVariants] = useState<{ sku: string; price_modifier: number; inventory_count: number; attributes?: Record<string, string> }[]>([]);
+  const [productOptions, setProductOptions] = useState<{name: string, values: string[], inputValue: string}[]>([]);
+  const [bulkPrice, setBulkPrice] = useState("");
+  const [bulkStock, setBulkStock] = useState("");
 
   const addVariant = () => {
     setVariants([...variants, { sku: '', price_modifier: 0, inventory_count: 0 }]);
@@ -79,6 +82,71 @@ export default function AddProduct() {
     setVariants(variants.filter((_, i) => i !== index));
   };
 
+  const generateVariants = (options: {name: string, values: string[], inputValue: string}[]) => {
+    const validOptions = options.filter(o => o.name.trim() && o.values.length > 0);
+    if (validOptions.length === 0) {
+      if (options.length === 0) setVariants([]);
+      return;
+    }
+    const generateCombinations = (opts: any[], idx = 0, current = {}): any[] => {
+      if (idx === opts.length) return [current];
+      const opt = opts[idx];
+      let combos: any[] = [];
+      for (const val of opt.values) {
+        combos = combos.concat(generateCombinations(opts, idx + 1, { ...current, [opt.name]: val }));
+      }
+      return combos;
+    };
+    const combinations = generateCombinations(validOptions);
+    const baseSku = formData.sku || "SKU";
+    const newVariants = combinations.map(combo => {
+      const existing = variants.find(v => JSON.stringify(v.attributes) === JSON.stringify(combo));
+      const tagSuffix = Object.values(combo).map((v: any) => v.replace(/\s+/g, "").toUpperCase()).join("-");
+      return existing || {
+        sku: `${baseSku}-${tagSuffix}`,
+        price_modifier: 0,
+        inventory_count: 0,
+        attributes: combo
+      };
+    });
+    setVariants(newVariants);
+  };
+
+  const addOption = () => setProductOptions([...productOptions, { name: "", values: [], inputValue: "" }]);
+  const updateOption = (index: number, field: string, value: any) => {
+    const newOptions = [...productOptions];
+    (newOptions[index] as any)[field] = value;
+    setProductOptions(newOptions);
+    if (field !== "inputValue") generateVariants(newOptions);
+  };
+  const removeOption = (index: number) => {
+    const newOptions = productOptions.filter((_, i) => i !== index);
+    setProductOptions(newOptions);
+    generateVariants(newOptions);
+  };
+  const handleOptionKeyDown = (e: React.KeyboardEvent, index: number) => {
+    if (e.key === "Enter" || e.key === ",") {
+      e.preventDefault();
+      const val = productOptions[index].inputValue.trim();
+      if (val && !productOptions[index].values.includes(val)) {
+        const newOptions = [...productOptions];
+        newOptions[index].values.push(val);
+        newOptions[index].inputValue = "";
+        setProductOptions(newOptions);
+        generateVariants(newOptions);
+      }
+    }
+  };
+  const removeOptionValue = (optIndex: number, valIndex: number) => {
+    const newOptions = [...productOptions];
+    newOptions[optIndex].values = newOptions[optIndex].values.filter((_, i) => i !== valIndex);
+    setProductOptions(newOptions);
+    generateVariants(newOptions);
+  };
+
+  const applyBulkVariant = (field: string, value: string | number) => {
+    setVariants(variants.map(v => ({ ...v, [field]: value })));
+  };
   const updateVariant = (index: number, field: string, value: string | number) => {
     const newVariants = [...variants];
     newVariants[index] = { ...newVariants[index], [field]: value };
@@ -127,6 +195,29 @@ export default function AddProduct() {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
   };
+
+  
+  const getHierarchicalCategories = (cats: any[]) => {
+    const map = new Map();
+    cats.forEach(c => map.set(c.id, { ...c, children: [], level: 0 }));
+    const roots: any[] = [];
+    cats.forEach(c => {
+      const node = map.get(c.id);
+      if (c.parent_id && map.has(c.parent_id)) {
+        map.get(c.parent_id).children.push(node);
+      } else {
+        roots.push(node);
+      }
+    });
+    const flatten = (nodes: any[], level = 0): any[] => {
+      return nodes.reduce((acc, node) => {
+        node.level = level;
+        return acc.concat(node, flatten(node.children, level + 1));
+      }, []);
+    };
+    return flatten(roots);
+  };
+  const hierarchicalCategories = getHierarchicalCategories(categories);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -246,7 +337,7 @@ export default function AddProduct() {
             sku: v.sku,
             price_modifier: v.price_modifier,
             inventory_count: v.inventory_count,
-            attributes: {}
+            attributes: v.attributes || {}
           }));
           const { error: variantError } = await supabase.from('product_variants').insert(variantPayload);
           if (variantError) console.warn('Failed to insert variants:', variantError);
@@ -374,8 +465,8 @@ export default function AddProduct() {
                   className="w-full bg-white/50 focus:bg-white/80 backdrop-blur-md border border-white/60 focus:border-blue-300 rounded-xl p-3 text-slate-800 outline-none transition-all shadow-inner text-sm"
                 >
                   <option value="">Select category...</option>
-                  {categories.map(c => (
-                    <option key={c.id} value={c.id}>{c.name}</option>
+                  {hierarchicalCategories.map((c: any) => (
+                    <option key={c.id} value={c.id}>{'—'.repeat(c.level || 0) + ((c.level || 0) > 0 ? ' ' : '')}{c.name}</option>
                   ))}
                 </select>
               </div>
@@ -542,56 +633,135 @@ export default function AddProduct() {
             </div>
           </div>
           
+
           <div className="bg-white/60 backdrop-blur-xl border border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.05)] rounded-3xl p-6 space-y-5">
             <div className="flex items-center space-x-2 mb-2">
               <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-black">4</span>
-              <h2 className="text-lg font-black text-gray-900">Product Models / Variants</h2>
+              <h2 className="text-lg font-black text-gray-900">Product Options</h2>
             </div>
             
-            <p className="text-xs text-gray-500 mb-2 font-medium">Add available models or variants for this product to populate the dropdown on the storefront.</p>
-            <div className="space-y-3">
-              {variants.map((variant, idx) => (
-                <div key={idx} className="flex flex-wrap md:flex-nowrap items-center gap-3">
-                  <input
-                    type="text"
-                    value={variant.sku}
-                    onChange={(e) => updateVariant(idx, 'sku', e.target.value)}
-                    placeholder="Model Number / SKU (e.g., PE 04)"
-                    className="flex-1 min-w-[150px] border border-white/60 rounded-xl p-3 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
-                  />
-                  <input
-                    type="number"
-                    value={variant.price_modifier}
-                    onChange={(e) => updateVariant(idx, 'price_modifier', parseFloat(e.target.value) || 0)}
-                    placeholder="Price Mod (+)"
-                    className="w-full md:w-32 border border-white/60 rounded-xl p-3 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
-                  />
-                  <input
-                    type="number"
-                    value={variant.inventory_count}
-                    onChange={(e) => updateVariant(idx, 'inventory_count', parseInt(e.target.value) || 0)}
-                    placeholder="Stock"
-                    className="w-full md:w-24 border border-white/60 rounded-xl p-3 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeVariant(idx)}
-                    className="p-3 text-red-500 hover:bg-red-50 rounded-xl transition-colors shrink-0"
-                  >
-                    <Trash2 size={18} />
-                  </button>
+            <p className="text-xs text-gray-500 mb-4 font-medium">Define options like Size or Color. Variants will be automatically generated below.</p>
+            
+            <div className="space-y-4">
+              {productOptions.map((opt, optIdx) => (
+                <div key={optIdx} className="p-4 border border-slate-200 bg-white rounded-2xl space-y-3 relative group">
+                  <button type="button" onClick={() => removeOption(optIdx)} className="absolute top-3 right-3 text-slate-400 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"><Trash2 size={16} /></button>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="md:col-span-1">
+                      <label className="block text-xs font-bold text-slate-700 mb-1">Option Name</label>
+                      <input
+                        type="text"
+                        value={opt.name}
+                        onChange={(e) => updateOption(optIdx, 'name', e.target.value)}
+                        placeholder="e.g., Size"
+                        className="w-full border border-slate-200 rounded-xl p-2.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="block text-xs font-bold text-slate-700 mb-1">Option Values</label>
+                      <div className="flex flex-wrap gap-2 mb-2">
+                        {opt.values.map((val, valIdx) => (
+                          <span key={valIdx} className="inline-flex items-center gap-1 px-3 py-1 bg-slate-100 text-slate-800 rounded-full text-sm font-medium">
+                            {val}
+                            <button type="button" onClick={() => removeOptionValue(optIdx, valIdx)} className="text-slate-500 hover:text-red-500"><X size={14} /></button>
+                          </span>
+                        ))}
+                      </div>
+                      <input
+                        type="text"
+                        value={opt.inputValue}
+                        onChange={(e) => updateOption(optIdx, 'inputValue', e.target.value)}
+                        onKeyDown={(e) => handleOptionKeyDown(e, optIdx)}
+                        placeholder="Type value and press Enter..."
+                        className="w-full border border-slate-200 rounded-xl p-2.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+                      />
+                    </div>
+                  </div>
                 </div>
               ))}
+              
               <button
                 type="button"
-                onClick={addVariant}
-                className="flex items-center space-x-2 text-sm font-bold text-blue-600 hover:text-blue-700 transition-colors mt-2"
+                onClick={addOption}
+                className="flex items-center space-x-2 text-sm font-bold text-blue-600 hover:text-blue-700 transition-colors"
               >
                 <Plus size={16} />
-                <span>Add Model</span>
+                <span>Add another option</span>
               </button>
             </div>
           </div>
+
+          {variants.length > 0 && (
+            <div className="bg-white/60 backdrop-blur-xl border border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.05)] rounded-3xl p-6 space-y-5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4">
+                <div className="flex items-center space-x-2">
+                  <span className="w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-xs font-black">5</span>
+                  <h2 className="text-lg font-black text-gray-900">Generated Variants</h2>
+                </div>
+                <div className="flex items-center gap-2 mt-3 sm:mt-0">
+                  <div className="flex items-center border border-slate-200 rounded-lg overflow-hidden">
+                    <input type="number" value={bulkPrice} onChange={(e) => setBulkPrice(e.target.value)} placeholder="Bulk Price..." className="w-24 px-2 py-1.5 text-xs outline-none" />
+                    <button type="button" onClick={() => { if(bulkPrice) applyBulkVariant('price_modifier', parseFloat(bulkPrice))}} className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-1.5 px-3 text-xs border-l border-slate-200 transition-colors">Apply</button>
+                  </div>
+                  <div className="flex items-center border border-slate-200 rounded-lg overflow-hidden">
+                    <input type="number" value={bulkStock} onChange={(e) => setBulkStock(e.target.value)} placeholder="Bulk Stock..." className="w-24 px-2 py-1.5 text-xs outline-none" />
+                    <button type="button" onClick={() => { if(bulkStock) applyBulkVariant('inventory_count', parseInt(bulkStock))}} className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-1.5 px-3 text-xs border-l border-slate-200 transition-colors">Apply</button>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="overflow-x-auto rounded-xl border border-slate-200">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-slate-50 border-b border-slate-200 text-xs text-slate-500 uppercase tracking-wider">
+                      <th className="p-3 font-bold">Variant</th>
+                      <th className="p-3 font-bold">SKU</th>
+                      <th className="p-3 font-bold w-32">Price Mod (+)</th>
+                      <th className="p-3 font-bold w-32">Stock</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {variants.map((variant, idx) => (
+                      <tr key={idx} className="bg-white hover:bg-slate-50 transition-colors">
+                        <td className="p-3">
+                          <div className="flex flex-wrap gap-1">
+                            {Object.values(variant.attributes || {}).map((val: any, i) => (
+                              <span key={i} className="inline-flex bg-blue-50 text-blue-700 border border-blue-100 px-2 py-0.5 rounded-md text-xs font-bold">{val}</span>
+                            ))}
+                          </div>
+                        </td>
+                        <td className="p-3">
+                          <input
+                            type="text"
+                            value={variant.sku}
+                            onChange={(e) => updateVariant(idx, 'sku', e.target.value)}
+                            className="w-full min-w-[120px] bg-transparent border-0 border-b border-transparent focus:border-blue-500 focus:ring-0 p-1 text-sm outline-none transition-all"
+                          />
+                        </td>
+                        <td className="p-3">
+                          <input
+                            type="number"
+                            value={variant.price_modifier}
+                            onChange={(e) => updateVariant(idx, 'price_modifier', parseFloat(e.target.value) || 0)}
+                            className="w-full min-w-[80px] bg-transparent border-0 border-b border-transparent focus:border-blue-500 focus:ring-0 p-1 text-sm outline-none transition-all"
+                          />
+                        </td>
+                        <td className="p-3">
+                          <input
+                            type="number"
+                            value={variant.inventory_count}
+                            onChange={(e) => updateVariant(idx, 'inventory_count', parseInt(e.target.value) || 0)}
+                            className="w-full min-w-[60px] bg-transparent border-0 border-b border-transparent focus:border-blue-500 focus:ring-0 p-1 text-sm outline-none transition-all"
+                          />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
         </div>
 
         {/* Right Column - Media & Settings */}
@@ -638,7 +808,7 @@ export default function AddProduct() {
                           </button>
                         </div>
                         {index === 0 && (
-                          <div className="absolute top-2 left-2 bg-blue-600 text-white text-[10px] font-bold px-2 py-1 rounded shadow">
+                          <div className="absolute top-1 left-1 sm:top-2 sm:left-2 bg-blue-600 text-white text-[8px] sm:text-[10px] font-bold px-1.5 py-0.5 sm:px-2 sm:py-1 rounded shadow truncate max-w-[calc(100%-8px)]">
                             Primary
                           </div>
                         )}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 import toast from 'react-hot-toast';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { fetchSettings, fetchCategories } from '../services/api';
@@ -72,6 +72,64 @@ const defaultSearchProducts = [
   }
 ];
 
+const DesktopCategoryItem: React.FC<{ category: any, level?: number }> = ({ category, level = 0 }) => {
+  const hasChildren = category.children && category.children.length > 0;
+  
+  return (
+    <div className="relative group/subcat w-full">
+      <Link 
+        to={`/shop?category=${category.slug}`} 
+        className="px-6 py-3 text-gray-200 hover:text-white hover:bg-white/10 text-sm font-medium transition-colors flex items-center justify-between group-hover/subcat:bg-white/10"
+      >
+        <div className="flex items-center space-x-3">
+          {level === 0 && <div className="absolute left-0 top-0 h-full w-1 bg-cyan-400 opacity-0 group-hover/subcat:opacity-100 transition-opacity shadow-[0_0_10px_rgba(34,211,238,0.5)]" />}
+          <span>{category.name}</span>
+        </div>
+        {hasChildren && <svg className="w-4 h-4 ml-2 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>}
+      </Link>
+      
+      {hasChildren && (
+        <div className="absolute left-full top-0 w-56 bg-[rgba(15,20,40,0.95)] backdrop-blur-3xl border border-white/20 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.7)] opacity-0 invisible group-hover/subcat:opacity-100 group-hover/subcat:visible transition-all duration-300 flex flex-col py-2 ml-1 z-50">
+          {category.children.map((child: any) => (
+            <DesktopCategoryItem key={child.id} category={child} level={level + 1} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const MobileCategoryItem: React.FC<{ category: any, level?: number, onNavigate: () => void }> = ({ category, level = 0, onNavigate }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const hasChildren = category.children && category.children.length > 0;
+
+  return (
+    <div className="flex flex-col">
+      <div className="flex items-center justify-between text-gray-300 hover:text-cyan-300 hover:bg-white/5 pr-4 rounded-xl transition-colors">
+        <Link 
+          to={`/shop?category=${category.slug}`} 
+          onClick={onNavigate}
+          className={`flex-1 py-3 ${level === 0 ? 'text-base font-medium pl-8' : level === 1 ? 'text-sm font-medium pl-12' : 'text-[13px] font-medium pl-16'}`}
+        >
+          {category.name}
+        </Link>
+        {hasChildren && (
+          <button onClick={() => setIsOpen(!isOpen)} className="p-3">
+            <svg className={`w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+          </button>
+        )}
+      </div>
+      {hasChildren && isOpen && (
+        <div className="flex flex-col border-l border-white/10 ml-8 mt-1">
+          {category.children.map((child: any) => (
+            <MobileCategoryItem key={child.id} category={child} level={level + 1} onNavigate={onNavigate} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 export default function Header() {
   const { settings } = useStoreSettings();
 
@@ -93,6 +151,10 @@ export default function Header() {
   const { isAuthenticated, user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  
+  const [categories, setCategories] = useState<any[]>([]);
+  const [isMobileCategoriesOpen, setIsMobileCategoriesOpen] = useState(false);
+  
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobileContactExpanded, setIsMobileContactExpanded] = useState(false);
@@ -121,6 +183,16 @@ export default function Header() {
 
     const handleOpenLoginModal = () => setIsLoginModalOpen(true);
     window.addEventListener('open-login-modal', handleOpenLoginModal);
+
+    const loadCategories = async () => {
+      try {
+        const data = await fetchCategories();
+        setCategories(data || []);
+      } catch (err) {
+        console.error('Failed to load categories', err);
+      }
+    };
+    loadCategories();
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
@@ -212,13 +284,35 @@ export default function Header() {
     return location.pathname.startsWith(path) && path !== '/';
   };
 
+  const categoryTree = useMemo(() => {
+    const map = new Map();
+    categories.forEach(c => map.set(c.id, { ...c, children: [] }));
+    const roots: any[] = [];
+    categories.forEach(c => {
+      if (c.parent_id) {
+        if (map.has(c.parent_id)) {
+          map.get(c.parent_id).children.push(map.get(c.id));
+        } else {
+          roots.push(map.get(c.id));
+        }
+      } else {
+        roots.push(map.get(c.id));
+      }
+    });
+    return roots;
+  }, [categories]);
+
   const navLinks: Array<{ name: string; path?: string; id?: string; available?: boolean; dropdown?: Array<{ name: string; path: string; }> }> = [
     { name: 'Home', path: '/' },
-    { name: 'About Us', dropdown: [
-      { name: 'About Able Technologies', path: '/about' },
-      { name: 'Our Industrial Solutions', path: '/industrial-solutions' }
-    ] },
     { name: 'Shop', path: '/shop', id: 'nav-shop' },
+    { 
+      name: 'About Us', 
+      path: '/about',
+      dropdown: [
+        { name: 'Industrial Solutions', path: '/industrial-solutions' }
+      ]
+    },
+    { name: 'Services', path: '/services' },
     { name: 'Contact Us', path: '/contact' }
   ];
 
@@ -380,7 +474,17 @@ export default function Header() {
                   if (link.dropdown) {
                     return (
                       <div key={link.name} className="flex flex-col space-y-1">
-                        <div className="text-gray-400 px-4 py-2 text-sm font-bold uppercase tracking-wider">{link.name}</div>
+                        {link.path ? (
+                          <Link 
+                            to={link.path} 
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className="text-gray-400 px-4 py-2 text-sm font-bold uppercase tracking-wider hover:text-cyan-300 transition-colors"
+                          >
+                            {link.name}
+                          </Link>
+                        ) : (
+                          <div className="text-gray-400 px-4 py-2 text-sm font-bold uppercase tracking-wider">{link.name}</div>
+                        )}
                         {link.dropdown.map(dropItem => (
                           <Link 
                             key={dropItem.name} 
@@ -410,6 +514,34 @@ export default function Header() {
                     </Link>
                   );
                 })}
+
+                {/* Mobile Categories Accordion */}
+                <div className="flex flex-col space-y-1">
+                  <button 
+                    onClick={() => setIsMobileCategoriesOpen(!isMobileCategoriesOpen)}
+                    className="flex items-center justify-between text-gray-300 hover:text-cyan-300 hover:bg-white/5 px-4 py-3 rounded-xl text-lg font-medium transition-colors"
+                  >
+                    <span>Categories</span>
+                    <svg className={`w-5 h-5 transition-transform duration-200 ${isMobileCategoriesOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                  <AnimatePresence>
+                    {isMobileCategoriesOpen && (
+                      <motion.div 
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="overflow-hidden flex flex-col border-l border-white/10 ml-4 pl-2"
+                      >
+                        {categoryTree.map(cat => (
+                          <MobileCategoryItem key={cat.id} category={cat} onNavigate={() => setIsMobileMenuOpen(false)} />
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+
                 <div className="pt-6 mt-4 border-t border-white/10">
                   <Link to="/contact" onClick={() => setIsMobileMenuOpen(false)} className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-700 text-white px-4 py-4 rounded-2xl flex items-center justify-center space-x-2 text-base font-bold shadow-[0_0_20px_rgba(220,38,38,0.4)] transition-all">
                     <Send size={18} className="-rotate-45" />
@@ -638,13 +770,10 @@ export default function Header() {
                 <span className="tracking-wide relative z-10">All Categories</span>
               </button>
               {/* Dropdown Menu */}
-              <div className="absolute left-0 top-[110%] w-64 bg-[rgba(15,20,40,0.95)] backdrop-blur-3xl border border-white/20 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.7)] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 flex flex-col py-3 overflow-hidden z-50">
-                {hardcodedCategories.length > 0 ? (
-                  hardcodedCategories.map((cat, idx) => (
-                    <Link key={idx} to={`/shop?category=${cat.slug}`} className="px-6 py-3 text-gray-200 hover:text-white hover:bg-white/10 text-sm font-medium transition-colors flex items-center space-x-3 relative group/cat">
-                      <div className="absolute left-0 top-0 h-full w-1 bg-cyan-400 opacity-0 group-hover/cat:opacity-100 transition-opacity shadow-[0_0_10px_rgba(34,211,238,0.5)]" />
-                      <span>{cat.name}</span>
-                    </Link>
+              <div className="absolute left-0 top-[110%] w-64 bg-[rgba(15,20,40,0.95)] backdrop-blur-3xl border border-white/20 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.7)] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 flex flex-col py-3 z-50">
+                {categoryTree.length > 0 ? (
+                  categoryTree.map((cat: any) => (
+                    <DesktopCategoryItem key={cat.id} category={cat} />
                   ))
                 ) : (
                   <span className="px-6 py-3 text-gray-500 text-sm">Loading...</span>
@@ -660,16 +789,29 @@ export default function Header() {
                 if (link.dropdown) {
                   return (
                     <div key={link.name} className="relative group/dropdown py-2">
-                      <button className="flex items-center space-x-1 px-2 text-[15px] font-semibold text-white/90 hover:text-white transition-all hover:-translate-y-0.5 group/link tracking-wide outline-none">
-                        <span>{link.name}</span>
-                        <svg className="w-4 h-4 transition-transform group-hover/dropdown:rotate-180 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-                        {active && (
-                          <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-full h-[3px] bg-cyan-400 rounded-full shadow-[0_0_12px_rgba(34,211,238,0.8)]" />
-                        )}
-                        {!active && (
-                          <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-0 h-[2px] bg-cyan-400/50 rounded-full transition-all duration-300 group-hover/link:w-full" />
-                        )}
-                      </button>
+                      {link.path ? (
+                        <Link to={link.path} className="flex items-center space-x-1 px-2 text-[15px] font-semibold text-white/90 hover:text-white transition-all hover:-translate-y-0.5 group/link tracking-wide outline-none">
+                          <span>{link.name}</span>
+                          <svg className="w-4 h-4 transition-transform group-hover/dropdown:rotate-180 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                          {active && (
+                            <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-full h-[3px] bg-cyan-400 rounded-full shadow-[0_0_12px_rgba(34,211,238,0.8)]" />
+                          )}
+                          {!active && (
+                            <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-0 h-[2px] bg-cyan-400/50 rounded-full transition-all duration-300 group-hover/link:w-full" />
+                          )}
+                        </Link>
+                      ) : (
+                        <button className="flex items-center space-x-1 px-2 text-[15px] font-semibold text-white/90 hover:text-white transition-all hover:-translate-y-0.5 group/link tracking-wide outline-none">
+                          <span>{link.name}</span>
+                          <svg className="w-4 h-4 transition-transform group-hover/dropdown:rotate-180 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                          {active && (
+                            <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-full h-[3px] bg-cyan-400 rounded-full shadow-[0_0_12px_rgba(34,211,238,0.8)]" />
+                          )}
+                          {!active && (
+                            <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-0 h-[2px] bg-cyan-400/50 rounded-full transition-all duration-300 group-hover/link:w-full" />
+                          )}
+                        </button>
+                      )}
                       <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-56 bg-[#0b1042]/95 backdrop-blur-2xl border border-white/10 rounded-xl shadow-[0_15px_40px_rgba(0,0,0,0.6)] opacity-0 invisible group-hover/dropdown:opacity-100 group-hover/dropdown:visible transition-all duration-200 transform origin-top scale-95 group-hover/dropdown:scale-100 flex flex-col py-2 z-50">
                         {link.dropdown.map(dropItem => (
                           <Link 

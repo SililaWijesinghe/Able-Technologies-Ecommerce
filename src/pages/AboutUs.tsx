@@ -1,13 +1,30 @@
-import React, { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { Settings, Globe, Shield, Wrench, ChevronRight, Users, TrendingUp, Building, Laptop, Activity, Factory, ChevronDown, CheckCircle, ArrowRight, Layers } from 'lucide-react';
+import React, { useEffect } from 'react';
+import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
+import { 
+  ChevronRight, 
+  Factory, 
+  Wrench, 
+  Settings, 
+  TestTube, 
+  PenTool, 
+  ShieldCheck, 
+  Users, 
+  TrendingUp, 
+  Building, 
+  Globe, 
+  CheckCircle2, 
+  ArrowRight, 
+  MessageCircle,
+  Truck,
+  HeartHandshake,
+  Award
+} from 'lucide-react';
 import heroBg from '../assets/heroBg.webp';
 
-// Pre-defined animations
-const fadeInUp = {
-  hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
+const fadeUp = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
 };
 
 const staggerContainer = {
@@ -23,360 +40,159 @@ export default function AboutUs() {
     window.scrollTo(0, 0);
   }, []);
 
-  const [activeTab, setActiveTab] = useState<number | null>(0);
-
-  const toggleTab = (index: number) => {
-    setActiveTab(activeTab === index ? null : index);
-  };
-
-  const ecosystemData = [
-    {
-      title: "Manufacturing",
-      icon: <Factory size={24} />,
-      color: "from-blue-600 to-blue-800",
-      items: [
-        "Machine (Rent / Sale)",
-        "Customized Machines (Local / Export)",
-        "Machine Parts (Local / Export)",
-        "Standard Sizes"
-      ]
-    },
-    {
-      title: "Repair & Maintenance",
-      icon: <Wrench size={24} />,
-      color: "from-[#1c2463] to-[#0b1042]",
-      items: [
-        "Machine Modification",
-        "Comprehensive Repair",
-        "Precision Calibration"
-      ]
-    },
-    {
-      title: "Spare Parts",
-      icon: <Settings size={24} />,
-      color: "from-gray-700 to-gray-900",
-      items: [
-        "Heating Elements",
-        "Pneumatic Items",
-        "Other Machinery Parts"
-      ]
-    },
-    {
-      title: "DNS Glue",
-      icon: <Layers size={24} />,
-      color: "from-red-600 to-red-800",
-      items: [
-        "Product Introduction",
-        "Sole Agent Rights",
-        "Technical Knowledge Transfer"
-      ]
-    },
-    {
-      title: "Other Services",
-      icon: <Activity size={24} />,
-      color: "from-blue-500 to-cyan-600",
-      items: [
-        "Consultation & Training",
-        "Sample Making",
-        "Testing & Recommendation"
-      ]
-    }
-  ];
-
   return (
-    <div className="bg-gray-50 min-h-screen font-sans">
+    <div className="bg-[#f8f9ff] min-h-screen font-sans">
       
       {/* 1. HERO SECTION */}
-      <section 
-        className="relative w-full pt-32 md:pt-44 pb-20 md:pb-32 bg-[#0b1042] overflow-hidden flex flex-col justify-center bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: `url(${heroBg})` }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-r from-[#060a2b]/95 via-[#0b1042]/80 to-[#0b1042]/40 z-0 w-full"></div>
-        <div className="absolute right-0 top-0 w-1/3 h-full bg-gradient-to-l from-red-600/10 to-transparent pointer-events-none transform skew-x-12"></div>
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <section className="relative bg-[#04081c] pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <img src={heroBg} alt="Able Technologies Industrial" className="w-full h-full object-cover opacity-20 mix-blend-overlay" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#04081c] via-[#04081c]/90 to-transparent"></div>
+          <div className="absolute top-0 right-0 w-1/2 h-full bg-red-600/5 blur-[120px] pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-1/3 h-1/2 bg-blue-600/10 blur-[100px] pointer-events-none" />
+        </div>
+        
+        <div className="max-w-7xl mx-auto px-4 md:px-6 relative z-10">
           <motion.div 
-            initial="hidden"
-            animate="visible"
-            variants={staggerContainer}
+            initial="hidden" animate="visible" variants={fadeUp}
             className="max-w-3xl"
           >
-            {/* Breadcrumb */}
-            <motion.div variants={fadeInUp} className="flex items-center text-gray-300 text-[11px] md:text-sm mb-6 uppercase tracking-wider font-semibold">
-              <Link to="/" className="hover:text-white transition-colors">Home</Link>
-              <ChevronRight size={14} className="mx-2 text-gray-500" />
-              <span className="text-white">About Us</span>
-            </motion.div>
-
-            <motion.div variants={fadeInUp} className="flex items-center gap-3 mb-4">
-              <div className="w-1.5 h-4 bg-red-600 transform -skew-x-[20deg] shadow-[0_0_8px_rgba(255,0,0,0.5)]" />
-              <span className="text-white font-bold tracking-widest text-[10px] md:text-xs uppercase bg-white/10 px-3 py-1 border-l-2 border-red-600">
-                Discover Our Story
-              </span>
-            </motion.div>
-
-            <motion.h1 variants={fadeInUp} className="text-4xl md:text-6xl lg:text-7xl font-extrabold italic tracking-tight uppercase leading-[1.1] mb-6 text-white">
-              ABOUT <span className="metallic-red-text">US</span>
-            </motion.h1>
-
-            <motion.p variants={fadeInUp} className="text-gray-300 text-[15px] md:text-[17px] leading-relaxed mb-10 max-w-2xl border-l-2 border-white/20 pl-4">
-              At Able Technologies, we are committed to delivering high-quality machines, components, and services that power modern industries with precision and reliability.
-            </motion.p>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* 2. OVERVIEW BENTO BOX */}
-      <section className="py-16 md:py-24 bg-white relative z-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          
-          <div className="flex items-center mb-10 md:mb-16 justify-center md:justify-start">
-             <div className="w-1.5 h-6 bg-red-600 mr-3 hidden md:block"></div>
-             <h2 className="text-[#0b1042] font-black text-2xl md:text-3xl tracking-tight uppercase text-center md:text-left">
-               Key Business Areas
-             </h2>
-          </div>
-
-          <motion.div 
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={staggerContainer}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6"
-          >
-            {[
-              { icon: Settings, title: "High-Tech Bonding Machines", desc: "Manufacturing state-of-the-art heat transfer and bonding machines.", colSpan: "lg:col-span-2", bg: "bg-blue-50/50" },
-              { icon: Globe, title: "Importer & Distributor", desc: "Supplying high-quality pneumatic components and accessories globally.", colSpan: "lg:col-span-1", bg: "bg-white" },
-              { icon: Shield, title: "Sole Agent", desc: "Exclusive provider for DNS brand 'NO SEW' PU base glue.", colSpan: "lg:col-span-1", bg: "bg-white" },
-              { icon: Wrench, title: "Total Service Provider", desc: "Comprehensive garment manufacturing solutions including testing, applications, QC, and process control.", colSpan: "lg:col-span-4", bg: "bg-[#0b1042] text-white" }
-            ].map((item, idx) => (
-              <motion.div 
-                key={idx}
-                variants={fadeInUp}
-                className={`${item.colSpan} ${item.bg} rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100 hover:shadow-xl transition-all duration-300 group relative overflow-hidden flex flex-col justify-center`}
-              >
-                {/* Background decorative element */}
-                <div className="absolute -right-6 -top-6 opacity-5 group-hover:opacity-10 transition-opacity">
-                   <item.icon size={120} />
-                </div>
-
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-6 shrink-0 relative z-10 ${item.bg.includes('#0b1042') ? 'bg-white/10 text-cyan-400' : 'bg-blue-100/50 text-blue-600 group-hover:bg-red-50 group-hover:text-red-600 transition-colors'}`}>
-                  <item.icon size={24} />
-                </div>
-                <h3 className={`text-lg md:text-xl font-bold mb-3 leading-tight relative z-10 ${item.bg.includes('#0b1042') ? 'text-white' : 'text-[#0b1042]'}`}>
-                  {item.title}
-                </h3>
-                <p className={`text-sm md:text-base leading-relaxed relative z-10 ${item.bg.includes('#0b1042') ? 'text-gray-300' : 'text-gray-600'}`}>
-                  {item.desc}
-                </p>
-                
-                {/* Hover line indicator */}
-                {!item.bg.includes('#0b1042') && (
-                  <div className="absolute bottom-0 left-0 w-full h-[3px] bg-gradient-to-r from-red-600 to-red-500 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300" />
-                )}
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
-
-      {/* 3. STRUCTURE / ECOSYSTEM SECTION */}
-      <section className="py-20 md:py-32 bg-gray-50 border-t border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 mb-3">
-              <div className="h-[1px] w-6 bg-red-600" />
-              <span className="text-red-600 font-bold tracking-widest text-xs uppercase">Corporate Ecosystem</span>
-              <div className="h-[1px] w-6 bg-red-600" />
+            <div className="flex items-center space-x-2 text-red-500 font-bold uppercase tracking-[0.2em] text-xs mb-6">
+              <span className="w-8 h-0.5 bg-red-600"></span>
+              <span>About Able Technologies</span>
             </div>
-            <h2 className="text-3xl md:text-5xl font-black text-[#0b1042] mb-4 uppercase tracking-tight">Our Structure</h2>
-            <p className="text-gray-500 text-base md:text-lg max-w-2xl mx-auto">The operational divisions driving Able Technologies forward.</p>
-          </div>
 
-          {/* Desktop/Tablet Grid View */}
-          <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 gap-6">
-            {ecosystemData.map((node, idx) => (
-              <motion.div 
-                key={idx}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: idx * 0.1 }}
-                className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 relative overflow-hidden group"
-              >
-                <div className={`absolute top-0 left-0 w-full h-2 bg-gradient-to-r ${node.color}`} />
-                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 text-white bg-gradient-to-br ${node.color} shadow-lg shadow-blue-900/20 group-hover:scale-110 transition-transform`}>
-                  {node.icon}
-                </div>
-                <h3 className="text-xl font-bold text-[#0b1042] mb-6">{node.title}</h3>
-                <ul className="space-y-3">
-                  {node.items.map((item, i) => (
-                    <li key={i} className="flex items-start">
-                      <CheckCircle className="text-red-500 mr-3 shrink-0 mt-0.5" size={16} />
-                      <span className="text-gray-600 text-sm font-medium">{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </motion.div>
-            ))}
-          </div>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-6 tracking-tight leading-[1.1]">
+              Engineering Solutions for <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-red-600">Modern Manufacturing</span>
+            </h1>
+            
+            <p className="text-gray-300 text-lg md:text-xl font-medium mb-10 leading-relaxed">
+              Able Technologies is a professional industrial machinery and technology solutions provider. We specialize in advanced industrial machinery, heat press solutions, spare parts, gauges, premium glue, and comprehensive machine-related services to drive production excellence.
+            </p>
 
-          {/* Mobile Accordion View */}
-          <div className="md:hidden space-y-3">
-            {ecosystemData.map((node, idx) => (
-              <div key={idx} className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
-                <button 
-                  onClick={() => toggleTab(idx)}
-                  className="w-full flex items-center justify-between p-5 text-left bg-white active:bg-gray-50 transition-colors"
-                >
-                  <div className="flex items-center space-x-4">
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-white bg-gradient-to-br ${node.color} shadow-sm shrink-0`}>
-                      {node.icon}
-                    </div>
-                    <span className="font-bold text-[#0b1042] text-sm tracking-wide">{node.title}</span>
-                  </div>
-                  <ChevronDown 
-                    size={20} 
-                    className={`text-gray-400 transition-transform duration-300 ${activeTab === idx ? 'rotate-180' : ''}`} 
-                  />
-                </button>
-                
-                <AnimatePresence>
-                  {activeTab === idx && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.3 }}
-                      className="overflow-hidden"
-                    >
-                      <div className="p-5 pt-0 bg-white border-t border-gray-50">
-                        <ul className="space-y-3 mt-3">
-                          {node.items.map((item, i) => (
-                            <li key={i} className="flex items-start">
-                              <CheckCircle className="text-red-500 mr-3 shrink-0 mt-0.5" size={16} />
-                              <span className="text-gray-600 text-sm font-medium leading-snug">{item}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            ))}
-          </div>
-
-        </div>
-      </section>
-
-      {/* 4. CULTURE SECTION */}
-      <section className="py-20 md:py-32 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-16 items-center">
-            <motion.div 
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="space-y-6"
-            >
-              <div className="flex items-center gap-3 mb-2">
-                <div className="h-[2px] w-8 bg-red-600" />
-                <span className="text-red-600 font-bold tracking-widest text-xs md:text-sm uppercase">Our Culture</span>
-              </div>
-              <h2 className="text-3xl md:text-5xl font-black text-[#0b1042] leading-tight uppercase tracking-tight">
-                People Drive <br />Our Progress
-              </h2>
-              <div className="space-y-4 text-gray-600 text-base md:text-lg leading-relaxed border-l-4 border-gray-100 pl-6 mt-6">
-                <p>
-                  <strong className="text-[#0b1042]">Enterprise culture</strong> is a moving source, using "people" as the core of establishing enterprise culture, utilizing advanced management models to give employees a modern, relaxing, and humane working environment.
-                </p>
-                <p>
-                  The people of ABLE Technologies have the courage for any experiment, the quest for mind development, and continually shift toward a "Quality, Service and Innovation" enterprise model.
-                </p>
-              </div>
-            </motion.div>
-
-            <motion.div 
-              initial={{ opacity: 0, x: 30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="bg-[#0b1042] rounded-[2rem] p-8 md:p-12 grid grid-cols-1 sm:grid-cols-2 gap-8 text-white relative overflow-hidden shadow-[0_20px_50px_rgba(11,16,66,0.3)]"
-            >
-              <div className="absolute top-0 right-0 w-64 h-64 bg-red-600/10 rounded-full blur-3xl pointer-events-none" />
-              <div className="absolute bottom-0 left-0 w-64 h-64 bg-cyan-600/10 rounded-full blur-3xl pointer-events-none" />
-              
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+              <Link to="/shop" className="w-full sm:w-auto text-center bg-gradient-to-r from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 text-white px-8 py-4 rounded-full font-bold text-base shadow-[0_5px_15px_rgba(220,38,38,0.4),inset_0_2px_4px_rgba(255,255,255,0.3)] transition-all duration-300 hover:-translate-y-1 flex justify-center items-center">
+                Explore Our Solutions <ArrowRight size={18} className="ml-2" />
+              </Link>
+              <Link to="/contact" className="w-full sm:w-auto text-center bg-white/10 hover:bg-white/20 backdrop-blur-md text-white border border-white/20 px-8 py-4 rounded-full font-bold text-base transition-all duration-300 hover:-translate-y-1">
+                Contact Our Team
+              </Link>
+            </div>
+            
+            <div className="flex flex-wrap items-center gap-6 mt-12 pt-12 border-t border-white/10">
               {[
-                { icon: Users, title: "People First", desc: "Our team is our greatest strength." },
-                { icon: TrendingUp, title: "Continuous Improvement", desc: "Always learning, always evolving." },
-                { icon: Building, title: "Modern Workspace", desc: "A safe and supportive place to thrive." },
-                { icon: Shield, title: "Quality Driven", desc: "Committed to excellence in everything." }
-              ].map((val, idx) => (
-                <div key={idx} className="space-y-4 relative z-10 group bg-white/5 p-6 rounded-2xl border border-white/10 hover:bg-white/10 transition-colors">
-                  <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center text-cyan-400 group-hover:text-red-400 group-hover:scale-110 transition-all duration-300">
-                    <val.icon size={24} strokeWidth={1.5} />
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-base md:text-lg mb-1">{val.title}</h4>
-                    <p className="text-gray-400 text-xs md:text-sm">{val.desc}</p>
-                  </div>
+                { label: "Decades of Experience", icon: ShieldCheck },
+                { label: "Industrial Expertise", icon: Factory },
+                { label: "Quality Assured", icon: Award }
+              ].map((item, idx) => (
+                <div key={idx} className="flex items-center space-x-2 text-gray-400">
+                  <item.icon size={18} className="text-red-500" />
+                  <span className="text-sm font-semibold">{item.label}</span>
                 </div>
               ))}
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* 2. COMPANY INTRODUCTION */}
+      <section className="py-20 lg:py-28 bg-white relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 md:px-6">
+          <div className="flex flex-col lg:flex-row gap-16 lg:gap-20 items-center">
+            <motion.div 
+              className="lg:w-1/2"
+              initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={fadeUp}
+            >
+              <div className="relative">
+                <span className="absolute -top-12 -left-4 text-8xl font-black text-gray-100 select-none z-0">VISION</span>
+                <div className="relative z-10">
+                  <h2 className="text-3xl md:text-4xl font-black text-[#0b1042] tracking-tight leading-tight mb-6">
+                    Your Trusted Industrial <span className="text-red-600">Solutions Partner</span>
+                  </h2>
+                </div>
+              </div>
+            </motion.div>
+            
+            <motion.div 
+              className="lg:w-1/2"
+              initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={fadeUp}
+            >
+              <div className="prose prose-lg text-gray-600">
+                <p className="font-medium text-[#0b1042] text-xl mb-6">
+                  Able Technologies is an established leader in providing comprehensive support for modern manufacturing environments.
+                </p>
+                <p className="mb-4">
+                  We harness engineering talent to design, import, and distribute high-tech <strong className="text-gray-900">industrial machinery</strong>, innovative <strong className="text-gray-900">heat press technology</strong>, and a wide array of <strong className="text-gray-900">pneumatic components</strong> and <strong className="text-gray-900">accessories</strong>.
+                </p>
+                <p>
+                  Beyond simply supplying equipment, we stand as a true partner. Our <strong className="text-gray-900">industrial support</strong> and technical expertise ensure that garment manufacturers and heavy industries operate at peak efficiency, minimizing downtime and maximizing output.
+                </p>
+              </div>
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* 5. FACILITY GRID SECTION */}
-      <section className="py-20 md:py-32 bg-gray-50 border-t border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 mb-3">
-              <div className="h-[1px] w-6 bg-red-600" />
-              <span className="text-red-600 font-bold tracking-widest text-xs uppercase">Our Facility</span>
-              <div className="h-[1px] w-6 bg-red-600" />
-            </div>
-            <h2 className="text-3xl md:text-5xl font-black text-[#0b1042] mb-4 uppercase tracking-tight">Manufacturing Environment</h2>
-            <p className="text-gray-500 text-base md:text-lg max-w-2xl mx-auto">A modern facility equipped for innovation, precision, and world-class quality.</p>
-          </div>
+      {/* 3. WHAT WE DO — BUSINESS OVERVIEW */}
+      <section className="py-20 bg-[#f8f9ff]">
+        <div className="max-w-7xl mx-auto px-4 md:px-6">
+          <motion.div className="text-center max-w-3xl mx-auto mb-16" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
+            <h2 className="text-3xl md:text-4xl font-black text-[#0b1042] mb-4">What We Do</h2>
+            <p className="text-gray-600 text-lg">A comprehensive ecosystem of industrial solutions designed to empower your production lines.</p>
+          </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+          <motion.div 
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8"
+            variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }}
+          >
             {[
-              { img: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=800", title: "Company Premises", desc: "Our office and main facility", icon: Building },
-              { img: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=800", title: "Design & Development", desc: "Modern workspace for research", icon: Laptop },
-              { img: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&q=80&w=800", title: "Machine Assembly", desc: "Building industrial machines", icon: Wrench },
-              { img: "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&q=80&w=800", title: "Testing & Calibration", desc: "Ensuring precision & reliability", icon: Activity },
-              { img: "https://images.unsplash.com/photo-1563986768494-4dee2763ff3f?auto=format&fit=crop&q=80&w=800", title: "Manufacturing", desc: "Advanced production capabilities", icon: Factory },
-              { img: "https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&q=80&w=800", title: "Production Floor", desc: "Efficient & organized workflow", icon: Settings }
-            ].map((item, idx) => (
+              { id: 1, title: 'Manufacturing', icon: Factory, desc: 'Industrial machinery and complete manufacturing solutions tailored for high-volume production.', link: '/shop?category=machine' },
+              { id: 2, title: 'Repair', icon: Wrench, desc: 'Machine repair, proactive maintenance, advanced modification, and precision calibration services.', link: '/services' },
+              { id: 3, title: 'Spare Parts', icon: Settings, desc: 'Industrial spare parts, pneumatic items, and high-quality replacement components to keep you running.', link: '/shop?category=spare-parts' },
+              { id: 4, title: 'Glue Solutions', icon: TestTube, desc: 'Industrial adhesives, heat-related bonding solutions, and chemical accessories for robust assembly.', link: '/shop?category=glue' },
+              { id: 5, title: 'Machine Services', icon: PenTool, desc: 'Professional technical support, lifecycle servicing, and bespoke industrial engineering solutions.', link: '/services' },
+            ].map((item, i) => (
+              <motion.div key={i} variants={fadeUp} className={`bg-white rounded-2xl p-8 border border-blue-50 hover:border-red-200 shadow-sm hover:shadow-xl transition-all duration-300 group relative overflow-hidden ${i === 4 ? 'lg:col-start-2' : ''}`}>
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-blue-50 to-transparent rounded-bl-full -z-10 group-hover:from-red-50 transition-colors duration-500"></div>
+                <div className="w-14 h-14 bg-[#f0f4ff] group-hover:bg-red-50 rounded-xl flex items-center justify-center mb-6 transition-colors duration-300">
+                  <item.icon size={28} className="text-blue-600 group-hover:text-red-600 transition-colors duration-300" />
+                </div>
+                <h3 className="text-xl font-bold text-[#0b1042] mb-3 group-hover:text-red-600 transition-colors">{item.title}</h3>
+                <p className="text-gray-600 mb-6 leading-relaxed">{item.desc}</p>
+                <Link to={item.link} className="inline-flex items-center text-sm font-bold text-blue-600 group-hover:text-red-600 transition-colors">
+                  Explore <ChevronRight size={16} className="ml-1 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* 4. OUR INDUSTRIAL EXPERTISE */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 md:px-6">
+          <motion.div className="mb-12" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
+            <h2 className="text-3xl md:text-4xl font-black text-[#0b1042] mb-4">Our Industrial Expertise</h2>
+            <div className="w-20 h-1 bg-red-600"></div>
+          </motion.div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[
+              "Industrial Machines", "Spare Parts & Components", "Gauges & Accessories",
+              "Adhesive & Glue Solutions", "Machine Repair & Maintenance", "Technical Support"
+            ].map((expertise, i) => (
               <motion.div 
-                key={idx}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: idx * 0.1 }}
-                className="group relative rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 aspect-video bg-gray-100"
+                key={i}
+                initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
+                className="bg-[#0b1042] rounded-xl p-6 relative overflow-hidden group cursor-default shadow-md"
               >
-                <img 
-                  src={item.img} 
-                  alt={item.title} 
-                  loading="lazy"
-                  className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ease-out"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0b1042]/90 via-[#0b1042]/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
-                
-                <div className="absolute bottom-0 left-0 right-0 p-5 transform translate-y-2 group-hover:translate-y-0 transition-transform">
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-red-600/90 text-white flex items-center justify-center shrink-0 backdrop-blur-sm">
-                      <item.icon size={20} />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-white text-base md:text-lg leading-tight">{item.title}</h4>
-                      <p className="text-gray-300 text-xs md:text-sm mt-0.5">{item.desc}</p>
-                    </div>
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="absolute top-0 right-0 w-16 h-16 bg-white/5 rounded-bl-full"></div>
+                <div className="flex items-center space-x-4 relative z-10">
+                  <div className="w-10 h-10 rounded-full bg-red-600/20 flex items-center justify-center border border-red-500/30">
+                    <CheckCircle2 size={20} className="text-red-400" />
                   </div>
+                  <h4 className="text-white font-bold text-lg">{expertise}</h4>
                 </div>
               </motion.div>
             ))}
@@ -384,65 +200,245 @@ export default function AboutUs() {
         </div>
       </section>
 
-      {/* 6. MAJOR CUSTOMERS SECTION */}
-      <section className="py-24 bg-white relative overflow-hidden">
-        <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(#0b1042 2px, transparent 2px)', backgroundSize: '30px 30px' }} />
-        
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 mb-3">
-              <div className="h-[1px] w-6 bg-red-600" />
-              <span className="text-red-600 font-bold tracking-widest text-xs uppercase">Trusted By Industries</span>
-              <div className="h-[1px] w-6 bg-red-600" />
-            </div>
-            <h2 className="text-3xl md:text-5xl font-black text-[#0b1042] mb-4 uppercase tracking-tight">Our Major Customers</h2>
-            <p className="text-gray-500 text-base md:text-lg max-w-2xl mx-auto">Building long-term relationships with leading brands across industries.</p>
-          </div>
+      {/* 5. COMPANY CULTURE SECTION */}
+      <section className="py-20 lg:py-28 bg-[#04081c] relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 md:px-6">
+          <div className="flex flex-col lg:flex-row items-center gap-16">
+            <motion.div 
+              className="lg:w-1/2 order-2 lg:order-1 relative"
+              initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }}
+            >
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-white/10 group">
+                <img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800&auto=format&fit=crop&q=80" alt="Able Technologies Team" className="w-full h-auto object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#04081c] via-transparent to-transparent"></div>
+              </div>
+              <div className="absolute -bottom-8 -right-8 w-48 h-48 rounded-2xl overflow-hidden shadow-xl border-4 border-[#04081c] hidden md:block">
+                <img src="https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=400&auto=format&fit=crop&q=80" alt="Innovation" className="w-full h-full object-cover" />
+              </div>
+            </motion.div>
 
-          <div className="flex flex-wrap justify-center gap-3 md:gap-5 lg:max-w-4xl mx-auto">
-            {['MAS', 'brandix', 'INQUBE', 'BODYLINE', 'T & F G', 'OMEGA LINE LTD', "Courtauld's", 'SJ'].map((brand, idx) => (
+            <motion.div 
+              className="lg:w-1/2 order-1 lg:order-2"
+              initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={fadeUp}
+            >
+              <h2 className="text-3xl md:text-4xl font-black text-white mb-6">
+                Driven by People,<br/>Powered by <span className="text-red-500">Innovation</span>
+              </h2>
+              <p className="text-gray-300 text-lg mb-8 leading-relaxed">
+                At Able Technologies, people are at the heart of everything we do. We cultivate a modern, human-centered working environment where technical brilliance meets collaborative problem-solving.
+              </p>
+              
+              <div className="space-y-6">
+                {[
+                  { title: 'Continuous Improvement', desc: 'Constantly refining our methods to deliver superior industrial results.' },
+                  { title: 'Service Excellence', desc: 'Committed to responsive, professional, and reliable client support.' },
+                  { title: 'Quality First', desc: 'Rigorous standards in both our products and our everyday operations.' }
+                ].map((item, i) => (
+                  <div key={i} className="flex items-start space-x-4">
+                    <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center shrink-0 border border-white/5">
+                      <Users size={18} className="text-cyan-400" />
+                    </div>
+                    <div>
+                      <h4 className="text-white font-bold text-lg mb-1">{item.title}</h4>
+                      <p className="text-gray-400 text-sm leading-relaxed">{item.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* 6. OUR FACILITIES / INSIDE ABLE TECHNOLOGIES */}
+      <section className="py-20 lg:py-28 bg-white">
+        <div className="max-w-7xl mx-auto px-4 md:px-6">
+          <motion.div className="text-center mb-16" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
+            <h2 className="text-3xl md:text-4xl font-black text-[#0b1042] mb-4">Inside Able Technologies</h2>
+            <p className="text-gray-600 text-lg max-w-2xl mx-auto">Explore our modern workspaces, testing areas, and industrial facilities.</p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 auto-rows-[250px]">
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} className="md:col-span-2 md:row-span-2 rounded-2xl overflow-hidden relative group">
+              <img src="https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=800&auto=format&fit=crop&q=80" alt="Machine Testing Area" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-90 transition-opacity group-hover:opacity-100"></div>
+              <div className="absolute bottom-6 left-6">
+                <h4 className="text-white font-bold text-xl mb-1">Machine Testing Area</h4>
+                <p className="text-gray-300 text-sm">Rigorous quality control environment</p>
+              </div>
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: 0.1 }} className="rounded-2xl overflow-hidden relative group">
+              <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=500&auto=format&fit=crop&q=80" alt="Office Environment" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-90"></div>
+              <div className="absolute bottom-4 left-4">
+                <h4 className="text-white font-bold text-lg mb-1">Office Environment</h4>
+                <p className="text-gray-300 text-xs">Collaborative workspaces</p>
+              </div>
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: 0.2 }} className="rounded-2xl overflow-hidden relative group">
+              <img src="https://images.unsplash.com/photo-1581092335397-9583eb92d232?w=500&auto=format&fit=crop&q=80" alt="Industrial Workshop" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-90"></div>
+              <div className="absolute bottom-4 left-4">
+                <h4 className="text-white font-bold text-lg mb-1">Industrial Workshop</h4>
+                <p className="text-gray-300 text-xs">Precision engineering</p>
+              </div>
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: 0.3 }} className="md:col-span-3 rounded-2xl overflow-hidden relative group">
+              <img src="https://images.unsplash.com/photo-1565439399-5f2d4ed83740?w=1200&auto=format&fit=crop&q=80" alt="Manufacturing Workspace" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-80"></div>
+              <div className="absolute bottom-6 left-6">
+                <h4 className="text-white font-bold text-xl mb-1">Manufacturing Workspace</h4>
+                <p className="text-gray-300 text-sm">Where ideas become industrial reality</p>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* 7. OUR SOLUTIONS AT A GLANCE */}
+      <section className="py-20 bg-[#f8f9ff]">
+        <div className="max-w-7xl mx-auto px-4 md:px-6">
+          <motion.div className="mb-12" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
+            <h2 className="text-3xl md:text-4xl font-black text-[#0b1042] mb-4">Our Solutions at a Glance</h2>
+            <div className="w-20 h-1 bg-red-600"></div>
+          </motion.div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            {[
+              { title: "Local Machines", desc: "Machines and industrial solutions available locally.", icon: Building, link: "/shop?category=local-machines" },
+              { title: "Global Machines", desc: "International industrial machinery solutions.", icon: Globe, link: "/shop?category=global-machines" },
+              { title: "Spare Parts & Gauges", desc: "Components, pneumatic products, gauges and accessories.", icon: Settings, link: "/shop?category=spare-parts" },
+              { title: "Glue", desc: "Industrial adhesive and bonding solutions.", icon: TestTube, link: "/shop?category=glue" },
+              { title: "Machine Services", desc: "Maintenance, repair, modification and technical support.", icon: Wrench, link: "/services" },
+            ].map((sol, idx) => (
               <motion.div 
                 key={idx}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: idx * 0.05 }}
-                className="w-[140px] md:w-[180px] h-[80px] md:h-[100px] bg-gray-50 border border-gray-200 rounded-2xl flex items-center justify-center group hover:bg-white hover:shadow-lg hover:border-red-200 transition-all duration-300 px-4"
+                initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: idx * 0.1 }}
+                className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm flex flex-col items-center text-center hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
               >
-                 <span className="font-black text-[#0b1042]/70 text-sm md:text-lg tracking-wider uppercase group-hover:text-red-600 transition-colors text-center leading-tight">
-                   {brand}
-                 </span>
+                <div className="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center mb-4">
+                  <sol.icon size={28} className="text-blue-600" />
+                </div>
+                <h4 className="text-[#0b1042] font-bold text-lg mb-3 leading-tight">{sol.title}</h4>
+                <p className="text-gray-500 text-sm mb-6 flex-grow">{sol.desc}</p>
+                <Link to={sol.link} className="w-full py-2.5 rounded-lg bg-gray-50 text-[#0b1042] font-semibold text-sm hover:bg-red-50 hover:text-red-600 transition-colors">
+                  Explore
+                </Link>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* 7. CALL TO ACTION SECTION */}
-      <section className="bg-[#0b1042] py-20 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-red-600/10 to-transparent pointer-events-none transform skew-x-12 translate-x-32"></div>
-        <div className="absolute bottom-0 left-0 w-1/3 h-1/2 bg-gradient-to-t from-blue-600/20 to-transparent blur-3xl pointer-events-none"></div>
+      {/* 8. WHY CHOOSE ABLE TECHNOLOGIES */}
+      <section className="py-20 lg:py-28 bg-[#04081c] relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-1/2 h-full bg-blue-900/10 blur-[100px] pointer-events-none" />
+        
+        <div className="max-w-7xl mx-auto px-4 md:px-6 relative z-10">
+          <motion.div className="text-center mb-16" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
+            <h2 className="text-3xl md:text-4xl font-black text-white mb-4">Why Industries Choose Able Technologies</h2>
+            <p className="text-gray-400 text-lg max-w-2xl mx-auto">The competitive advantages that make us the preferred partner for modern manufacturing.</p>
+          </motion.div>
 
-        <div className="max-w-7xl mx-auto px-4 md:px-6 relative z-10 flex flex-col items-center text-center">
-          <div className="flex items-center mb-6 justify-center">
-            <div className="w-1.5 h-4 bg-red-600 transform -skew-x-[20deg] mr-2 shadow-[0_0_8px_rgba(255,0,0,0.5)]"></div>
-            <span className="text-red-500 font-bold tracking-widest text-xs uppercase">Get Started</span>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+            {[
+              "Industrial Expertise", "Reliable Products", "Professional Technical Support", "Quality-Focused Solutions",
+              "Spare Parts Availability", "Islandwide Service & Support", "Customer-Focused Approach", "Complete Industrial Solutions"
+            ].map((feature, idx) => (
+              <motion.div 
+                key={idx}
+                initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: idx * 0.05 }}
+                className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6 flex items-start space-x-4 hover:bg-white/10 transition-colors duration-300"
+              >
+                <div className="mt-1 shrink-0">
+                  <CheckCircle2 size={20} className="text-red-500" />
+                </div>
+                <h4 className="text-white font-semibold text-base leading-snug">{feature}</h4>
+              </motion.div>
+            ))}
           </div>
-          
-          <h2 className="text-3xl md:text-5xl font-extrabold text-white mb-6 tracking-tight uppercase">Let's Build a Stronger <br className="hidden md:block"/>Tomorrow Together</h2>
-          <p className="text-blue-100/80 text-base md:text-lg max-w-2xl mx-auto mb-12">
-            Partner with Able Technologies for reliable machines, components, and expert support tailored to your manufacturing requirements.
-          </p>
-
-          <Link 
-            to="/contact" 
-            className="metallic-red-bg px-10 py-4 rounded-full font-bold text-white text-lg flex items-center space-x-3 hover:-translate-y-1 transition-all duration-300 shadow-[0_5px_20px_rgba(220,38,38,0.5)] border border-red-500/50 mb-16"
-          >
-            <span>Contact Us Today</span>
-            <ChevronRight size={20} className="bg-white/20 rounded-full p-0.5" />
-          </Link>
         </div>
       </section>
+
+      {/* 9. TRUSTED BY INDUSTRY — CUSTOMER LOGOS */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 md:px-6">
+          <motion.div className="text-center mb-12" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
+            <h2 className="text-3xl md:text-4xl font-black text-[#0b1042] mb-4">Trusted by Leading Industries</h2>
+            <p className="text-gray-600 text-lg max-w-2xl mx-auto">Proud to support businesses across Sri Lanka with reliable industrial solutions.</p>
+          </motion.div>
+
+          {/* Client Logos Grid */}
+          <div className="grid grid-cols-3 md:grid-cols-5 gap-6 lg:gap-10 items-center justify-items-center opacity-70">
+            {Array.from({ length: 15 }).map((_, i) => (
+              <motion.div 
+                key={i}
+                initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: (i % 5) * 0.1 }}
+                className="w-full h-24 bg-gray-50 rounded-xl flex items-center justify-center border border-gray-100 hover:border-blue-200 hover:bg-white hover:shadow-md transition-all duration-300 grayscale hover:grayscale-0 p-4"
+              >
+                <img 
+                  src={`/images/clients/client-${i + 1}.webp`} 
+                  alt={`Client ${i + 1}`} 
+                  className="max-h-full max-w-full object-contain mix-blend-multiply" 
+                  loading="lazy"
+                />
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 10. OUR COMMITMENT */}
+      <section className="py-20 lg:py-28 bg-[#f8f9ff]">
+        <div className="max-w-7xl mx-auto px-4 md:px-6">
+          <div className="flex flex-col lg:flex-row items-center gap-16">
+            <motion.div 
+              className="lg:w-1/2"
+              initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={fadeUp}
+            >
+              <h2 className="text-3xl md:text-4xl font-black text-[#0b1042] tracking-tight leading-tight mb-6">
+                More Than Machines.<br/><span className="text-blue-600">Complete Industrial Solutions.</span>
+              </h2>
+              <p className="text-gray-600 text-lg mb-8 leading-relaxed">
+                We focus on supporting our customers throughout their entire industrial journey. From the initial consultation to long-term lifecycle support, we ensure your operations never miss a beat.
+              </p>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-4">
+                {[
+                  { icon: MessageCircle, text: "Consultation" },
+                  { icon: Factory, text: "Product Selection" },
+                  { icon: Settings, text: "Installation Support" },
+                  { icon: ShieldCheck, text: "Spare Parts" },
+                  { icon: Wrench, text: "Repairs & Maintenance" },
+                  { icon: HeartHandshake, text: "Technical Assistance" }
+                ].map((item, i) => (
+                  <div key={i} className="flex items-center space-x-3">
+                    <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
+                      <item.icon size={14} className="text-blue-600" />
+                    </div>
+                    <span className="text-[#0b1042] font-semibold">{item.text}</span>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+
+            <motion.div 
+              className="lg:w-1/2 relative"
+              initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }}
+            >
+              <div className="grid grid-cols-2 gap-4">
+                <img src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=400&auto=format&fit=crop&q=80" alt="Commitment" className="w-full h-64 object-cover rounded-2xl shadow-lg mt-8" />
+                <img src="https://images.unsplash.com/photo-1581092334651-ddf26d9a09d0?w=400&auto=format&fit=crop&q=80" alt="Support" className="w-full h-64 object-cover rounded-2xl shadow-lg" />
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+
 
     </div>
   );

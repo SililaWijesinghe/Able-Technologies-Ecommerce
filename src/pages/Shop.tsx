@@ -154,11 +154,25 @@ export default function Shop() {
             String(c.name || '').toLowerCase().trim().replace(/\s+/g, '-') === selectedLower
           );
 
+          // Add all descendant categories recursively
+          const getAllDescendants = (cats, allDbCats) => {
+            let descendants = [...cats];
+            let currentLevel = [...cats];
+            while (currentLevel.length > 0) {
+              const currentIds = currentLevel.map(c => c.id);
+              const nextLevel = allDbCats.filter(c => currentIds.includes(c.parent_id));
+              descendants = descendants.concat(nextLevel);
+              currentLevel = nextLevel;
+            }
+            return descendants;
+          };
+          const expandedDbCats = getAllDescendants(matchedDbCats, dbCategories);
+
           // Build a set of all valid category identifiers (UUIDs, slugs, names)
           const targetCategoryKeys = new Set<string>();
           targetCategoryKeys.add(selectedLower);
           targetCategoryKeys.add(selectedLower.replace(/-/g, ' '));
-          matchedDbCats.forEach(c => {
+          expandedDbCats.forEach(c => {
             if (c.id) targetCategoryKeys.add(String(c.id).toLowerCase().trim());
             if (c.slug) targetCategoryKeys.add(String(c.slug).toLowerCase().trim());
             if (c.name) {

@@ -5,13 +5,13 @@ import { X, Send, Loader2, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import toast from 'react-hot-toast';
 
-interface QuoteModalProps {
+export interface QuoteModalProps {
   isOpen: boolean;
   onClose: () => void;
   product: any;
 }
 
-export default function QuoteModal({ isOpen, onClose, product }: QuoteModalProps) {
+export default function QuoteModal({ isOpen, onClose, product, variantSku }: QuoteModalProps & { variantSku?: string }) {
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: '' });
   const [errors, setErrors] = useState({ name: '', email: '', phone: '', message: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -61,7 +61,7 @@ export default function QuoteModal({ isOpen, onClose, product }: QuoteModalProps
         customer_name: formData.name,
         email: formData.email,
         phone: formData.phone,
-        message: formData.message,
+        message: formData.message + (variantSku ? `\n\nSelected Model: ${variantSku}` : ''),
         product_id: product.id,
         inquiry_type: product.is_rentable ? 'Rental' : 'Service',
         user_id: currentUser?.id
@@ -106,6 +106,7 @@ export default function QuoteModal({ isOpen, onClose, product }: QuoteModalProps
                     <img src={product.image_urls?.[0] || product.image_url} alt={product.name} className="w-16 h-16 rounded-xl object-cover shadow-sm" />
                     <div>
                       <h4 className="text-sm font-bold text-slate-800">{product.name}</h4>
+                      {variantSku && <p className="text-[11px] text-blue-500 font-medium">Model: {variantSku}</p>}
                       <p className="text-xs text-slate-500 font-medium">Rs. {product.price?.toLocaleString() || 'N/A'}</p>
                     </div>
                   </div>

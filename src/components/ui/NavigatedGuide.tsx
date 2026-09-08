@@ -78,32 +78,57 @@ export default function NavigatedGuide({ guideId, steps }: NavigatedGuideProps) 
 
   const currentStep = steps[currentStepIndex];
   
-  // Calculate position logic simplified
   let top = '50%';
   let left = '50%';
   let transform = 'translate(-50%, -50%)'; // default centered if no target found
+  let shiftX = 0;
+  let shiftY = 0;
   let showHighlight = false;
 
   if (targetRect) {
     showHighlight = true;
     const padding = 16;
+    const popupWidth = 300;
+    const margin = 16;
     const position = currentStep.position || 'bottom';
 
     if (position === 'bottom') {
       top = `${targetRect.bottom + padding}px`;
-      left = `${targetRect.left + targetRect.width / 2}px`;
-      transform = 'translateX(-50%)';
+      const desiredLeft = targetRect.left + targetRect.width / 2;
+      
+      if (desiredLeft + popupWidth / 2 > window.innerWidth - margin) {
+        shiftX = (window.innerWidth - margin) - (desiredLeft + popupWidth / 2);
+      } else if (desiredLeft - popupWidth / 2 < margin) {
+        shiftX = margin - (desiredLeft - popupWidth / 2);
+      }
+      
+      left = `${desiredLeft}px`;
+      transform = `translateX(calc(-50% + ${shiftX}px))`;
+      
     } else if (position === 'top') {
       top = `${targetRect.top - padding}px`;
-      left = `${targetRect.left + targetRect.width / 2}px`;
-      transform = 'translate(-50%, -100%)';
+      const desiredLeft = targetRect.left + targetRect.width / 2;
+      
+      if (desiredLeft + popupWidth / 2 > window.innerWidth - margin) {
+        shiftX = (window.innerWidth - margin) - (desiredLeft + popupWidth / 2);
+      } else if (desiredLeft - popupWidth / 2 < margin) {
+        shiftX = margin - (desiredLeft - popupWidth / 2);
+      }
+      
+      left = `${desiredLeft}px`;
+      transform = `translate(calc(-50% + ${shiftX}px), -100%)`;
+      
     } else if (position === 'right') {
-      top = `${targetRect.top + targetRect.height / 2}px`;
       left = `${targetRect.right + padding}px`;
+      const desiredTop = targetRect.top + targetRect.height / 2;
+      // We could add shiftY logic here if needed, but for now just Y-center
+      top = `${desiredTop}px`;
       transform = 'translateY(-50%)';
+      
     } else if (position === 'left') {
-      top = `${targetRect.top + targetRect.height / 2}px`;
       left = `${targetRect.left - padding}px`;
+      const desiredTop = targetRect.top + targetRect.height / 2;
+      top = `${desiredTop}px`;
       transform = 'translate(-100%, -50%)';
     }
   }
@@ -126,10 +151,10 @@ export default function NavigatedGuide({ guideId, steps }: NavigatedGuideProps) 
                 <div 
                   className="absolute"
                   style={{
-                    ...(currentStep.position === 'bottom' ? { top: -16, left: '50%', transform: 'translateX(-50%)' } : {}),
-                    ...(currentStep.position === 'top' ? { bottom: -16, left: '50%', transform: 'translateX(-50%)' } : {}),
-                    ...(currentStep.position === 'right' ? { top: '50%', left: -16, transform: 'translateY(-50%)' } : {}),
-                    ...(currentStep.position === 'left' ? { top: '50%', right: -16, transform: 'translateY(-50%)' } : {}),
+                    ...(currentStep.position === 'bottom' || !currentStep.position ? { top: -16, left: `calc(50% - ${shiftX}px)`, transform: 'translateX(-50%)' } : {}),
+                    ...(currentStep.position === 'top' ? { bottom: -16, left: `calc(50% - ${shiftX}px)`, transform: 'translateX(-50%)' } : {}),
+                    ...(currentStep.position === 'right' ? { top: `calc(50% - ${shiftY}px)`, left: -16, transform: 'translateY(-50%)' } : {}),
+                    ...(currentStep.position === 'left' ? { top: `calc(50% - ${shiftY}px)`, right: -16, transform: 'translateY(-50%)' } : {}),
                   }}
                 >
                    <div className="w-8 h-8 flex items-center justify-center animate-pulse">
@@ -138,7 +163,7 @@ export default function NavigatedGuide({ guideId, steps }: NavigatedGuideProps) 
                 </div>
               )}
 
-              <div className="flex items-center gap-2 mb-2 text-blue-300">
+                            <div className="flex items-center gap-2 mb-2 text-blue-300">
                 <Sparkles size={16} />
                 <span className="text-xs font-bold tracking-wider uppercase">
                   Step {currentStepIndex + 1} of {steps.length}

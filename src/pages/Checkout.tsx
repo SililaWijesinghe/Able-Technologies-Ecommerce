@@ -67,8 +67,18 @@ export default function Checkout() {
     try {
       if (!settings.enable_checkout) {
         // B2B Catalog Mode: Save as order request inquiry
-        const orderSummary = `Order Request Items:\n${cartItems.map(item => `- ${item.quantity}x ${item.name} ${settings.show_prices ? `(Rs. ${item.price})` : ''}`).join('\n')}\n\nShipping Details:\nAddress: ${formData.address1}, ${formData.address2 || ''}\nCity: ${formData.city}\nDistrict: ${formData.district}`;
-        
+        const orderSummary = `Order Request Items:\n${cartItems.map(item => {
+          let variantText = '';
+          if (item.variant) {
+            try {
+              const parsed = JSON.parse(item.variant);
+              if (parsed.sku) variantText = ` - Model: ${parsed.sku}`;
+            } catch (e) {
+              variantText = ` - Model: ${item.variant}`;
+            }
+          }
+          return `- ${item.quantity}x ${item.name}${variantText} ${settings.show_prices ? `(Rs. ${item.price})` : ''}`;
+        }).join('\n')}\n\nShipping Details:\nAddress: ${formData.address1}, ${formData.address2 || ''}\nCity: ${formData.city}\nDistrict: ${formData.district}`;
         const { error } = await supabase.from('contact_inquiries').insert([{
           name: formData.fullName,
           email: formData.email,
@@ -461,6 +471,18 @@ export default function Checkout() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <h4 className="text-xs font-bold text-slate-900 truncate">{item.name}</h4>
+                        {item.variant && (
+                          <div className="text-[10px] text-blue-500 font-medium truncate mt-0.5">
+                            {(() => {
+                              try {
+                                const parsed = JSON.parse(item.variant);
+                                return parsed.sku ? `Model: ${parsed.sku}` : item.variant;
+                              } catch(e) {
+                                return item.variant;
+                              }
+                            })()}
+                          </div>
+                        )}
                         <p className="text-[10px] text-slate-500">Qty: {item.quantity}</p>
                       </div>
                       {settings.show_prices && settings.enable_checkout && (

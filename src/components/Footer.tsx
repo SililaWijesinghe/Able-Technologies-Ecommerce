@@ -304,15 +304,11 @@ export default function Footer() {
               <ul className="space-y-3">
                 {[
                   { name: 'Home', path: '/' },
-                  { name: 'About Us', path: '#!', available: false },
+                  { name: 'About Us', path: '/about' },
                   { name: 'Shop', path: '/shop' },
-                  { name: 'Local Machines', path: '/shop?category=local-machines' },
-                  { name: 'Global Machines', path: '/shop?category=global-machines' },
-                  { name: 'Spare Parts', path: '/shop?category=spare-parts' },
-                  { name: 'Glue', path: '/shop?category=glue' },
-                  { name: 'Machine Services', path: '/shop?category=machine-services' },
+                  { name: 'Services', path: '/services' },
                   { name: 'Contact Us', path: '/contact' }
-                ].map((link, i) => (
+                ].map((link: {name: string; path: string; available?: boolean}, i) => (
                   <li key={i}>
                     <Link 
                        to={link.path} 
@@ -341,7 +337,7 @@ export default function Footer() {
                   { name: 'Terms & Conditions', path: '#!', available: false },
                   { name: 'Privacy Policy', path: '#!', available: false },
                   { name: 'FAQ\'s', path: '#!', available: false }
-                ].map((link, i) => (
+                ].map((link: {name: string; path: string; available?: boolean}, i) => (
                   <li key={i}>
                     <Link 
                        to={link.path}

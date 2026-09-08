@@ -207,7 +207,21 @@ export default function OrderDetailsModal({ isOpen, onClose, orderId, onStatusUp
                                 <img src={item.products.image_urls[0]} alt="" className="w-full h-full object-cover mix-blend-multiply" />
                               ) : <Package size={16} className="text-gray-400" />}
                             </div>
-                            <span className="font-medium text-gray-900 truncate max-w-[200px]">{item.products?.name || item.product_name || 'Unknown Product'}</span>
+                            <div className="flex flex-col">
+                              <span className="font-medium text-gray-900 truncate max-w-[200px]">{item.products?.name || item.product_name || 'Unknown Product'}</span>
+                              {item.variant && (
+                                <span className="text-[11px] text-blue-600 font-medium mt-0.5">
+                                  {(() => {
+                                    try {
+                                      const parsed = typeof item.variant === 'string' ? JSON.parse(item.variant) : item.variant;
+                                      return parsed.sku ? `Model: ${parsed.sku}` : item.variant;
+                                    } catch(e) {
+                                      return item.variant;
+                                    }
+                                  })()}
+                                </span>
+                              )}
+                            </div>
                           </td>
                           <td className="p-3 text-center font-bold text-gray-600">{item.quantity}</td>
                           <td className="p-3 text-right font-medium text-gray-600">Rs. {Number(item.unit_price || item.price || 0).toLocaleString()}</td>

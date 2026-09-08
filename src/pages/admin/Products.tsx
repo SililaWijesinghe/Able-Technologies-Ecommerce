@@ -29,7 +29,7 @@ export default function Products() {
       setLoading(true);
       const { data, error } = await supabase
         .from('products')
-        .select('*, categories(name), brands(name)')
+        .select('*, categories(name), brands(name), product_images(*), product_variants(*)')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -368,11 +368,11 @@ export default function Products() {
                     <div className="grid grid-cols-2 gap-y-4 gap-x-6">
                       <div>
                         <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Brand</p>
-                        <p className="text-sm font-semibold text-gray-900">{viewProduct.brand || 'Unbranded'}</p>
+                        <p className="text-sm font-semibold text-gray-900">{viewProduct.brands?.name || 'Unbranded'}</p>
                       </div>
                       <div>
                         <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Category</p>
-                        <p className="text-sm font-semibold text-gray-900">{viewProduct.category || 'Uncategorized'}</p>
+                        <p className="text-sm font-semibold text-gray-900">{viewProduct.categories?.name || 'Uncategorized'}</p>
                       </div>
                       <div className="col-span-2">
                         <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Description</p>
@@ -389,15 +389,15 @@ export default function Products() {
                     <div className="grid grid-cols-3 gap-4">
                       <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
                         <p className="text-xs font-bold text-gray-500 mb-1">Selling Price</p>
-                        <p className="text-lg font-black text-gray-900">Rs. {viewProduct.price?.toLocaleString() || '0'}</p>
+                        <p className="text-lg font-black text-gray-900">Rs. {Number(viewProduct.price || 0).toLocaleString()}</p>
                       </div>
                       <div className="bg-gray-50 rounded-xl p-4 border border-gray-100 opacity-70">
                         <p className="text-xs font-bold text-gray-500 mb-1">Compare At</p>
-                        <p className="text-lg font-black text-gray-500 line-through">Rs. {viewProduct.compare_at_price?.toLocaleString() || '-'}</p>
+                        <p className="text-lg font-black text-gray-500 line-through">Rs. {viewProduct.compare_at_price ? Number(viewProduct.compare_at_price).toLocaleString() : '-'}</p>
                       </div>
                       <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
                         <p className="text-xs font-bold text-gray-500 mb-1">Cost Price</p>
-                        <p className="text-lg font-black text-gray-900">Rs. {viewProduct.cost_price?.toLocaleString() || '-'}</p>
+                        <p className="text-lg font-black text-gray-900">Rs. {viewProduct.cost_price ? Number(viewProduct.cost_price).toLocaleString() : '-'}</p>
                       </div>
                     </div>
                   </div>

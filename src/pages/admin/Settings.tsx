@@ -89,6 +89,9 @@ export default function Settings() {
       }
 
       toast.success('Store settings updated successfully!');
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     } catch (error) {
       console.error('Error saving settings:', error);
       toast.error('Failed to save store settings. Please try again.');

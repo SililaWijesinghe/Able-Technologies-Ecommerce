@@ -38,8 +38,11 @@ export default function CategoryCards() {
     setIsLoading(true);
     fetchCategories().then(data => {
       if (data && data.length > 0) {
+        // Filter out sub-categories (only keep those where parent_id is null)
+        const parentCategories = data.filter((cat: any) => !cat.parent_id);
+        
         // Map database categories to include fallback icons based on slug
-        const mappedData = data.map((cat: any) => ({
+        const mappedData = parentCategories.map((cat: any) => ({
           ...cat,
           icon: iconMap[cat.slug] || Settings,
           icon_url: imageMap[cat.slug] || cat.icon_url, // Prefer hardcoded image URLs

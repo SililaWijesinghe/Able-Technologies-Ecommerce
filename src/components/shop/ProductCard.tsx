@@ -83,6 +83,9 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
               {brandName}
             </div>
           )}
+          {product.sku && (
+            <p className="text-[11px] text-slate-400 font-mono font-medium mb-1">{product.sku}</p>
+          )}
           <h3 className="text-slate-800 font-bold text-lg leading-tight group-hover/link:text-blue-600 transition-colors">{product.name}</h3>
 
           

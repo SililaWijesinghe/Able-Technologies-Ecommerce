@@ -1,3 +1,4 @@
+import React from "react";
 import { Filter, Search, ChevronDown, ChevronUp, X } from 'lucide-react';
 import { useState, useMemo } from 'react';
 import { useStoreSettings } from '../../context/StoreSettingsContext';
@@ -44,6 +45,50 @@ export const getProductAvailabilityStatus = (p: any): 'in_stock' | 'on_order' | 
   }
 
   return 'out_of_stock';
+};
+
+
+const CategoryNode: React.FC<{ cat: any, isCategorySelected: (c: any) => boolean, toggleCategory: (c: any) => void }> = ({ cat, isCategorySelected, toggleCategory }) => {
+  const [expanded, setExpanded] = useState(true);
+  const hasChildren = cat.children && cat.children.length > 0;
+  
+  return (
+    <div className="flex flex-col">
+      <div className="flex items-center justify-between py-1 group">
+        <label className="flex items-center min-w-0 flex-1 cursor-pointer">
+          <input 
+            type="checkbox" 
+            className="w-4 h-4 rounded border-gray-300 text-[#0b1042] focus:ring-[#0b1042] cursor-pointer" 
+            checked={isCategorySelected(cat)}
+            onChange={() => toggleCategory(cat)}
+          />
+          <span className="ml-3 text-sm text-gray-700 group-hover:text-[#0b1042] transition-colors font-medium capitalize truncate">
+            {cat.label.replace(/_/g, ' ')}
+          </span>
+        </label>
+        <div className="flex items-center">
+          <span className="text-xs text-gray-400 mx-2 shrink-0">({cat.totalCount || cat.count})</span>
+          {hasChildren ? (
+            <button 
+              onClick={(e) => { e.preventDefault(); setExpanded(!expanded); }}
+              className="p-1 rounded-md hover:bg-gray-100 text-gray-500"
+            >
+              {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+            </button>
+          ) : (
+            <div className="w-6" /> // spacer
+          )}
+        </div>
+      </div>
+      {hasChildren && expanded && (
+        <div className="ml-5 border-l-2 border-gray-100 pl-2 mt-1 space-y-1">
+          {cat.children.map(child => (
+            <CategoryNode key={child.id} cat={child} isCategorySelected={isCategorySelected} toggleCategory={toggleCategory} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default function FilterSidebar({ 
@@ -114,7 +159,7 @@ export default function FilterSidebar({
 
   // 1. Categories calculation with interchangeable ID, Slug, and Name counts
   const categories = useMemo(() => {
-    return (dbCategories || []).map(cat => {
+    const allCats = (dbCategories || []).map(cat => {
       const catIdLower = String(cat.id || '').toLowerCase().trim();
       const catSlugLower = String(cat.slug || '').toLowerCase().trim();
       const catNameLower = String(cat.name || '').toLowerCase().trim();
@@ -145,9 +190,35 @@ export default function FilterSidebar({
         slug: cat.slug,
         name: cat.name,
         label: cat.name || cat.slug || cat.id,
+        parent_id: cat.parent_id,
+        children: [],
+        level: 0,
         count
       };
     });
+
+    const map = new Map();
+    allCats.forEach(c => map.set(c.id, c));
+    const roots = [];
+    allCats.forEach(c => {
+      if (c.parent_id && map.has(c.parent_id)) {
+        map.get(c.parent_id).children.push(c);
+      } else {
+        roots.push(c);
+      }
+    });
+
+    // Helper to sum counts for parent categories and flatten
+    const processNodes = (nodes, level = 0) => {
+      nodes.forEach(node => {
+        node.level = level;
+        const childrenList = processNodes(node.children, level + 1);
+        node.totalCount = node.count + (node.children || []).reduce((acc, child) => acc + (child.totalCount || 0), 0);
+      });
+      return nodes;
+    };
+
+    return processNodes(roots);
   }, [dbCategories, allProducts]);
 
   // Check if a category is selected (interchangeably checking id, slug, or name)
@@ -321,20 +392,7 @@ export default function FilterSidebar({
           {categoriesExpanded && (
             <div className="space-y-2">
               {(categories || []).map(cat => (
-                <label key={cat.id} className="flex items-center justify-between cursor-pointer group py-0.5">
-                  <div className="flex items-center min-w-0">
-                    <input 
-                      type="checkbox" 
-                      className="w-4 h-4 rounded border-gray-300 text-[#0b1042] focus:ring-[#0b1042] cursor-pointer" 
-                      checked={isCategorySelected(cat)}
-                      onChange={() => toggleCategory(cat)}
-                    />
-                    <span className="ml-3 text-sm text-gray-700 group-hover:text-[#0b1042] transition-colors font-medium capitalize truncate">
-                      {cat.label.replace(/_/g, ' ')}
-                    </span>
-                  </div>
-                  <span className="text-xs text-gray-400 ml-2 shrink-0">({cat.count})</span>
-                </label>
+                <CategoryNode key={cat.id} cat={cat} isCategorySelected={isCategorySelected} toggleCategory={toggleCategory} />
               ))}
               {categories.length === 0 && (
                 <p className="text-xs text-gray-400 italic py-1">No categories available</p>

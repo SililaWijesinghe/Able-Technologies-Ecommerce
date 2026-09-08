@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import toast from 'react-hot-toast';
+import { useNavigate } from "react-router-dom";
 import { Plus, Edit, Trash2, LayoutGrid, Loader2, Image as ImageIcon, AlertCircle, Upload, Link as LinkIcon, X } from 'lucide-react';
 
 export default function Categories() {
+  const navigate = useNavigate();
   const [categories, setCategories] = useState<any[]>([]);
   const [productCounts, setProductCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
@@ -14,8 +16,8 @@ export default function Categories() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   // Form States with safe empty string defaults
-  const [editForm, setEditForm] = useState({ id: '', name: '', description: '', slug: '', icon_url: '' });
-  const [addForm, setAddForm] = useState({ name: '', description: '', slug: '', icon_url: '' });
+  const [editForm, setEditForm] = useState({ id: '', name: '', description: '', slug: '', icon_url: '', parent_id: '' });
+  const [addForm, setAddForm] = useState({ name: '', description: '', slug: '', icon_url: '', parent_id: '' });
   
   const [addUploadMethod, setAddUploadMethod] = useState<'url' | 'file'>('url');
   const [editUploadMethod, setEditUploadMethod] = useState<'url' | 'file'>('url');
@@ -33,6 +35,29 @@ export default function Categories() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   
 
+  
+  const getHierarchicalCategories = (cats) => {
+    const map = new Map();
+    cats.forEach(c => map.set(c.id, { ...c, children: [], level: 0 }));
+    const roots = [];
+    cats.forEach(c => {
+      const node = map.get(c.id);
+      if (c.parent_id && map.has(c.parent_id)) {
+        map.get(c.parent_id).children.push(node);
+      } else {
+        roots.push(node);
+      }
+    });
+    const flatten = (nodes, level = 0) => {
+      return nodes.reduce((acc, node) => {
+        node.level = level;
+        return acc.concat(node, flatten(node.children, level + 1));
+      }, []);
+    };
+    return flatten(roots);
+  };
+  const hierarchicalCategories = getHierarchicalCategories(categories);
+
   const fetchData = async () => {
     try {
       setLoading(true);
@@ -46,12 +71,12 @@ export default function Categories() {
       let currentCats = catData || [];
 
       // Fetch products for counts
-      const { data: prodData } = await supabase.from('products').select('category, category_id');
+      const { data: prodData } = await supabase.from('products').select('category_id');
       
       const counts: Record<string, number> = {};
       if (prodData) {
         prodData.forEach(p => {
-          const matched = currentCats.find(c => c.id === p.category_id || c.name === p.category);
+          const matched = currentCats.find(c => c.id === p.category_id);
           if (matched) {
             counts[matched.id] = (counts[matched.id] || 0) + 1;
           }
@@ -61,7 +86,7 @@ export default function Categories() {
       setProductCounts(counts);
       setCategories(currentCats);
     } catch (err: any) {
-      toast({ title: "Error", description: err.message || "Failed to load data", variant: "danger" });
+      toast.error(err.message || "Failed to load data");
     } finally {
       setLoading(false);
     }
@@ -72,7 +97,7 @@ export default function Categories() {
   }, []);
 
   const openAddModal = () => {
-    setAddForm({ name: '', description: '', slug: '', icon_url: '' });
+    setAddForm({ name: '', description: '', slug: '', icon_url: '', parent_id: '' });
     setAddUploadMethod('url');
     setAddFile(null);
     setAddFilePreview('');
@@ -102,7 +127,7 @@ export default function Categories() {
     setAddError('');
     if (!addForm.name.trim()) {
       setAddError("Category name is required.");
-      toast({ title: "Validation Error", description: "Category name is required.", variant: "danger" });
+      toast.error("Category name is required.");
       return;
     }
 
@@ -138,7 +163,8 @@ export default function Categories() {
         name: addForm.name.trim(),
         slug: generatedSlug,
         description: addForm.description?.trim() || '',
-        icon_url: finalIconUrl 
+        icon_url: finalIconUrl,
+        parent_id: addForm.parent_id || null 
       }]);
 
       if (error) {
@@ -148,8 +174,9 @@ export default function Categories() {
         throw error;
       }
 
-      toast({ title: "Success", description: "Category created!", variant: "success" });
-      setAddForm({ name: '', description: '', slug: '', icon_url: '' });
+      toast.success("Category created successfully!");
+      setTimeout(() => navigate("/admin/categories"), 1200);
+      setAddForm({ name: '', description: '', slug: '', icon_url: '', parent_id: '' });
       setAddFile(null);
       setAddFilePreview('');
       setIsAddModalOpen(false);
@@ -157,7 +184,7 @@ export default function Categories() {
     } catch (err: any) {
       const errorMessage = err.message || "Failed to create category";
       setAddError(errorMessage);
-      toast({ title: "Error", description: errorMessage, variant: "danger" });
+      toast.error(errorMessage || "Failed to update category. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -167,7 +194,7 @@ export default function Categories() {
     setEditError('');
     if (!editForm.name.trim()) {
       setEditError("Category name is required.");
-      toast({ title: "Validation Error", description: "Category name is required.", variant: "danger" });
+      toast.error("Category name is required.");
       return;
     }
 
@@ -202,7 +229,8 @@ export default function Categories() {
         name: editForm.name.trim(), 
         slug: generatedSlug,
         description: editForm.description?.trim() || '',
-        icon_url: finalIconUrl 
+        icon_url: finalIconUrl,
+        parent_id: addForm.parent_id || null 
       }).eq('id', editForm.id);
       
       if (error) {
@@ -212,7 +240,8 @@ export default function Categories() {
         throw error;
       }
 
-      toast({ title: 'Success', description: 'Category updated!', variant: "success" });
+      toast.success("Category updated successfully!");
+      setTimeout(() => navigate("/admin/categories"), 1200);
       setIsModalOpen(false);
       setEditFile(null);
       setEditFilePreview('');
@@ -220,7 +249,7 @@ export default function Categories() {
     } catch (err: any) {
       const errorMessage = err.message || "Failed to update category";
       setEditError(errorMessage);
-      toast({ title: "Error", description: errorMessage, variant: "danger" });
+      toast.error(errorMessage || "Failed to update category. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -232,11 +261,11 @@ export default function Categories() {
       const { error } = await supabase.from('categories').delete().eq('id', deleteId);
       if (error) throw error;
 
-      toast({ title: "Success", description: "Category deleted!", variant: "success" });
+      toast.success("Category deleted successfully!");
       setIsDeleteModalOpen(false);
       fetchData();
     } catch (err: any) {
-      toast({ title: "Error", description: err.message || "Failed to delete category", variant: "danger" });
+      toast.error(err.message || "Failed to delete category");
     } finally {
       setIsSubmitting(false);
     }
@@ -310,7 +339,7 @@ export default function Categories() {
                   </td>
                 </tr>
               ) : (
-                categories.map((cat) => (
+                hierarchicalCategories.map((cat) => (
                   <tr key={cat.id} className="hover:bg-white/50 transition-colors group">
                     <td className="px-6 py-4">
                       <div className="w-12 h-12 bg-white/50 rounded-xl border border-white/40 flex items-center justify-center p-2 shadow-inner group-hover:border-white/60 transition-all">
@@ -322,7 +351,10 @@ export default function Categories() {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="font-bold text-slate-800 text-base tracking-wide">{cat.name}</span>
+                      <div className="flex items-center" style={{ paddingLeft: `${(cat.level || 0) * 20}px` }}>
+     {(cat.level || 0) > 0 && <span className="text-gray-400 mr-2">↳</span>}
+     <span className="font-bold text-slate-800 text-base tracking-wide">{cat.name}</span>
+   </div>
                       {cat.description && <div className="text-[#000000] text-xs mt-1">{cat.description}</div>}
                     </td>
                     <td className="px-6 py-4">
@@ -424,6 +456,21 @@ export default function Categories() {
                  />
                  <p className="text-[11px] text-gray-400 mt-1">Unique URL path identifier</p>
                </div>
+               
+               <div>
+                 <label className="block mb-1 text-sm font-semibold text-gray-700">Parent Category</label>
+                 <select 
+                    value={addForm.parent_id || ''} 
+                    onChange={(e) => setAddForm({ ...addForm, parent_id: e.target.value })}
+                    className="w-full bg-gray-50 focus:bg-white border border-gray-200 focus:border-blue-500 rounded-xl p-3 text-gray-900 outline-none transition-all text-sm font-medium"
+                 >
+                   <option value="">-- None (Top Level) --</option>
+                   {hierarchicalCategories.map(c => (
+                     <option key={c.id} value={c.id}>{'—'.repeat(c.level || 0) + ((c.level || 0) > 0 ? ' ' : '')}{c.name}</option>
+                   ))}
+                 </select>
+               </div>
+
                <div>
                  <label className="block mb-1 text-sm font-semibold text-gray-700">Description</label>
                  <textarea 
@@ -587,6 +634,21 @@ export default function Categories() {
                  />
                  <p className="text-[11px] text-gray-400 mt-1">Unique URL path identifier</p>
                </div>
+               
+               <div>
+                 <label className="block mb-1 text-sm font-semibold text-gray-700">Parent Category</label>
+                 <select 
+                    value={editForm.parent_id || ''} 
+                    onChange={(e) => setEditForm({ ...editForm, parent_id: e.target.value })}
+                    className="w-full bg-gray-50 focus:bg-white border border-gray-200 focus:border-blue-500 rounded-xl p-3 text-gray-900 outline-none transition-all text-sm font-medium"
+                 >
+                   <option value="">-- None (Top Level) --</option>
+                   {hierarchicalCategories.filter(c => c.id !== editForm.id).map(c => (
+                     <option key={c.id} value={c.id}>{'—'.repeat(c.level || 0) + ((c.level || 0) > 0 ? ' ' : '')}{c.name}</option>
+                   ))}
+                 </select>
+               </div>
+
                <div>
                  <label className="block mb-1 text-sm font-semibold text-gray-700">Description</label>
                  <textarea 
