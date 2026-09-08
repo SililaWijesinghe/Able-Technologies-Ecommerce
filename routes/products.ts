@@ -12,7 +12,8 @@ router.get('/', async (req, res): Promise<void> => {
         // Fetch products along with associated images
         let query = getSupabase().from('products').select(`
             *,
-            images:product_images(id, image_url, display_order)
+            images:product_images(id, image_url, display_order),
+            product_variants(id)
         `);
 
         if (category) query = query.eq('category_id', category);

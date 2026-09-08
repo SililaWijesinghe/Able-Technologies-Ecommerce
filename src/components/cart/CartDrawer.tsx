@@ -42,19 +42,19 @@ export default function CartDrawer() {
   // Popular category items matching Able Technologies industrial catalog
   const popularCategories = [
     { 
-      name: 'Machinery', 
-      path: '/shop?category=Machinery',
+      name: 'Local Machines', 
+      path: '/shop?category=local-machines',
       icon: Cog
     },
     { 
-      name: 'Power Tools', 
-      path: '/shop?category=Power+Tools',
-      icon: Hammer
+      name: 'Global Machines', 
+      path: '/shop?category=global-machines',
+      icon: Hexagon
     },
     { 
       name: 'Spare Parts', 
-      path: '/shop?category=Spare+Parts',
-      icon: Hexagon
+      path: '/shop?category=spare-parts',
+      icon: Hammer
     },
   ];
 
@@ -91,9 +91,18 @@ export default function CartDrawer() {
     if (cartItems.length === 0) return;
     
     const dateStr = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-    const itemsList = cartItems.map((item, idx) => 
-      `${idx + 1}. ${item.name}${item.variant ? ` (${item.variant})` : ''} - Qty: ${item.quantity} × Rs. ${Number(item.price).toLocaleString()} = Rs. ${(Number(item.price) * item.quantity).toLocaleString()}`
-    ).join('\n');
+    const itemsList = cartItems.map((item, idx) => {
+      let variantText = '';
+      if (item.variant) {
+        try {
+          const parsed = JSON.parse(item.variant);
+          variantText = ` (Model: ${parsed.sku}${parsed.type === 'rent' ? ', Rental' : ''})`;
+        } catch (e) {
+          variantText = ` (${item.variant})`;
+        }
+      }
+      return `${idx + 1}. ${item.name}${variantText} - Qty: ${item.quantity} × Rs. ${Number(item.price).toLocaleString()} = Rs. ${(Number(item.price) * item.quantity).toLocaleString()}`;
+    }).join('\n');
 
     const proformaText = `*ABLE TECHNOLOGIES (PVT) LTD - PROFORMA CART QUOTATION*\nDate: ${dateStr}\nTotal Line Items: ${cartCount}\n----------------------------------------\n${itemsList}\n----------------------------------------\n*ESTIMATED TOTAL: Rs. ${cartTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}*\n* Official VAT/SVAT Invoicing & Manufacturer Warranty Included.\n* Factory Inspection & Colombo Showroom Support.\nHotline / WhatsApp: 077 869 2075 | Web: abletechnologies.lk`;
 
@@ -282,11 +291,23 @@ export default function CartDrawer() {
                           </div>
 
                           {item.variant && (
-                            <p className="text-[10px] sm:text-[11px] text-blue-300 font-medium truncate mt-0.5">
-                              {item.variant}
-                            </p>
+                            <div className="text-[10px] sm:text-[11px] text-blue-300 font-medium mt-0.5 space-y-0.5">
+                              {(() => {
+                                try {
+                                  const parsed = JSON.parse(item.variant);
+                                  return (
+                                    <>
+                                      {parsed.sku && <span>Model: {parsed.sku}</span>}
+                                      {parsed.type === 'rent' && <span className="ml-2 px-1.5 py-0.5 bg-blue-500/20 text-blue-300 rounded">Rental</span>}
+                                      {parsed.notes && <p className="text-slate-400 italic line-clamp-2 mt-0.5">"{parsed.notes}"</p>}
+                                    </>
+                                  );
+                                } catch(e) {
+                                  return <span>{item.variant}</span>;
+                                }
+                              })()}
+                            </div>
                           )}
-
                           <div className="flex items-center justify-between mt-2 pt-1.5 border-t border-white/5">
                             {/* Quantity Controls */}
                             <div className="flex items-center bg-[#03091e] rounded-lg p-0.5 border border-white/15">

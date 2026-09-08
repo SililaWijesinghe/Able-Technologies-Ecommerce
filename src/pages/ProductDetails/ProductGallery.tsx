@@ -2,7 +2,8 @@ import { Play, Expand } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 export default function ProductGallery({ product }: { product: any }) {
-  const images = (product.images && product.images.length > 0) ? product.images.map((img: any) => img.image_url) : (product.image_urls || []);
+  const sortedDbImages = [...(product.images || [])].sort((a: any, b: any) => (a.display_order || 0) - (b.display_order || 0));
+  const images = sortedDbImages.length > 0 ? sortedDbImages.map((img: any) => img.image_url) : (product.image_urls || []);
   const mainImage = images[0] || '';
   const [activeImage, setActiveImage] = useState(mainImage);
 

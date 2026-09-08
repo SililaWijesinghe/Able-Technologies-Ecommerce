@@ -30,7 +30,7 @@ export default function EditProduct() {
   
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      const files = Array.from(e.target.files);
+      const files = Array.from(e.target.files) as File[];
       const validFiles = files.filter(file => {
         if (!file.type.startsWith('image/')) {
           toast.error(file.name + ' is not an image');
@@ -75,6 +75,21 @@ export default function EditProduct() {
   });
 
   const [specifications, setSpecifications] = useState<{key: string, value: string}[]>([{ key: '', value: '' }]);
+  const [variants, setVariants] = useState<{ id?: string; sku: string; price_modifier: number; inventory_count: number }[]>([]);
+
+  const addVariant = () => {
+    setVariants([...variants, { sku: '', price_modifier: 0, inventory_count: 0 }]);
+  };
+
+  const removeVariant = (index: number) => {
+    setVariants(variants.filter((_, i) => i !== index));
+  };
+
+  const updateVariant = (index: number, field: string, value: string | number) => {
+    const newVariants = [...variants];
+    newVariants[index] = { ...newVariants[index], [field]: value };
+    setVariants(newVariants);
+  };
 
   useEffect(() => {
     async function fetchData() {
@@ -92,7 +107,7 @@ export default function EditProduct() {
 
         const { data, error: fetchError } = await supabase
           .from('products')
-          .select('*')
+          .select('*, product_variants(*)')
           .eq('id', id)
           .single();
 
@@ -111,6 +126,15 @@ export default function EditProduct() {
         if (loadedSpecs.length === 0) loadedSpecs.push({ key: '', value: '' });
         
         setSpecifications(loadedSpecs);
+
+        if (data.product_variants && data.product_variants.length > 0) {
+          setVariants(data.product_variants.map((v: any) => ({
+            id: v.id,
+            sku: v.sku || '',
+            price_modifier: v.price_modifier || 0,
+            inventory_count: v.inventory_count || 0
+          })));
+        }
 
         setFormData({
           name: data.name || '',
@@ -262,6 +286,37 @@ export default function EditProduct() {
 
       if (updateError) throw updateError;
 
+      // Sync Variants
+      const existingIds = variants.filter(v => v.id).map(v => v.id);
+      
+      if (existingIds.length > 0) {
+        const { data: dbVariants } = await supabase.from('product_variants').select('id').eq('product_id', id);
+        if (dbVariants) {
+          const idsToDelete = dbVariants.map(v => v.id).filter(dbId => !existingIds.includes(dbId));
+          if (idsToDelete.length > 0) {
+            await supabase.from('product_variants').delete().in('id', idsToDelete);
+          }
+        }
+      } else {
+        await supabase.from('product_variants').delete().eq('product_id', id);
+      }
+
+      if (variants.length > 0) {
+        const variantPayload = variants.map(v => {
+          const payload: any = {
+            product_id: id,
+            sku: v.sku,
+            price_modifier: v.price_modifier,
+            inventory_count: v.inventory_count,
+            attributes: {}
+          };
+          if (v.id) payload.id = v.id;
+          return payload;
+        });
+        const { error: variantError } = await supabase.from('product_variants').upsert(variantPayload);
+        if (variantError) console.warn('Failed to sync variants:', variantError);
+      }
+
       const successMsg = 'Product updated successfully!';
       setSuccess(successMsg);
       toast.success('🎉 ' + successMsg);
@@ -386,7 +441,16 @@ export default function EditProduct() {
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="space-y-1.5 md:col-span-2">
-                <label className="text-xs font-bold text-gray-700">Product Name <span className="text-red-500">*</span></label>
+                <label className="text-xs font-bold text-gray-700 flex items-center gap-2">
+                  Product Name <span className="text-red-500">*</span>
+                  <div className="group relative flex items-center">
+                    <div className="w-4 h-4 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-[10px] font-bold cursor-help cursor-pointer">?</div>
+                    <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block w-64 p-2 bg-gray-800 text-white text-[11px] rounded shadow-lg z-10 whitespace-normal text-center">
+                      Always include the specific model number in the title to match internal folder names.
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
+                    </div>
+                  </div>
+                </label>
                 <input 
                   type="text" 
                   name="name"
@@ -396,6 +460,7 @@ export default function EditProduct() {
                   className="w-full border border-white/60 rounded-xl p-3 text-sm focus:border-[#0b1042] focus:ring-1 focus:ring-[#0b1042] outline-none transition-all"
                   placeholder="Enter product name"
                 />
+                <span className="text-xs text-blue-600 font-semibold block mt-1">Note: Always include the specific model number in the title to match internal folder names (e.g., '3 Way PE Connector - PE 04').</span>
               </div>
 
               <div className="space-y-1.5">
@@ -447,6 +512,7 @@ export default function EditProduct() {
                   className="w-full border border-white/60 rounded-xl p-3 text-sm focus:border-[#0b1042] focus:ring-1 focus:ring-[#0b1042] outline-none transition-all resize-none"
                   placeholder="Enter full product description..."
                 ></textarea>
+                <span className="text-xs text-blue-600 font-semibold block mt-1">Please include full machine/part specifications and model details.</span>
               </div>
             </div>
           </div>
@@ -563,6 +629,57 @@ export default function EditProduct() {
               >
                 <Plus size={16} />
                 <span>Add Row</span>
+              </button>
+            </div>
+          </div>
+
+          <div className="bg-white/60 backdrop-blur-xl border border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.05)] rounded-3xl p-6 space-y-5">
+            <div className="flex items-center space-x-2 mb-2">
+              <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-black">4</span>
+              <h2 className="text-lg font-black text-gray-900">Product Models / Variants</h2>
+            </div>
+            
+            <p className="text-xs text-gray-500 mb-2 font-medium">Add available models or variants for this product to populate the dropdown on the storefront.</p>
+            <div className="space-y-3">
+              {variants.map((variant, idx) => (
+                <div key={idx} className="flex flex-wrap md:flex-nowrap items-center gap-3">
+                  <input
+                    type="text"
+                    value={variant.sku}
+                    onChange={(e) => updateVariant(idx, 'sku', e.target.value)}
+                    placeholder="Model Number / SKU (e.g., PE 04)"
+                    className="flex-1 min-w-[150px] border border-white/60 rounded-xl p-3 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+                  />
+                  <input
+                    type="number"
+                    value={variant.price_modifier}
+                    onChange={(e) => updateVariant(idx, 'price_modifier', parseFloat(e.target.value) || 0)}
+                    placeholder="Price Mod (+)"
+                    className="w-full md:w-32 border border-white/60 rounded-xl p-3 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+                  />
+                  <input
+                    type="number"
+                    value={variant.inventory_count}
+                    onChange={(e) => updateVariant(idx, 'inventory_count', parseInt(e.target.value) || 0)}
+                    placeholder="Stock"
+                    className="w-full md:w-24 border border-white/60 rounded-xl p-3 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeVariant(idx)}
+                    className="p-3 text-red-500 hover:bg-red-50 rounded-xl transition-colors shrink-0"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={addVariant}
+                className="flex items-center space-x-2 text-sm font-bold text-blue-600 hover:text-blue-700 transition-colors mt-2"
+              >
+                <Plus size={16} />
+                <span>Add Model</span>
               </button>
             </div>
           </div>

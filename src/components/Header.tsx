@@ -81,7 +81,14 @@ export default function Header() {
   };
 
   
-  const [categories, setCategories] = useState<any[]>([]);
+  const hardcodedCategories = [
+    { name: 'Local Machines', slug: 'local-machines' },
+    { name: 'Global Machines', slug: 'global-machines' },
+    { name: 'Spare Parts', slug: 'spare-parts' },
+    { name: 'Glue', slug: 'glue' },
+    { name: 'Machine Services', slug: 'machine-services' }
+  ];
+
   const { cartCount, cartTotal, setIsCartOpen } = useCart();
   const { isAuthenticated, user, logout } = useAuth();
   const navigate = useNavigate();
@@ -107,9 +114,6 @@ export default function Header() {
   const mobileSearchRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    
-    fetchCategories().then(data => data && setCategories(data));
-
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };
@@ -208,17 +212,13 @@ export default function Header() {
     return location.pathname.startsWith(path) && path !== '/';
   };
 
-  const navLinks = [
+  const navLinks: Array<{ name: string; path?: string; id?: string; available?: boolean; dropdown?: Array<{ name: string; path: string; }> }> = [
     { name: 'Home', path: '/' },
     { name: 'About Us', dropdown: [
       { name: 'About Able Technologies', path: '/about' },
       { name: 'Our Industrial Solutions', path: '/industrial-solutions' }
     ] },
     { name: 'Shop', path: '/shop', id: 'nav-shop' },
-    { name: 'Machines', path: '/shop?category=machines' },
-    { name: 'Spare Parts', path: '/shop?category=spare-parts' },
-    { name: 'Gauges', path: '/shop?category=gauges' },
-    { name: 'Glue', path: '/shop?category=glue' },
     { name: 'Contact Us', path: '/contact' }
   ];
 
@@ -639,11 +639,10 @@ export default function Header() {
               </button>
               {/* Dropdown Menu */}
               <div className="absolute left-0 top-[110%] w-64 bg-[rgba(15,20,40,0.95)] backdrop-blur-3xl border border-white/20 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.7)] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 flex flex-col py-3 overflow-hidden z-50">
-                {categories.length > 0 ? (
-                  categories.map((cat, idx) => (
-                    <Link key={idx} to={`/shop?category=${cat.slug || cat.name.toLowerCase().replace(/\s+/g, '-')}`} className="px-6 py-3 text-gray-200 hover:text-white hover:bg-white/10 text-sm font-medium transition-colors flex items-center space-x-3 relative group/cat">
+                {hardcodedCategories.length > 0 ? (
+                  hardcodedCategories.map((cat, idx) => (
+                    <Link key={idx} to={`/shop?category=${cat.slug}`} className="px-6 py-3 text-gray-200 hover:text-white hover:bg-white/10 text-sm font-medium transition-colors flex items-center space-x-3 relative group/cat">
                       <div className="absolute left-0 top-0 h-full w-1 bg-cyan-400 opacity-0 group-hover/cat:opacity-100 transition-opacity shadow-[0_0_10px_rgba(34,211,238,0.5)]" />
-                      {cat.icon_url && <img src={cat.icon_url} alt={cat.name} className="w-5 h-5 object-contain brightness-0 invert opacity-70 group-hover/cat:opacity-100 transition-opacity" />}
                       <span>{cat.name}</span>
                     </Link>
                   ))

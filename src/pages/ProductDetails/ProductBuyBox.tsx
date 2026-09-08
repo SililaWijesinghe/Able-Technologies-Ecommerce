@@ -25,23 +25,14 @@ export default function ProductBuyBox({ product }: { product: any }) {
     return Array.from(keys);
   }, [variants]);
 
-  // Track selected attributes
-  const [selectedAttributes, setSelectedAttributes] = useState<Record<string, string>>(() => {
-    const initial: Record<string, string> = {};
-    if (variants.length > 0) {
-      Object.entries(variants[0].attributes || {}).forEach(([k, v]) => {
-        initial[k] = v as string;
-      });
-    }
-    return initial;
+  // Track selected variant
+  const [selectedVariantId, setSelectedVariantId] = useState<string>(() => {
+    return variants.length > 0 ? variants[0].id : '';
   });
 
-  // Find matching variant
   const selectedVariant = useMemo(() => {
-    return variants.find((v: any) => 
-      Object.entries(selectedAttributes).every(([k, val]) => v.attributes[k] === val)
-    );
-  }, [variants, selectedAttributes]);
+    return variants.find((v: any) => v.id === selectedVariantId) || null;
+  }, [variants, selectedVariantId]);
 
   const basePrice = parseFloat(product.price || 0);
   const priceModifier = selectedVariant ? parseFloat(selectedVariant.price_modifier || 0) : 0;
@@ -50,9 +41,7 @@ export default function ProductBuyBox({ product }: { product: any }) {
   
   const showPrice = settings.show_prices && !product.requires_quote;
 
-  const updateAttribute = (key: string, value: string) => {
-    setSelectedAttributes(prev => ({ ...prev, [key]: value }));
-  };
+  const currentSku = selectedVariant?.sku || product.sku || '';
 
   
   const renderFormattedDescription = (text: string) => {
@@ -113,9 +102,13 @@ export default function ProductBuyBox({ product }: { product: any }) {
       </div>
 
       {/* Title */}
-      <h1 className="text-2xl md:text-3xl font-black text-[#0b1042] leading-tight mb-2">
+      <h1 className="text-2xl md:text-3xl font-black text-[#0b1042] leading-tight mb-1">
         {product.name}
       </h1>
+      
+      {currentSku && (
+        <p className="text-gray-500 text-sm font-semibold mb-3">SKU: {currentSku}</p>
+      )}
 
       {/* Transaction Type Toggle */}
       {product.transaction_type === 'both' && (
@@ -146,23 +139,34 @@ export default function ProductBuyBox({ product }: { product: any }) {
       
       {renderFormattedDescription(product.description)}
 
-      {/* Dynamic Selectors */}
-      {attributeKeys.map(key => (
-        <div key={key} className="mb-4">
-          <h4 className="text-sm font-bold text-[#0b1042] mb-2">{key}</h4>
-          <div className="flex flex-wrap gap-2">
-            {Array.from(new Set(variants.map((v: any) => v.attributes[key]))).map((val: any) => (
-              <button 
-                key={val}
-                onClick={() => updateAttribute(key, val)}
-                className={`px-4 py-2 text-xs font-semibold rounded border transition-colors ${selectedAttributes[key] === val ? 'border-blue-600 text-blue-600 bg-blue-50' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`}
-              >
-                {val}
-              </button>
-            ))}
+      {/* Variant Selector */}
+      {variants.length > 0 && (
+        <div className="mb-6">
+          <label className="block text-sm font-bold text-[#0b1042] mb-2">Select Model</label>
+          <div className="relative">
+            <select
+              value={selectedVariantId}
+              onChange={(e) => setSelectedVariantId(e.target.value)}
+              className="w-full appearance-none bg-white border border-gray-200 text-gray-700 py-3 px-4 pr-10 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm font-semibold transition-all"
+            >
+              {variants.map((v: any) => {
+                const attrs = Object.entries(v.attributes || {})
+                  .map(([k, val]) => `${k}: ${val}`)
+                  .join(' | ');
+                const optionLabel = attrs || v.sku || `Variant ${v.id}`;
+                return (
+                  <option key={v.id} value={v.id}>
+                    {optionLabel}
+                  </option>
+                );
+              })}
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+              <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+            </div>
           </div>
         </div>
-      ))}
+      )}
 
       {/* Customization Section */}
       {product.is_customizable && (
@@ -212,7 +216,7 @@ export default function ProductBuyBox({ product }: { product: any }) {
               price: totalPrice,
               image: product.images?.[0]?.image_url || (product.image_urls && product.image_urls[0]) || '',
               quantity: quantity,
-              variant: JSON.stringify({ ...selectedAttributes, type: selectedTransaction, notes: customNotes })
+              variant: JSON.stringify({ variantId: selectedVariantId, sku: currentSku, type: selectedTransaction, notes: customNotes })
             });
           }
         }}

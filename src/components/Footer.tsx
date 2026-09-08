@@ -306,10 +306,11 @@ export default function Footer() {
                   { name: 'Home', path: '/' },
                   { name: 'About Us', path: '#!', available: false },
                   { name: 'Shop', path: '/shop' },
-                  { name: 'Machines', path: '/shop?category=machines' },
+                  { name: 'Local Machines', path: '/shop?category=local-machines' },
+                  { name: 'Global Machines', path: '/shop?category=global-machines' },
                   { name: 'Spare Parts', path: '/shop?category=spare-parts' },
-                  { name: 'Gauges', path: '/shop?category=gauges' },
                   { name: 'Glue', path: '/shop?category=glue' },
+                  { name: 'Machine Services', path: '/shop?category=machine-services' },
                   { name: 'Contact Us', path: '/contact' }
                 ].map((link, i) => (
                   <li key={i}>

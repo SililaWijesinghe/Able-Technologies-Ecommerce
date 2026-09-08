@@ -14,13 +14,17 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
   const navigate = useNavigate();
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
   
-  const mainImage = product.image_urls?.[0] || product.image_url || product.images?.[0]?.image_url || '';
+  const sortedImages = [...(product.images || [])].sort((a: any, b: any) => (a.display_order || 0) - (b.display_order || 0));
+  const mainImage = sortedImages[0]?.image_url || product.image_urls?.[0] || product.image_url || '';
   
   // Data extraction based on new rich schema
   const price = typeof product.price === 'number' ? product.price : parseFloat(product.base_price || product.price || 0);
   const comparePrice = typeof product.compare_at_price === 'number' ? product.compare_at_price : parseFloat(product.compare_at_price || 0);
   
-  const displayPrice = `Rs. ${price.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+  const hasVariants = product.product_variants && product.product_variants.length > 0;
+  const pricePrefix = hasVariants ? 'From Rs. ' : 'Rs. ';
+  
+  const displayPrice = `${pricePrefix}${price.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
   const displayComparePrice = `Rs. ${comparePrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
   
   const hasDiscount = comparePrice > price;
@@ -137,18 +141,22 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
         <button 
           onClick={(e) => {
             e.preventDefault();
-            addToCart({
-              productId: product.id,
-              name: product.name,
-              price: price,
-              image: mainImage,
-              quantity: 1,
-            });
+            if (hasVariants) {
+              navigate(`/product/${product.id}`);
+            } else {
+              addToCart({
+                productId: product.id,
+                name: product.name,
+                price: price,
+                image: mainImage,
+                quantity: 1,
+              });
+            }
           }}
           className="w-full mt-4 bg-slate-800 hover:bg-slate-900 text-white rounded-2xl py-3 shadow-md flex items-center justify-center gap-2 transition-colors relative overflow-hidden group/btn"
         >
-          <ShoppingCart size={18} className="relative z-10" />
-          <span className="font-semibold relative z-10">Add to Cart</span>
+          {hasVariants ? null : <ShoppingCart size={18} className="relative z-10" />}
+          <span className="font-semibold relative z-10">{hasVariants ? 'Select Model' : 'Add to Cart'}</span>
           <div className="absolute inset-0 bg-white/20 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300" />
         </button>
       )}

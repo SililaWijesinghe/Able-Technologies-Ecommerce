@@ -722,23 +722,20 @@ export default function Shop() {
                 </p>
                 <div className="flex flex-wrap justify-center gap-2">
                   {[
-                    'Pneumatics',
-                    'Automation',
-                    'Machinery',
-                    'Spare Parts',
-                    'Power Tools',
-                    'Hydraulics'
-                  ].map((catName) => {
-                    // Match with database category slug or name if available
-                    const dbCat = dbCategories.find(c => c.name.toLowerCase() === catName.toLowerCase() || c.slug?.toLowerCase() === catName.toLowerCase());
-                    const targetParam = dbCat ? (dbCat.slug || dbCat.name) : catName;
+                    { name: 'Local Machines', slug: 'local-machines' },
+                    { name: 'Global Machines', slug: 'global-machines' },
+                    { name: 'Spare Parts', slug: 'spare-parts' },
+                    { name: 'Glue', slug: 'glue' },
+                    { name: 'Machine Services', slug: 'machine-services' }
+                  ].map((cat) => {
+                    const targetParam = cat.slug;
                     return (
                       <button
-                        key={catName}
+                        key={cat.slug}
                         onClick={() => handleSelectQuickCategory(targetParam)}
                         className="text-xs font-semibold bg-slate-50 hover:bg-blue-50 text-slate-700 hover:text-blue-700 border border-slate-200 hover:border-blue-300 px-3.5 py-2 rounded-xl transition-all cursor-pointer"
                       >
-                        {catName}
+                        {cat.name}
                       </button>
                     );
                   })}
