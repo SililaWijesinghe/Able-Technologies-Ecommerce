@@ -1,2 +1,0 @@
-#!/bin/bash
-sed -i 's/const \[variants, setVariants\] = useState<{ sku: string; price_modifier: number; inventory_count: number }\[\]>(\[\]);/const [variants, setVariants] = useState<{ sku: string; price_modifier: number; inventory_count: number; attributes?: Record<string, string> }[]>([]);\n  const [productOptions, setProductOptions] = useState<{name: string, values: string[], inputValue: string}[]>([]);/g' src/pages/admin/AddProduct.tsx
