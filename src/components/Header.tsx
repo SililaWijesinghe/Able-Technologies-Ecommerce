@@ -5,6 +5,7 @@ import { fetchSettings, fetchCategories } from '../services/api';
 import { useScrollDirection } from '../hooks/useScrollDirection';
 import { useCart } from '../context/CartContext';
 import { useStoreSettings } from '../context/StoreSettingsContext';
+import { buildCategoryTree } from '../utils/categoryUtils';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 import LoginModal from './auth/LoginModal';
@@ -109,7 +110,8 @@ const MobileCategoryItem: React.FC<{ category: any, level?: number, onNavigate: 
         <Link 
           to={`/shop?category=${category.slug}`} 
           onClick={onNavigate}
-          className={`flex-1 py-3 ${level === 0 ? 'text-base font-medium pl-8' : level === 1 ? 'text-sm font-medium pl-12' : 'text-[13px] font-medium pl-16'}`}
+          style={{ paddingLeft: `${32 + (level * 16)}px` }}
+          className={`flex-1 py-3 ${level === 0 ? 'text-base font-medium' : level === 1 ? 'text-sm font-medium' : 'text-[13px] font-medium'}`}
         >
           {category.name}
         </Link>
@@ -285,21 +287,7 @@ export default function Header() {
   };
 
   const categoryTree = useMemo(() => {
-    const map = new Map();
-    categories.forEach(c => map.set(c.id, { ...c, children: [] }));
-    const roots: any[] = [];
-    categories.forEach(c => {
-      if (c.parent_id) {
-        if (map.has(c.parent_id)) {
-          map.get(c.parent_id).children.push(map.get(c.id));
-        } else {
-          roots.push(map.get(c.id));
-        }
-      } else {
-        roots.push(map.get(c.id));
-      }
-    });
-    return roots;
+    return buildCategoryTree(categories);
   }, [categories]);
 
   const navLinks: Array<{ name: string; path?: string; id?: string; available?: boolean; dropdown?: Array<{ name: string; path: string; }> }> = [

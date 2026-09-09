@@ -1,8 +1,10 @@
+// v1.1 - Cache Busting Uncapped Recursion
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { Loader2, X, ArrowLeft, Image as ImageIcon, Save, Check, Plus, Trash2, AlertCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { buildCategoryOptions, getHierarchicalCategories } from '../../utils/categoryUtils';
 
 export default function EditProduct() {
   const { id } = useParams<{ id: string }>();
@@ -17,6 +19,7 @@ export default function EditProduct() {
   const [categories, setCategories] = useState<any[]>([]);
   const [brands, setBrands] = useState<any[]>([]);
   const [existingImages, setExistingImages] = useState<string[]>([]);
+  const [imagesToDelete, setImagesToDelete] = useState<string[]>([]);
   const [newFiles, setNewFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
 
@@ -51,10 +54,13 @@ export default function EditProduct() {
   };
   
   const removeExistingImage = (index: number) => {
+    setImagesToDelete(prev => [...prev, existingImages[index]]);
     setExistingImages(prev => prev.filter((_, i) => i !== index));
   };
 
   // Form State
+  const [hasMainSku, setHasMainSku] = useState(true);
+  const [fallbackBaseSku] = useState('VAR-' + Date.now().toString().slice(-6));
   const [formData, setFormData] = useState({
     name: '',
     sku: '',
@@ -104,12 +110,12 @@ export default function EditProduct() {
       return combos;
     };
     const combinations = generateCombinations(validOptions);
-    const baseSku = formData.sku || "SKU";
+    const activeBaseSku = (hasMainSku && formData.sku) ? formData.sku : fallbackBaseSku;
     const newVariants = combinations.map(combo => {
       const existing = variants.find(v => JSON.stringify(v.attributes) === JSON.stringify(combo));
       const tagSuffix = Object.values(combo).map((v: any) => v.replace(/\s+/g, "").toUpperCase()).join("-");
       return existing || {
-        sku: `${baseSku}-${tagSuffix}`,
+        sku: `${activeBaseSku}-${tagSuffix}`,
         price_modifier: 0,
         inventory_count: 0,
         attributes: combo
@@ -257,6 +263,22 @@ export default function EditProduct() {
     fetchData();
   }, [id]);
 
+  const activeBaseSku = (hasMainSku && formData.sku) ? formData.sku : fallbackBaseSku;
+  const previousSkuRef = React.useRef(activeBaseSku);
+  React.useEffect(() => {
+    const oldSku = previousSkuRef.current || 'SKU';
+    const newSku = activeBaseSku || 'SKU';
+    if (oldSku !== newSku) {
+      setVariants(prev => prev.map(v => {
+        if (v.sku.startsWith(oldSku + '-')) {
+           return { ...v, sku: v.sku.replace(oldSku + '-', newSku + '-') };
+        }
+        return v;
+      }));
+      previousSkuRef.current = newSku;
+    }
+  }, [activeBaseSku, hasMainSku]);
+
   const handleSpecChange = (index: number, field: 'key' | 'value', val: string) => {
     const newSpecs = [...specifications];
     newSpecs[index][field] = val;
@@ -282,27 +304,8 @@ export default function EditProduct() {
   };
 
   
-  const getHierarchicalCategories = (cats: any[]) => {
-    const map = new Map();
-    cats.forEach(c => map.set(c.id, { ...c, children: [], level: 0 }));
-    const roots: any[] = [];
-    cats.forEach(c => {
-      const node = map.get(c.id);
-      if (c.parent_id && map.has(c.parent_id)) {
-        map.get(c.parent_id).children.push(node);
-      } else {
-        roots.push(node);
-      }
-    });
-    const flatten = (nodes: any[], level = 0): any[] => {
-      return nodes.reduce((acc, node) => {
-        node.level = level;
-        return acc.concat(node, flatten(node.children, level + 1));
-      }, []);
-    };
-    return flatten(roots);
-  };
   const hierarchicalCategories = getHierarchicalCategories(categories);
+  const categoryOptions = buildCategoryOptions(categories);
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -377,7 +380,7 @@ export default function EditProduct() {
         stock: parseInt(formData.stock) || 0,
         category_id: formData.category,
         brand_id: formData.brand_id || null,
-        sku: formData.sku || null,
+        sku: (hasMainSku && formData.sku) ? formData.sku : null,
         compare_at_price: formData.compare_at_price ? parseFloat(formData.compare_at_price) : null,
         cost_price: formData.cost_price ? parseFloat(formData.cost_price) : null,
         low_stock_threshold: parseInt(formData.low_stock_threshold) || 5,
@@ -397,6 +400,25 @@ export default function EditProduct() {
         .eq('id', id);
 
       if (updateError) throw updateError;
+
+      // Clean up orphaned images from Storage bucket
+      if (imagesToDelete.length > 0) {
+        try {
+          const pathsToDelete = imagesToDelete.map(url => {
+            const parts = url.split('/uploads/');
+            return parts.length > 1 ? parts[1] : null;
+          }).filter(Boolean) as string[];
+
+          if (pathsToDelete.length > 0) {
+            const { error: storageDeleteError } = await supabase.storage.from('uploads').remove(pathsToDelete);
+            if (storageDeleteError) {
+              console.warn('Failed to delete some orphaned images from storage:', storageDeleteError);
+            }
+          }
+        } catch (storageErr) {
+          console.error('Unexpected error during orphaned image deletion:', storageErr);
+        }
+      }
 
       // Sync Variants
       const existingIds = variants.filter(v => v.id).map(v => v.id);
@@ -426,7 +448,7 @@ export default function EditProduct() {
           return payload;
         });
         const { error: variantError } = await supabase.from('product_variants').upsert(variantPayload);
-        if (variantError) console.warn('Failed to sync variants:', variantError);
+        if (variantError) throw variantError;
       }
 
       const successMsg = 'Product updated successfully!';
@@ -440,7 +462,7 @@ export default function EditProduct() {
       console.error('Error updating product:', err);
       // Human-Readable Error Translation (Server/Database)
       if (err?.code === '23505' || (err?.message && (err.message.includes('products_sku_key') || err.message.includes('unique constraint')))) {
-        const msg = 'This SKU is already assigned to another product. Please enter a unique SKU.';
+        const msg = 'This SKU (or one of its variant SKUs) is already assigned to another product. Please enter a unique SKU.';
         setSkuError(msg);
         setError(msg);
         toast.error(msg);
@@ -576,15 +598,32 @@ export default function EditProduct() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-gray-700">SKU</label>
-                <input 
-                  type="text" 
-                  name="sku"
-                  value={formData.sku}
-                  onChange={handleChange}
-                  className={`w-full border ${skuError ? 'border-red-500 bg-red-50/50' : 'border-white/60'} rounded-xl p-3 text-sm focus:border-[#0b1042] focus:ring-1 focus:ring-[#0b1042] outline-none transition-all`}
-                  placeholder="Enter SKU"
-                />
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-xs font-bold text-gray-700">Main SKU</label>
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      checked={hasMainSku} 
+                      onChange={(e) => setHasMainSku(e.target.checked)}
+                      className="form-checkbox text-blue-600 rounded border-gray-300 w-4 h-4"
+                    />
+                    <span className="text-xs text-gray-500 font-medium select-none">Product has Main SKU</span>
+                  </label>
+                </div>
+                {hasMainSku ? (
+                  <input 
+                    type="text" 
+                    name="sku"
+                    value={formData.sku}
+                    onChange={handleChange}
+                    className={`w-full border ${skuError ? 'border-red-500 bg-red-50/50' : 'border-white/60'} rounded-xl p-3 text-sm focus:border-[#0b1042] focus:ring-1 focus:ring-[#0b1042] outline-none transition-all`}
+                    placeholder="Enter SKU"
+                  />
+                ) : (
+                  <div className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm text-slate-400 font-mono italic">
+                    Variants will use auto-generated prefix
+                  </div>
+                )}
                 {skuError && <p className="text-xs font-bold text-red-500 mt-1">{skuError}</p>}
               </div>
 
@@ -598,8 +637,8 @@ export default function EditProduct() {
                   className="w-full border border-white/60 rounded-xl p-3 text-sm focus:border-[#0b1042] focus:ring-1 focus:ring-[#0b1042] outline-none transition-all bg-white"
                 >
                   <option value="">Select category...</option>
-                  {hierarchicalCategories.map((c: any) => (
-                    <option key={c.id} value={c.id}>{'—'.repeat(c.level || 0) + ((c.level || 0) > 0 ? ' ' : '')}{c.name}</option>
+                  {categoryOptions.map((c: any) => (
+                    <option key={c.id} value={c.id}>{c.label}</option>
                   ))}
                 </select>
               </div>
@@ -843,12 +882,21 @@ export default function EditProduct() {
                           </div>
                         </td>
                         <td className="p-3">
-                          <input
-                            type="text"
-                            value={variant.sku}
-                            onChange={(e) => updateVariant(idx, 'sku', e.target.value)}
-                            className="w-full min-w-[120px] bg-transparent border-0 border-b border-transparent focus:border-blue-500 focus:ring-0 p-1 text-sm outline-none transition-all"
-                          />
+                          <div className="flex items-center">
+                            <span className="text-slate-400 bg-slate-50 border border-r-0 border-slate-200 px-2 py-1 rounded-l-md text-xs font-mono select-none">
+                              {activeBaseSku}-
+                            </span>
+                            <input
+                              type="text"
+                              value={variant.sku.startsWith(activeBaseSku + '-') ? variant.sku.replace(activeBaseSku + '-', '') : variant.sku}
+                              onChange={(e) => {
+                                const suffix = e.target.value.replace(/[^a-zA-Z0-9-]/g, '').toUpperCase();
+                                updateVariant(idx, 'sku', `${activeBaseSku}-${suffix}`);
+                              }}
+                              className="w-full min-w-[80px] bg-transparent border border-slate-200 rounded-r-md focus:border-blue-500 focus:ring-0 p-1 text-sm outline-none transition-all uppercase font-mono"
+                              placeholder="SUFFIX"
+                            />
+                          </div>
                         </td>
                         <td className="p-3">
                           <input
@@ -919,7 +967,7 @@ export default function EditProduct() {
                           </button>
                         </div>
                         {index === 0 && (
-                          <div className="absolute top-1 left-1 sm:top-2 sm:left-2 bg-[#0b1042] text-white text-[8px] sm:text-[10px] font-bold px-1.5 py-0.5 sm:px-2 sm:py-1 rounded shadow truncate max-w-[calc(100%-8px)]">
+                          <div className="absolute top-1 left-1 sm:top-2 sm:left-2 bg-[#0b1042] text-white text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 sm:px-2 sm:py-1 rounded shadow whitespace-nowrap z-10">
                             Primary
                           </div>
                         )}
@@ -939,11 +987,11 @@ export default function EditProduct() {
                             <Trash2 size={16} />
                           </button>
                         </div>
-                        <div className="absolute bottom-2 right-2 bg-blue-500 text-white text-[10px] font-bold px-2 py-1 rounded shadow">
+                        <div className="absolute bottom-1 right-1 sm:bottom-2 sm:right-2 bg-blue-500 text-white text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 sm:px-2 sm:py-1 rounded shadow whitespace-nowrap z-10">
                           New
                         </div>
                         {existingImages.length === 0 && index === 0 && (
-                          <div className="absolute top-1 left-1 sm:top-2 sm:left-2 bg-[#0b1042] text-white text-[8px] sm:text-[10px] font-bold px-1.5 py-0.5 sm:px-2 sm:py-1 rounded shadow truncate max-w-[calc(100%-8px)]">
+                          <div className="absolute top-1 left-1 sm:top-2 sm:left-2 bg-[#0b1042] text-white text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 sm:px-2 sm:py-1 rounded shadow whitespace-nowrap z-10">
                             Primary
                           </div>
                         )}

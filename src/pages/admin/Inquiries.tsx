@@ -1,8 +1,8 @@
+// v1.2 - Mail Icon Import & Cache Busting
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
-import { Loader2, Loader } from 'lucide-react';
 import { SkeletonTable } from '../../components/ui/Skeleton';
-import { CheckCircle2, Clock, Mail, Wrench, Trash2, Eye, X, Phone, User, Calendar, MessageSquare, Tag } from 'lucide-react';
+import { Loader2, Loader, CheckCircle2, Clock, Mail, Wrench, Trash2, Eye, X, Phone, User, Calendar, MessageSquare, Tag } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function Inquiries() {

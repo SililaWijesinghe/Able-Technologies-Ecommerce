@@ -1,8 +1,10 @@
+// v1.1 - Cache Busting Uncapped Recursion
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import toast from 'react-hot-toast';
 import { useNavigate } from "react-router-dom";
 import { Plus, Edit, Trash2, LayoutGrid, Loader2, Image as ImageIcon, AlertCircle, Upload, Link as LinkIcon, X } from 'lucide-react';
+import { buildCategoryOptions, getHierarchicalCategories } from '../../utils/categoryUtils';
 
 export default function Categories() {
   const navigate = useNavigate();
@@ -36,27 +38,8 @@ export default function Categories() {
   
 
   
-  const getHierarchicalCategories = (cats) => {
-    const map = new Map();
-    cats.forEach(c => map.set(c.id, { ...c, children: [], level: 0 }));
-    const roots = [];
-    cats.forEach(c => {
-      const node = map.get(c.id);
-      if (c.parent_id && map.has(c.parent_id)) {
-        map.get(c.parent_id).children.push(node);
-      } else {
-        roots.push(node);
-      }
-    });
-    const flatten = (nodes, level = 0) => {
-      return nodes.reduce((acc, node) => {
-        node.level = level;
-        return acc.concat(node, flatten(node.children, level + 1));
-      }, []);
-    };
-    return flatten(roots);
-  };
   const hierarchicalCategories = getHierarchicalCategories(categories);
+  const categoryOptions = buildCategoryOptions(categories);
 
   const fetchData = async () => {
     try {
@@ -277,7 +260,8 @@ export default function Categories() {
       name: cat?.name || '',
       description: cat?.description || '',
       slug: cat?.slug || '',
-      icon_url: cat?.icon_url || ''
+      icon_url: cat?.icon_url || '',
+      parent_id: cat?.parent_id || ''
     });
     setEditUploadMethod('url');
     setEditFile(null);
@@ -465,8 +449,8 @@ export default function Categories() {
                     className="w-full bg-gray-50 focus:bg-white border border-gray-200 focus:border-blue-500 rounded-xl p-3 text-gray-900 outline-none transition-all text-sm font-medium"
                  >
                    <option value="">-- None (Top Level) --</option>
-                   {hierarchicalCategories.map(c => (
-                     <option key={c.id} value={c.id}>{'—'.repeat(c.level || 0) + ((c.level || 0) > 0 ? ' ' : '')}{c.name}</option>
+                   {categoryOptions.map(c => (
+                     <option key={c.id} value={c.id}>{c.label}</option>
                    ))}
                  </select>
                </div>
@@ -643,8 +627,8 @@ export default function Categories() {
                     className="w-full bg-gray-50 focus:bg-white border border-gray-200 focus:border-blue-500 rounded-xl p-3 text-gray-900 outline-none transition-all text-sm font-medium"
                  >
                    <option value="">-- None (Top Level) --</option>
-                   {hierarchicalCategories.filter(c => c.id !== editForm.id).map(c => (
-                     <option key={c.id} value={c.id}>{'—'.repeat(c.level || 0) + ((c.level || 0) > 0 ? ' ' : '')}{c.name}</option>
+                   {categoryOptions.filter(c => c.id !== editForm.id).map(c => (
+                     <option key={c.id} value={c.id}>{c.label}</option>
                    ))}
                  </select>
                </div>

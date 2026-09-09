@@ -13,6 +13,7 @@ export default function Products() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
+  const [visibleCount, setVisibleCount] = useState(10);
   const [stats, setStats] = useState({
     total: 0,
     inStock: 0,
@@ -23,6 +24,10 @@ export default function Products() {
   useEffect(() => {
     fetchProducts();
   }, []);
+
+  useEffect(() => {
+    setVisibleCount(10);
+  }, [searchQuery, statusFilter]);
 
   async function fetchProducts() {
     try {
@@ -209,7 +214,7 @@ export default function Products() {
                   <td colSpan={9} className="p-8 text-center text-gray-500 font-medium text-sm">No products found.</td>
                 </tr>
               ) : (
-                filteredProducts.map((product) => {
+                filteredProducts.slice(0, visibleCount).map((product) => {
                   const status = getStockStatus(product.stock, product.low_stock_threshold);
                   return (
                     <tr key={product.id} className="border-b border-gray-50 hover:bg-gray-50/30 transition-colors">
@@ -254,6 +259,34 @@ export default function Products() {
             </tbody>
           </table>
         </div>
+        
+        {/* Load More Pagination */}
+        {filteredProducts.length > 0 && (
+          <div className="p-6 border-t border-gray-100 bg-gray-50/50 flex flex-col items-center justify-center">
+            <div className="text-sm font-bold text-gray-500 mb-4">
+              Showing <span className="text-gray-900">{Math.min(visibleCount, filteredProducts.length)}</span> of <span className="text-gray-900">{filteredProducts.length}</span> products
+            </div>
+            {visibleCount < filteredProducts.length && (
+              <div className="flex flex-col items-center w-full max-w-xs space-y-4">
+                <div className="w-full bg-gray-200 h-1.5 rounded-full overflow-hidden">
+                  <div 
+                    className="bg-blue-600 h-full rounded-full transition-all duration-500 ease-out"
+                    style={{ width: `${(Math.min(visibleCount, filteredProducts.length) / filteredProducts.length) * 100}%` }}
+                  ></div>
+                </div>
+                <button
+                  onClick={() => setVisibleCount(v => v + 10)}
+                  className="bg-white border-2 border-gray-200 hover:border-gray-300 text-gray-700 font-bold py-2.5 px-6 rounded-xl shadow-sm hover:shadow transition-all w-full flex justify-center items-center group"
+                >
+                  Load More Products
+                  <svg className="w-4 h-4 ml-2 text-gray-400 group-hover:text-blue-500 transition-colors group-hover:translate-y-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
       {/* COMPREHENSIVE PRODUCT VIEW MODAL */}
       {viewProduct && (
