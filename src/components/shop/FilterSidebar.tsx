@@ -2,6 +2,7 @@ import React from "react";
 import { Filter, Search, ChevronDown, ChevronUp, X } from 'lucide-react';
 import { useState, useMemo } from 'react';
 import { useStoreSettings } from '../../context/StoreSettingsContext';
+import { motion, AnimatePresence } from 'motion/react';
 
 // Helper to determine product availability status
 export const getProductAvailabilityStatus = (p: any): 'in_stock' | 'on_order' | 'out_of_stock' => {
@@ -49,7 +50,7 @@ export const getProductAvailabilityStatus = (p: any): 'in_stock' | 'on_order' | 
 
 
 const CategoryNode: React.FC<{ cat: any, isCategorySelected: (c: any) => boolean, toggleCategory: (c: any) => void }> = ({ cat, isCategorySelected, toggleCategory }) => {
-  const [expanded, setExpanded] = useState(true);
+  const [expanded, setExpanded] = useState(false);
   const hasChildren = cat.children && cat.children.length > 0;
   
   return (
@@ -58,35 +59,48 @@ const CategoryNode: React.FC<{ cat: any, isCategorySelected: (c: any) => boolean
         <label className="flex items-center min-w-0 flex-1 cursor-pointer">
           <input 
             type="checkbox" 
-            className="w-4 h-4 rounded border-gray-300 text-[#0b1042] focus:ring-[#0b1042] cursor-pointer" 
+            className="w-3.5 h-3.5 xl:w-4 xl:h-4 rounded border-gray-300 text-[#0b1042] focus:ring-[#0b1042] cursor-pointer" 
             checked={isCategorySelected(cat)}
             onChange={() => toggleCategory(cat)}
           />
-          <span className="ml-3 text-sm text-gray-700 group-hover:text-[#0b1042] transition-colors font-medium capitalize truncate">
+          <span className="ml-2 xl:ml-3 text-[13px] xl:text-sm text-gray-700 group-hover:text-[#0b1042] transition-colors font-medium capitalize truncate">
             {cat.label.replace(/_/g, ' ')}
           </span>
         </label>
         <div className="flex items-center">
-          <span className="text-xs text-gray-400 mx-2 shrink-0">({cat.totalCount || cat.count})</span>
+          <span className="text-[10px] xl:text-xs text-gray-400 ml-1 mr-1 xl:mx-2 shrink-0">({cat.totalCount || cat.count})</span>
           {hasChildren ? (
             <button 
               onClick={(e) => { e.preventDefault(); setExpanded(!expanded); }}
-              className="p-1 rounded-md hover:bg-gray-100 text-gray-500"
+              className="p-1 rounded-md hover:bg-gray-100 text-gray-500 transition-colors"
             >
-              {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+              <motion.div
+                animate={{ rotate: expanded ? -180 : 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                <ChevronDown size={14} />
+              </motion.div>
             </button>
           ) : (
             <div className="w-6" /> // spacer
           )}
         </div>
       </div>
-      {hasChildren && expanded && (
-        <div className="ml-5 border-l-2 border-gray-100 pl-2 mt-1 space-y-1">
-          {cat.children.map(child => (
-            <CategoryNode key={child.id} cat={child} isCategorySelected={isCategorySelected} toggleCategory={toggleCategory} />
-          ))}
-        </div>
-      )}
+      <AnimatePresence initial={false}>
+        {hasChildren && expanded && (
+          <motion.div 
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25, ease: "easeInOut" }}
+            className="ml-3 xl:ml-4 border-l border-gray-100 pl-2 xl:pl-3 mt-1 space-y-1 overflow-hidden"
+          >
+            {cat.children.map(child => (
+              <CategoryNode key={child.id} cat={child} isCategorySelected={isCategorySelected} toggleCategory={toggleCategory} />
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
@@ -358,11 +372,11 @@ export default function FilterSidebar({
   };
 
   return (
-    <div className="w-full bg-transparent">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg font-black text-[#0b1042] flex items-center">
-          <Filter size={18} className="mr-2" />
-          Filter Products
+    <div className="w-full bg-white rounded-2xl border border-gray-100 p-4 xl:p-5 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.05)]">
+      <div className="flex flex-row items-center justify-between mb-5 gap-2">
+        <h2 className="text-base xl:text-lg font-black text-[#0b1042] flex items-center shrink-0">
+          <Filter size={16} className="mr-2 shrink-0 text-[#0b1042]" />
+          <span className="truncate">Filter Products</span>
         </h2>
         <button 
           onClick={() => {
@@ -372,9 +386,8 @@ export default function FilterSidebar({
             if (setAvailability) setAvailability('all');
             setBrandSearch('');
           }}
-          className="text-xs font-bold metallic-red-text hover:underline flex items-center cursor-pointer"
+          className="text-[11px] xl:text-xs font-bold text-red-600 hover:text-red-700 hover:underline cursor-pointer shrink-0 whitespace-nowrap"
         >
-          <Filter size={12} className="mr-1" />
           Clear All
         </button>
       </div>
@@ -384,21 +397,31 @@ export default function FilterSidebar({
         <div className="border-t border-gray-200 pt-4">
           <button 
             onClick={() => setCategoriesExpanded(!categoriesExpanded)}
-            className="w-full flex items-center justify-between text-xs font-bold text-[#0b1042] uppercase tracking-wider mb-3 cursor-pointer"
+            className="w-full flex items-center justify-between text-[11px] xl:text-xs font-bold text-[#0b1042] uppercase tracking-wider mb-3 cursor-pointer group"
           >
             CATEGORIES
-            {categoriesExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            <motion.div animate={{ rotate: categoriesExpanded ? -180 : 0 }} transition={{ duration: 0.2 }} className="text-gray-400 group-hover:text-gray-700">
+              <ChevronDown size={16} />
+            </motion.div>
           </button>
-          {categoriesExpanded && (
-            <div className="space-y-2">
-              {(categories || []).map(cat => (
-                <CategoryNode key={cat.id} cat={cat} isCategorySelected={isCategorySelected} toggleCategory={toggleCategory} />
-              ))}
-              {categories.length === 0 && (
-                <p className="text-xs text-gray-400 italic py-1">No categories available</p>
-              )}
-            </div>
-          )}
+          <AnimatePresence initial={false}>
+            {categoriesExpanded && (
+              <motion.div 
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.25, ease: "easeInOut" }}
+                className="space-y-2 overflow-hidden"
+              >
+                {(categories || []).map(cat => (
+                  <CategoryNode key={cat.id} cat={cat} isCategorySelected={isCategorySelected} toggleCategory={toggleCategory} />
+                ))}
+                {categories.length === 0 && (
+                  <p className="text-xs text-gray-400 italic py-1">No categories available</p>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* Price Range */}
@@ -406,65 +429,75 @@ export default function FilterSidebar({
           <div className="border-t border-gray-200 pt-4">
             <button 
               onClick={() => setPriceExpanded(!priceExpanded)}
-              className="w-full flex items-center justify-between text-xs font-bold text-[#0b1042] uppercase tracking-wider mb-4 cursor-pointer"
+              className="w-full flex items-center justify-between text-[11px] xl:text-xs font-bold text-[#0b1042] uppercase tracking-wider mb-4 cursor-pointer group"
             >
               PRICE RANGE
-              {priceExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+              <motion.div animate={{ rotate: priceExpanded ? -180 : 0 }} transition={{ duration: 0.2 }} className="text-gray-400 group-hover:text-gray-700">
+                <ChevronDown size={16} />
+              </motion.div>
             </button>
-            {priceExpanded && (
-              <div>
-                <div className="flex justify-between text-xs text-[#0b1042] font-semibold mb-2">
-                  <span>Rs. {priceRange[0].toLocaleString()}</span>
-                  <span>Rs. {priceRange[1].toLocaleString()}</span>
-                </div>
-                
-                {/* Dynamic Price Slider */}
-                <div className="mb-4">
-                  <input 
-                    type="range"
-                    min={0}
-                    max={effectiveMaxPrice}
-                    step={Math.max(10, Math.round(effectiveMaxPrice / 100))}
-                    value={Math.min(priceRange[1], effectiveMaxPrice)}
-                    onChange={(e) => {
-                      const val = parseInt(e.target.value, 10) || 0;
-                      if (setPriceRange) {
-                        setPriceRange([priceRange[0], Math.max(val, priceRange[0])]);
-                      }
-                    }}
-                    className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#0b1042]"
-                  />
-                </div>
+            <AnimatePresence initial={false}>
+              {priceExpanded && (
+                <motion.div 
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.25, ease: "easeInOut" }}
+                  className="overflow-hidden"
+                >
+                  <div className="flex justify-between text-[11px] xl:text-xs text-[#0b1042] font-semibold mb-2 mt-1">
+                    <span>Rs. {priceRange[0].toLocaleString()}</span>
+                    <span>Rs. {priceRange[1].toLocaleString()}</span>
+                  </div>
+                  
+                  {/* Dynamic Price Slider */}
+                  <div className="mb-4">
+                    <input 
+                      type="range"
+                      min={0}
+                      max={effectiveMaxPrice}
+                      step={Math.max(10, Math.round(effectiveMaxPrice / 100))}
+                      value={Math.min(priceRange[1], effectiveMaxPrice)}
+                      onChange={(e) => {
+                        const val = parseInt(e.target.value, 10) || 0;
+                        if (setPriceRange) {
+                          setPriceRange([priceRange[0], Math.max(val, priceRange[0])]);
+                        }
+                      }}
+                      className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#0b1042]"
+                    />
+                  </div>
 
-                <div className="flex items-center space-x-2 mb-3">
-                  <div className="relative w-full">
-                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-gray-400 font-bold">Rs.</span>
-                    <input 
-                      type="number" 
-                      min={0}
-                      max={effectiveMaxPrice}
-                      value={priceRange[0]} 
-                      onChange={(e) => setPriceRange && setPriceRange([Math.max(0, parseInt(e.target.value) || 0), priceRange[1]])}
-                      className="w-full text-xs border border-gray-200 rounded pl-7 pr-2 py-1.5 focus:outline-none focus:border-[#0b1042]" 
-                      placeholder="Min"
-                    />
+                  <div className="flex items-center space-x-2 mb-3">
+                    <div className="relative w-full">
+                      <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-gray-400 font-bold">Rs.</span>
+                      <input 
+                        type="number" 
+                        min={0}
+                        max={effectiveMaxPrice}
+                        value={priceRange[0]} 
+                        onChange={(e) => setPriceRange && setPriceRange([Math.max(0, parseInt(e.target.value) || 0), priceRange[1]])}
+                        className="w-full text-xs border border-gray-200 rounded pl-7 pr-2 py-1.5 focus:outline-none focus:border-[#0b1042]" 
+                        placeholder="Min"
+                      />
+                    </div>
+                    <span className="text-gray-400 font-bold">-</span>
+                    <div className="relative w-full">
+                      <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-gray-400 font-bold">Rs.</span>
+                      <input 
+                        type="number" 
+                        min={0}
+                        max={effectiveMaxPrice}
+                        value={priceRange[1]}
+                        onChange={(e) => setPriceRange && setPriceRange([priceRange[0], Math.max(0, parseInt(e.target.value) || 0)])}
+                        className="w-full text-xs border border-gray-200 rounded pl-7 pr-2 py-1.5 focus:outline-none focus:border-[#0b1042]" 
+                        placeholder="Max"
+                      />
+                    </div>
                   </div>
-                  <span className="text-gray-400 font-bold">-</span>
-                  <div className="relative w-full">
-                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-gray-400 font-bold">Rs.</span>
-                    <input 
-                      type="number" 
-                      min={0}
-                      max={effectiveMaxPrice}
-                      value={priceRange[1]}
-                      onChange={(e) => setPriceRange && setPriceRange([priceRange[0], Math.max(0, parseInt(e.target.value) || 0)])}
-                      className="w-full text-xs border border-gray-200 rounded pl-7 pr-2 py-1.5 focus:outline-none focus:border-[#0b1042]" 
-                      placeholder="Max"
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         )}
 
@@ -472,107 +505,127 @@ export default function FilterSidebar({
         <div className="border-t border-gray-200 pt-4">
           <button 
             onClick={() => setBrandsExpanded(!brandsExpanded)}
-            className="w-full flex items-center justify-between text-xs font-bold text-[#0b1042] uppercase tracking-wider mb-3 cursor-pointer"
+            className="w-full flex items-center justify-between text-[11px] xl:text-xs font-bold text-[#0b1042] uppercase tracking-wider mb-3 cursor-pointer group"
           >
             BRANDS
-            {brandsExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            <motion.div animate={{ rotate: brandsExpanded ? -180 : 0 }} transition={{ duration: 0.2 }} className="text-gray-400 group-hover:text-gray-700">
+              <ChevronDown size={16} />
+            </motion.div>
           </button>
-          {brandsExpanded && (
-            <div className="space-y-3">
-              {/* Dynamic Brand Search Input */}
-              <div className="relative">
-                <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-                <input 
-                  type="text" 
-                  value={brandSearch}
-                  onChange={(e) => setBrandSearch(e.target.value)}
-                  placeholder="Search brands..." 
-                  className="w-full text-xs border border-gray-200 rounded-lg pl-8 pr-7 py-2 focus:outline-none focus:border-[#0b1042] focus:ring-1 focus:ring-[#0b1042]/20 transition-all"
-                />
-                {brandSearch && (
+          <AnimatePresence initial={false}>
+            {brandsExpanded && (
+              <motion.div 
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.25, ease: "easeInOut" }}
+                className="space-y-3 overflow-hidden"
+              >
+                {/* Dynamic Brand Search Input */}
+                <div className="relative">
+                  <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                  <input 
+                    type="text" 
+                    value={brandSearch}
+                    onChange={(e) => setBrandSearch(e.target.value)}
+                    placeholder="Search brands..." 
+                    className="w-full text-xs border border-gray-200 rounded-lg pl-8 pr-7 py-2 focus:outline-none focus:border-[#0b1042] focus:ring-1 focus:ring-[#0b1042]/20 transition-all"
+                  />
+                  {brandSearch && (
+                    <button 
+                      onClick={() => setBrandSearch('')}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-0.5 rounded-full"
+                      title="Clear brand search"
+                    >
+                      <X size={12} />
+                    </button>
+                  )}
+                </div>
+
+                {/* Checkboxes List */}
+                <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+                  {visibleBrands.length > 0 ? (
+                    visibleBrands.map(brand => (
+                      <label key={brand.id} className="flex items-center justify-between cursor-pointer group py-0.5">
+                        <div className="flex items-center min-w-0">
+                          <input 
+                            type="checkbox" 
+                            className="w-3.5 h-3.5 xl:w-4 xl:h-4 rounded border-gray-300 text-[#0b1042] focus:ring-[#0b1042] cursor-pointer" 
+                            checked={isBrandSelected(brand.id)}
+                            onChange={() => toggleBrand(brand.id)}
+                          />
+                          <span className="ml-2 xl:ml-3 text-[13px] xl:text-sm text-gray-700 group-hover:text-[#0b1042] transition-colors font-medium truncate">
+                            {brand.label.replace(/_/g, ' ')}
+                          </span>
+                        </div>
+                        <span className="text-[10px] xl:text-xs text-gray-400 ml-1 xl:ml-2 shrink-0">({brand.count})</span>
+                      </label>
+                    ))
+                  ) : (
+                    <p className="text-xs text-gray-400 italic py-2 text-center">
+                      No brands matching "{brandSearch}"
+                    </p>
+                  )}
+                </div>
+
+                {!brandSearch && filteredBrands.length > 8 && (
                   <button 
-                    onClick={() => setBrandSearch('')}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-0.5 rounded-full"
-                    title="Clear brand search"
+                    onClick={() => setShowAllBrands(!showAllBrands)}
+                    className="text-xs font-bold text-[#0b1042] hover:underline flex items-center pt-1 cursor-pointer"
                   >
-                    <X size={12} />
+                    {showAllBrands ? '- Show Less' : `+ Show More (${filteredBrands.length - 8} more)`}
                   </button>
                 )}
-              </div>
-
-              {/* Checkboxes List */}
-              <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
-                {visibleBrands.length > 0 ? (
-                  visibleBrands.map(brand => (
-                    <label key={brand.id} className="flex items-center justify-between cursor-pointer group py-0.5">
-                      <div className="flex items-center min-w-0">
-                        <input 
-                          type="checkbox" 
-                          className="w-4 h-4 rounded border-gray-300 text-[#0b1042] focus:ring-[#0b1042] cursor-pointer" 
-                          checked={isBrandSelected(brand.id)}
-                          onChange={() => toggleBrand(brand.id)}
-                        />
-                        <span className="ml-3 text-sm text-gray-700 group-hover:text-[#0b1042] transition-colors font-medium truncate">
-                          {brand.label.replace(/_/g, ' ')}
-                        </span>
-                      </div>
-                      <span className="text-xs text-gray-400 ml-2 shrink-0">({brand.count})</span>
-                    </label>
-                  ))
-                ) : (
-                  <p className="text-xs text-gray-400 italic py-2 text-center">
-                    No brands matching "{brandSearch}"
-                  </p>
-                )}
-              </div>
-
-              {!brandSearch && filteredBrands.length > 8 && (
-                <button 
-                  onClick={() => setShowAllBrands(!showAllBrands)}
-                  className="text-xs font-bold text-[#0b1042] hover:underline flex items-center pt-1 cursor-pointer"
-                >
-                  {showAllBrands ? '- Show Less' : `+ Show More (${filteredBrands.length - 8} more)`}
-                </button>
-              )}
-            </div>
-          )}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* Availability with Dynamic Counts & On Order Support */}
         <div className="border-t border-gray-200 pt-4">
           <button 
             onClick={() => setAvailabilityExpanded(!availabilityExpanded)}
-            className="w-full flex items-center justify-between text-xs font-bold text-[#0b1042] uppercase tracking-wider mb-3 cursor-pointer"
+            className="w-full flex items-center justify-between text-[11px] xl:text-xs font-bold text-[#0b1042] uppercase tracking-wider mb-3 cursor-pointer group"
           >
             AVAILABILITY
-            {availabilityExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            <motion.div animate={{ rotate: availabilityExpanded ? -180 : 0 }} transition={{ duration: 0.2 }} className="text-gray-400 group-hover:text-gray-700">
+              <ChevronDown size={16} />
+            </motion.div>
           </button>
-          {availabilityExpanded && (
-            <div className="space-y-2">
-              {[
-                { id: 'all', label: 'All Items', count: availabilityCounts.all },
-                { id: 'in_stock', label: 'In Stock', count: availabilityCounts.in_stock },
-                { id: 'on_order', label: 'On Order', count: availabilityCounts.on_order },
-                { id: 'out_of_stock', label: 'Out of Stock', count: availabilityCounts.out_of_stock }
-              ].map(status => (
-                <label key={status.id} className="flex items-center justify-between cursor-pointer group py-0.5">
-                  <div className="flex items-center min-w-0">
-                    <input 
-                      type="radio" 
-                      name="availability"
-                      className="w-4 h-4 border-gray-300 text-[#0b1042] focus:ring-[#0b1042] cursor-pointer" 
-                      checked={availability === status.id}
-                      onChange={() => setAvailability && setAvailability(status.id)}
-                    />
-                    <span className={`ml-3 text-sm transition-colors font-medium truncate ${availability === status.id ? 'text-[#0b1042] font-bold' : 'text-gray-700 group-hover:text-[#0b1042]'}`}>
-                      {status.label}
-                    </span>
-                  </div>
-                  <span className="text-xs text-gray-400 ml-2 shrink-0">({status.count})</span>
-                </label>
-              ))}
-            </div>
-          )}
+          <AnimatePresence initial={false}>
+            {availabilityExpanded && (
+              <motion.div 
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.25, ease: "easeInOut" }}
+                className="space-y-2 overflow-hidden"
+              >
+                {[
+                  { id: 'all', label: 'All Items', count: availabilityCounts.all },
+                  { id: 'in_stock', label: 'In Stock', count: availabilityCounts.in_stock },
+                  { id: 'on_order', label: 'On Order', count: availabilityCounts.on_order },
+                  { id: 'out_of_stock', label: 'Out of Stock', count: availabilityCounts.out_of_stock }
+                ].map(status => (
+                  <label key={status.id} className="flex items-center justify-between cursor-pointer group py-0.5">
+                    <div className="flex items-center min-w-0">
+                      <input 
+                        type="radio" 
+                        name="availability"
+                        className="w-3.5 h-3.5 xl:w-4 xl:h-4 border-gray-300 text-[#0b1042] focus:ring-[#0b1042] cursor-pointer" 
+                        checked={availability === status.id}
+                        onChange={() => setAvailability && setAvailability(status.id)}
+                      />
+                      <span className={`ml-2 xl:ml-3 text-[13px] xl:text-sm transition-colors font-medium truncate ${availability === status.id ? 'text-[#0b1042] font-bold' : 'text-gray-700 group-hover:text-[#0b1042]'}`}>
+                        {status.label}
+                      </span>
+                    </div>
+                    <span className="text-[10px] xl:text-xs text-gray-400 ml-1 xl:ml-2 shrink-0">({status.count})</span>
+                  </label>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
       </div>

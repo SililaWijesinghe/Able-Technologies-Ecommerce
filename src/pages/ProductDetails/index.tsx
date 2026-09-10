@@ -1,3 +1,4 @@
+import { FormattedDescription } from '../../components/FormattedDescription';
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ChevronRight, ShoppingCart } from 'lucide-react';
@@ -130,11 +131,9 @@ export default function ProductDetails() {
         {/* Middle Section: Tabs & Custom Solution */}
         {/* Product Description */}
         {product.description && (
-          <div className="mt-12 bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+          <div className="mt-12">
             <h2 className="text-xl font-black text-[#0b1042] mb-6">Product Description</h2>
-            <div className="text-gray-600 leading-relaxed whitespace-pre-wrap">
-              {product.description}
-            </div>
+            <FormattedDescription text={product.description} />
           </div>
         )}
         <ProductTabs product={product} />

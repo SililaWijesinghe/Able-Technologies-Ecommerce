@@ -74,23 +74,28 @@ const defaultSearchProducts = [
 ];
 
 const DesktopCategoryItem: React.FC<{ category: any, level?: number }> = ({ category, level = 0 }) => {
+  const [isHovered, setIsHovered] = useState(false);
   const hasChildren = category.children && category.children.length > 0;
   
   return (
-    <div className="relative group/subcat w-full">
+    <div 
+      className="relative w-full"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       <Link 
         to={`/shop?category=${category.slug}`} 
-        className="px-6 py-3 text-gray-200 hover:text-white hover:bg-white/10 text-sm font-medium transition-colors flex items-center justify-between group-hover/subcat:bg-white/10"
+        className={`px-6 py-3 text-gray-200 hover:text-white hover:bg-white/10 text-sm font-medium transition-colors flex items-center justify-between ${isHovered ? 'bg-white/10' : ''}`}
       >
         <div className="flex items-center space-x-3">
-          {level === 0 && <div className="absolute left-0 top-0 h-full w-1 bg-cyan-400 opacity-0 group-hover/subcat:opacity-100 transition-opacity shadow-[0_0_10px_rgba(34,211,238,0.5)]" />}
+          <div className={`absolute left-0 top-0 h-full w-1 bg-cyan-400 transition-opacity shadow-[0_0_10px_rgba(34,211,238,0.5)] ${isHovered ? 'opacity-100' : 'opacity-0'}`} />
           <span>{category.name}</span>
         </div>
         {hasChildren && <svg className="w-4 h-4 ml-2 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>}
       </Link>
       
       {hasChildren && (
-        <div className="absolute left-full top-0 w-56 bg-[rgba(15,20,40,0.95)] backdrop-blur-3xl border border-white/20 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.7)] opacity-0 invisible group-hover/subcat:opacity-100 group-hover/subcat:visible transition-all duration-300 flex flex-col py-2 ml-1 z-50">
+        <div className={`absolute left-full top-0 w-56 bg-[rgba(15,20,40,0.95)] backdrop-blur-3xl border border-white/20 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.7)] transition-all duration-300 flex flex-col py-2 ml-1 z-50 ${isHovered ? 'opacity-100 visible' : 'opacity-0 invisible'}`}>
           {category.children.map((child: any) => (
             <DesktopCategoryItem key={child.id} category={child} level={level + 1} />
           ))}
@@ -543,7 +548,7 @@ export default function Header() {
       </div>
 
       {/* ---------------- DESKTOP HEADER ---------------- */}
-      <header className={`hidden md:block z-50 w-full transition-all duration-500 ${isHome ? 'absolute top-0 bg-gradient-to-b from-[#060740] via-[#060740]/90 to-[#04081c]/0' : 'relative bg-[#060740]'} ${isScrolled && !isHome ? 'bg-[#04081c]/95 backdrop-blur-2xl shadow-[0_10px_40px_rgba(0,0,0,0.5)]' : ''} pt-6 pb-6 px-4 md:px-8 overflow-visible`}>
+      <header className={`hidden md:block z-50 w-full transition-all duration-300 ease-in-out ${scrollDirection === 'down' && !isAtTop ? '-translate-y-full' : 'translate-y-0'} ${isHome ? (isScrolled ? 'fixed top-0 bg-[#04081c]/95 backdrop-blur-2xl shadow-[0_10px_40px_rgba(0,0,0,0.5)]' : 'absolute top-0 bg-gradient-to-b from-[#060740] via-[#060740]/90 to-[#04081c]/0') : (isScrolled ? 'sticky top-0 bg-[#04081c]/95 backdrop-blur-2xl shadow-[0_10px_40px_rgba(0,0,0,0.5)]' : 'sticky top-0 bg-[#060740]')} pt-4 pb-4 lg:pt-6 lg:pb-6 px-4 md:px-8 overflow-visible`}>
         {/* Soft blue atmospheric glow behind header */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] h-[300px] bg-blue-500/10 blur-[120px] pointer-events-none mix-blend-screen" />
         
