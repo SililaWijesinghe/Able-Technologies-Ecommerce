@@ -1,7 +1,7 @@
 import { FormattedDescription } from '../../components/FormattedDescription';
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ChevronRight, ShoppingCart } from 'lucide-react';
+import { ChevronRight, ShoppingCart, Check, Factory } from 'lucide-react';
 import { fetchProduct, fetchCategories } from '../../services/api';
 import { useCart } from '../../context/CartContext';
 
@@ -136,6 +136,33 @@ export default function ProductDetails() {
             <FormattedDescription text={product.description} />
           </div>
         )}
+
+        {/* Applicable Industries */}
+        {product.applicable_fields && Array.isArray(product.applicable_fields) && product.applicable_fields.length > 0 && (
+          <div className="mt-8 bg-white p-6 md:p-8 rounded-2xl border border-gray-100 shadow-[0_4px_20px_rgba(15,23,42,0.03)]">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                <Factory size={18} />
+              </div>
+              <div>
+                <h3 className="text-lg font-black text-[#0b1042]">Applicable Industries</h3>
+                <p className="text-xs text-gray-500 font-medium">Recommended application sectors and suitable manufacturing fields</p>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-2.5">
+              {product.applicable_fields.map((field: string, idx: number) => (
+                <span 
+                  key={idx}
+                  className="inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-blue-50/70 border border-blue-200/70 text-[#0b1042] text-xs md:text-sm font-semibold shadow-xs hover:border-blue-300 hover:bg-blue-100/50 transition-colors"
+                >
+                  <Check size={14} className="text-blue-600 shrink-0 stroke-[2.5]" />
+                  <span>{field}</span>
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
         <ProductTabs product={product} />
 
         {/* Related Products */}

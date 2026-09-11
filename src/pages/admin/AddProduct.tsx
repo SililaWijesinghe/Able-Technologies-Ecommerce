@@ -5,6 +5,7 @@ import { supabase } from '../../lib/supabase';
 import { Loader2, X, ArrowLeft, Image as ImageIcon, Save, Check, Plus, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { buildCategoryOptions, getHierarchicalCategories } from '../../utils/categoryUtils';
+import { ApplicableFieldsInput } from '../../components/admin/ApplicableFieldsInput';
 
 
 const COMMON_SPECS = ['Power Supply', 'Air Pressure', 'Power Consumption', 'Temperature', 'Timmer', 'Piston Diameter', 'Bed Dimensions', 'Net Weight', 'Machine Weight', 'Frequency'];
@@ -73,6 +74,7 @@ export default function AddProduct() {
   });
 
   const [specifications, setSpecifications] = useState([{ key: '', value: '' }]);
+  const [applicableFields, setApplicableFields] = useState<string[]>([]);
   const [variants, setVariants] = useState<{ sku: string; price_modifier: number; inventory_count: number; attributes?: Record<string, string> }[]>([]);
   const [productOptions, setProductOptions] = useState<{name: string, values: string[], inputValue: string}[]>([]);
   const [bulkPrice, setBulkPrice] = useState("");
@@ -306,7 +308,8 @@ export default function AddProduct() {
         transaction_type: formData.transaction_type,
         requires_quote: finalRequiresQuote,
         is_customizable: formData.is_customizable,
-        specifications: specsObject
+        specifications: specsObject,
+        applicable_fields: applicableFields
       };
 
       const { data: productData, error: productError } = await supabase
@@ -510,6 +513,13 @@ export default function AddProduct() {
                   placeholder="Enter full product description..."
                 ></textarea>
                 <span className="text-xs text-blue-600 font-semibold block mt-1">Please include full machine/part specifications and model details.</span>
+              </div>
+
+              <div className="md:col-span-2 pt-2 border-t border-gray-100">
+                <ApplicableFieldsInput 
+                  value={applicableFields}
+                  onChange={setApplicableFields}
+                />
               </div>
             </div>
           </div>

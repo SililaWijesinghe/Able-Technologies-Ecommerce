@@ -33,33 +33,69 @@ export default function ProductTabs({ product }: { product: any }) {
              <>
                 <h2 className="text-xl font-black text-[#0b1042] mb-4">Product Description</h2>
                 <FormattedDescription text={product.description} />
+
+                {product.applicable_fields && Array.isArray(product.applicable_fields) && product.applicable_fields.length > 0 && (
+                  <div className="mt-8 pt-6 border-t border-gray-100">
+                    <h3 className="text-sm font-bold text-[#0b1042] uppercase tracking-wider mb-3">Applicable Industries</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {product.applicable_fields.map((field: string, idx: number) => (
+                        <span 
+                          key={idx}
+                          className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-full bg-blue-50/80 border border-blue-200/60 text-blue-900 text-xs font-semibold"
+                        >
+                          <Check size={12} className="text-blue-600 stroke-[2.5]" />
+                          <span>{field}</span>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
              </>
           )}
 
           {activeTab === 'Specifications' && (
-            Object.keys(specifications).length > 0 ? (
-              <div className="border border-gray-200 rounded-xl overflow-hidden shadow-sm bg-white">
-                <dl className="divide-y divide-gray-100">
-                  {Object.entries(specifications).map(([key, value], idx) => (
-                    <div 
-                      key={key} 
-                      className={`flex flex-col sm:flex-row transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50/40'} hover:bg-blue-50/40`}
-                    >
-                      <dt className="w-full sm:w-1/3 py-3.5 px-5 text-sm font-bold text-[#0b1042] bg-gray-50/70 sm:border-r border-gray-100 flex items-center">
-                        {key}
-                      </dt>
-                      <dd className="w-full sm:w-2/3 py-3.5 px-5 text-sm text-gray-700 font-medium flex items-center leading-relaxed">
-                        {value as string}
-                      </dd>
-                    </div>
-                  ))}
-                </dl>
-              </div>
-            ) : (
-              <div className="text-center py-10 bg-gray-50 rounded-xl border border-gray-100">
-                <p className="text-gray-500 text-sm font-medium">No specifications available for this product.</p>
-              </div>
-            )
+            <>
+              {Object.keys(specifications).length > 0 ? (
+                <div className="border border-gray-200 rounded-xl overflow-hidden shadow-sm bg-white">
+                  <dl className="divide-y divide-gray-100">
+                    {Object.entries(specifications).map(([key, value], idx) => (
+                      <div 
+                        key={key} 
+                        className={`flex flex-col sm:flex-row transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50/40'} hover:bg-blue-50/40`}
+                      >
+                        <dt className="w-full sm:w-1/3 py-3.5 px-5 text-sm font-bold text-[#0b1042] bg-gray-50/70 sm:border-r border-gray-100 flex items-center">
+                          {key}
+                        </dt>
+                        <dd className="w-full sm:w-2/3 py-3.5 px-5 text-sm text-gray-700 font-medium flex items-center leading-relaxed">
+                          {value as string}
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
+                </div>
+              ) : (
+                <div className="text-center py-10 bg-gray-50 rounded-xl border border-gray-100">
+                  <p className="text-gray-500 text-sm font-medium">No specifications available for this product.</p>
+                </div>
+              )}
+
+              {product.applicable_fields && Array.isArray(product.applicable_fields) && product.applicable_fields.length > 0 && (
+                <div className="mt-8 pt-6 border-t border-gray-100">
+                  <h3 className="text-sm font-bold text-[#0b1042] uppercase tracking-wider mb-3">Applicable Industries & Sectors</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {product.applicable_fields.map((field: string, idx: number) => (
+                      <span 
+                        key={idx}
+                        className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-full bg-blue-50/80 border border-blue-200/60 text-blue-900 text-xs font-semibold"
+                      >
+                        <Check size={12} className="text-blue-600 stroke-[2.5]" />
+                        <span>{field}</span>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>

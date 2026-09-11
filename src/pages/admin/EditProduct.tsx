@@ -5,6 +5,7 @@ import { supabase } from '../../lib/supabase';
 import { Loader2, X, ArrowLeft, Image as ImageIcon, Save, Check, Plus, Trash2, AlertCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { buildCategoryOptions, getHierarchicalCategories } from '../../utils/categoryUtils';
+import { ApplicableFieldsInput } from '../../components/admin/ApplicableFieldsInput';
 
 export default function EditProduct() {
   const { id } = useParams<{ id: string }>();
@@ -81,6 +82,7 @@ export default function EditProduct() {
   });
 
   const [specifications, setSpecifications] = useState<{key: string, value: string}[]>([{ key: '', value: '' }]);
+  const [applicableFields, setApplicableFields] = useState<string[]>([]);
   const [variants, setVariants] = useState<{ id?: string; sku: string; price_modifier: number; inventory_count: number; attributes?: Record<string, string> }[]>([]);
   const [productOptions, setProductOptions] = useState<{name: string, values: string[], inputValue: string}[]>([]);
   const [bulkPrice, setBulkPrice] = useState("");
@@ -250,6 +252,8 @@ export default function EditProduct() {
           is_customizable: data.is_customizable || false
         });
         
+        setApplicableFields(Array.isArray(data.applicable_fields) ? data.applicable_fields : []);
+
         const imgs = data.image_urls || [];
         setExistingImages(imgs);
       } catch (err: any) {
@@ -391,7 +395,8 @@ export default function EditProduct() {
         transaction_type: formData.transaction_type,
         requires_quote: finalRequiresQuote,
         is_customizable: formData.is_customizable,
-        specifications: specsObject
+        specifications: specsObject,
+        applicable_fields: applicableFields
       };
 
       const { error: updateError } = await supabase
@@ -664,6 +669,13 @@ export default function EditProduct() {
                   placeholder="Enter full product description..."
                 ></textarea>
                 <span className="text-xs text-blue-600 font-semibold block mt-1">Please include full machine/part specifications and model details.</span>
+              </div>
+
+              <div className="md:col-span-2 pt-2 border-t border-gray-100">
+                <ApplicableFieldsInput 
+                  value={applicableFields}
+                  onChange={setApplicableFields}
+                />
               </div>
             </div>
           </div>

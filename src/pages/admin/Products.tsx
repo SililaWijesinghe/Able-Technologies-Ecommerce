@@ -2,7 +2,7 @@ import { SkeletonTable } from '../../components/ui/Skeleton';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { Plus, Search, X, Tag, Box, AlertCircle, Info, Shield, Activity, FileText, List, Filter, Eye, Edit, Trash, Package, CheckCircle, Clock, XCircle, Loader2 } from 'lucide-react';
+import { Plus, Search, X, Tag, Box, AlertCircle, Info, Shield, Activity, FileText, List, Filter, Eye, Edit, Trash, Package, CheckCircle, Clock, XCircle, Loader2, Layers } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
 export default function Products() {
@@ -410,6 +410,26 @@ export default function Products() {
                       <div className="col-span-2">
                         <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Description</p>
                         <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{viewProduct.description || 'No description provided.'}</p>
+                      </div>
+                      <div className="col-span-2 pt-2 border-t border-gray-100">
+                        <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                          <Layers size={13} className="text-blue-500" />
+                          <span>Applicable Fields / Industries</span>
+                        </p>
+                        {viewProduct.applicable_fields && Array.isArray(viewProduct.applicable_fields) && viewProduct.applicable_fields.length > 0 ? (
+                          <div className="flex flex-wrap gap-1.5">
+                            {viewProduct.applicable_fields.map((field: string, idx: number) => (
+                              <span 
+                                key={idx}
+                                className="inline-flex items-center px-3 py-1 rounded-lg bg-blue-50 text-blue-700 text-xs font-bold border border-blue-200/80 shadow-2xs"
+                              >
+                                {field}
+                              </span>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="inline-block text-sm font-medium text-gray-400 italic">N/A</span>
+                        )}
                       </div>
                     </div>
                   </div>
