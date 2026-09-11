@@ -1,20 +1,11 @@
-import { StoreSettingsProvider } from "./context/StoreSettingsContext";
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import ScrollToTop from './components/ScrollToTop';
 import { BrowserRouter as Router, Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import NavigatedGuide from './components/ui/NavigatedGuide';
 import FloatingControls from './components/FloatingControls';
-import Home from './pages/Home';
-import AboutUs from './pages/AboutUs';
-import Services from './pages/Services';
-import IndustrialSolutions from './pages/IndustrialSolutions';
-import Shop from './pages/Shop';
-import ProductDetails from './pages/ProductDetails';
-import Checkout from './pages/Checkout';
-import Contact from './pages/Contact';
-import Profile from './pages/Profile';
 import { CartProvider } from './context/CartContext';
 import CartDrawer from './components/cart/CartDrawer';
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -22,19 +13,39 @@ import { ToastProvider } from './context/ToastContext';
 import { Toaster } from 'react-hot-toast';
 import AdminRoute from './components/auth/AdminRoute';
 import AdminLayout from './components/layout/AdminLayout';
-import Dashboard from './pages/admin/Dashboard';
-import AdminLogin from './pages/admin/AdminLogin';
-import Products from './pages/admin/Products';
-import AddProduct from './pages/admin/AddProduct';
-import EditProduct from './pages/admin/EditProduct';
-import Inventory from './pages/admin/Inventory';
-import Orders from './pages/admin/Orders';
-import Customers from './pages/admin/Customers';
-import Inquiries from './pages/admin/Inquiries';
-import Settings from './pages/admin/Settings';
+import { StoreSettingsProvider } from "./context/StoreSettingsContext";
 
-import Categories from './pages/admin/Categories';
-import ComingSoon from './pages/admin/ComingSoon';
+// Lazy-loaded routes
+const Home = lazy(() => import('./pages/Home'));
+const AboutUs = lazy(() => import('./pages/AboutUs'));
+const Services = lazy(() => import('./pages/Services'));
+const IndustrialSolutions = lazy(() => import('./pages/IndustrialSolutions'));
+const Shop = lazy(() => import('./pages/Shop'));
+const ProductDetails = lazy(() => import('./pages/ProductDetails'));
+const Checkout = lazy(() => import('./pages/Checkout'));
+const Contact = lazy(() => import('./pages/Contact'));
+const Profile = lazy(() => import('./pages/Profile'));
+
+const Dashboard = lazy(() => import('./pages/admin/Dashboard'));
+const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
+const Products = lazy(() => import('./pages/admin/Products'));
+const AddProduct = lazy(() => import('./pages/admin/AddProduct'));
+const EditProduct = lazy(() => import('./pages/admin/EditProduct'));
+const Inventory = lazy(() => import('./pages/admin/Inventory'));
+const Orders = lazy(() => import('./pages/admin/Orders'));
+const Customers = lazy(() => import('./pages/admin/Customers'));
+const Inquiries = lazy(() => import('./pages/admin/Inquiries'));
+const Settings = lazy(() => import('./pages/admin/Settings'));
+const Categories = lazy(() => import('./pages/admin/Categories'));
+const ComingSoon = lazy(() => import('./pages/admin/ComingSoon'));
+
+function LoadingSpinner() {
+  return (
+    <div className="flex h-screen w-full items-center justify-center bg-gray-50">
+      <div className="w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+    </div>
+  );
+}
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -82,9 +93,20 @@ function StorefrontLayout() {
   );
 }
 
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      gcTime: 1000 * 60 * 30, // 30 minutes
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
+
 export default function App() {
   return (
-    <>
+    <QueryClientProvider client={queryClient}>
       <Toaster position="top-right" />
       <StoreSettingsProvider>
       <ToastProvider>
@@ -92,6 +114,7 @@ export default function App() {
         <CartProvider>
           <Router>
             <ScrollToTop />
+            <Suspense fallback={<LoadingSpinner />}>
             <Routes>
             {/* Storefront Routes */}
             <Route element={<StorefrontLayout />}>
@@ -133,11 +156,12 @@ export default function App() {
               {/* Additional admin routes will go here in future steps */}
             </Route>
           </Routes>
+          </Suspense>
         </Router>
       </CartProvider>
     </AuthProvider>
     </ToastProvider>
     </StoreSettingsProvider>
-    </>
+    </QueryClientProvider>
   );
 }

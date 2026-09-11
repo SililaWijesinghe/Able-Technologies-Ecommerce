@@ -50,13 +50,13 @@ export default function IndustrialSolutions() {
       
       {/* 1. HERO SECTION */}
       <section 
-        className="relative w-full pt-32 md:pt-40 pb-20 md:pb-32 bg-[#0b1042] overflow-hidden flex flex-col justify-center bg-cover bg-center bg-no-repeat"
+        className="relative w-full pt-28 pb-16 md:pt-40 md:pb-32 bg-[#0b1042] overflow-hidden flex flex-col justify-center bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: `url(${heroBg})` }}
       >
         <div className="absolute inset-0 bg-gradient-to-r from-[#060a2b]/95 via-[#0b1042]/80 to-[#0b1042]/40 z-0 w-full"></div>
         <div className="absolute right-0 top-0 w-1/3 h-full bg-gradient-to-l from-red-600/10 to-transparent pointer-events-none transform skew-x-12"></div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10">
+        <div className="max-w-7xl mx-auto px-5 md:px-8 w-full relative z-10">
           <motion.div 
             initial="hidden"
             animate="visible"
@@ -64,28 +64,28 @@ export default function IndustrialSolutions() {
             className="flex flex-col justify-center"
           >
             {/* Breadcrumb */}
-            <motion.div variants={fadeInUp} className="flex items-center text-gray-300 text-[11px] md:text-sm mb-6 uppercase tracking-wider font-semibold">
+            <motion.div variants={fadeInUp} className="flex items-center text-gray-300 text-[10px] md:text-sm mb-5 md:mb-6 uppercase tracking-wider font-semibold">
               <Link to="/" className="hover:text-white transition-colors">Home</Link>
-              <ChevronRight size={14} className="mx-2 text-gray-500" />
+              <ChevronRight size={14} className="mx-1.5 md:mx-2 text-gray-500" />
               <Link to="/about" className="hover:text-white transition-colors">About Us</Link>
-              <ChevronRight size={14} className="mx-2 text-gray-500" />
+              <ChevronRight size={14} className="mx-1.5 md:mx-2 text-gray-500" />
               <span className="text-white">Our Industrial Solutions</span>
             </motion.div>
 
             {/* Main Label */}
-            <motion.div variants={fadeInUp} className="flex items-center mb-4">
-               <div className="w-1.5 h-4 bg-red-600 transform -skew-x-[20deg] mr-2 shadow-[0_0_8px_rgba(255,0,0,0.5)]"></div>
-               <span className="text-white font-bold tracking-widest text-[10px] md:text-xs uppercase bg-white/10 px-3 py-1 border-l-2 border-red-600">
+            <motion.div variants={fadeInUp} className="flex items-center mb-3 md:mb-4">
+               <div className="w-1.5 h-3.5 md:h-4 bg-red-600 transform -skew-x-[20deg] mr-2 shadow-[0_0_8px_rgba(255,0,0,0.5)]"></div>
+               <span className="text-white font-bold tracking-widest text-[9px] md:text-xs uppercase bg-white/10 px-2.5 py-1 border-l-2 border-red-600">
                  Our Industrial Solutions
                </span>
             </motion.div>
 
-            <motion.h1 variants={fadeInUp} className="text-4xl md:text-6xl lg:text-7xl font-extrabold italic tracking-tight uppercase leading-[1.1] mb-6">
+            <motion.h1 variants={fadeInUp} className="text-[2.5rem] leading-[1.1] md:text-6xl lg:text-[4.5rem] lg:leading-[1.05] font-extrabold italic tracking-tight uppercase mb-5 md:mb-6">
               <span className="text-white block">Industrial</span>
               <span className="metallic-red-text block">Solutions</span>
             </motion.h1>
             
-            <motion.p variants={fadeInUp} className="text-gray-300 max-w-2xl text-[15px] md:text-[17px] leading-relaxed mb-12 border-l-2 border-white/20 pl-4">
+            <motion.p variants={fadeInUp} className="text-gray-300 max-w-2xl text-[14px] md:text-[17px] leading-[1.7] md:leading-relaxed mb-10 md:mb-12 border-l-2 border-white/20 pl-4">
               Specialized machinery and industrial solutions designed to support modern manufacturing processes with reliability, precision and performance.
             </motion.p>
           </motion.div>
@@ -106,14 +106,14 @@ export default function IndustrialSolutions() {
               <motion.div 
                 variants={fadeInUp}
                 key={idx} 
-                className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-5 flex items-center space-x-4 shadow-lg hover:bg-white/10 transition-colors group"
+                className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-4 md:p-5 flex items-center space-x-3 md:space-x-4 shadow-lg hover:bg-white/10 transition-colors group"
               >
-                 <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 ${feature.color === 'blue' ? 'bg-blue-600/20 text-blue-400' : 'bg-red-600/20 text-red-400'}`}>
-                   <feature.icon size={24} />
+                 <div className={`w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 ${feature.color === 'blue' ? 'bg-blue-600/20 text-blue-400' : 'bg-red-600/20 text-red-400'}`}>
+                   <feature.icon size={20} className="md:w-6 md:h-6" />
                  </div>
                  <div className="flex flex-col">
-                   <span className="text-white text-sm md:text-base font-bold tracking-tight">{feature.title}</span>
-                   <span className="text-gray-400 text-xs mt-0.5">{feature.sub}</span>
+                   <span className="text-white text-[13px] md:text-base font-bold tracking-tight">{feature.title}</span>
+                   <span className="text-gray-400 text-[11px] md:text-xs mt-0.5">{feature.sub}</span>
                  </div>
               </motion.div>
             ))}
@@ -122,24 +122,24 @@ export default function IndustrialSolutions() {
       </section>
 
       {/* 2. FIRST SOLUTION SECTION - HEAT PRESS */}
-      <section className="py-20 md:py-32 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col items-center md:items-start text-center md:text-left mb-16">
+      <section className="py-16 md:py-24 lg:py-32 max-w-7xl mx-auto px-5 md:px-8">
+        <div className="flex flex-col items-center md:items-start text-center md:text-left mb-12 md:mb-16">
           <div className="inline-flex items-center gap-2 mb-3">
             <div className="h-[1px] w-6 bg-red-600 hidden md:block" />
-            <span className="text-red-600 font-bold tracking-widest text-xs uppercase">Our Machines</span>
+            <span className="text-red-600 font-bold tracking-widest text-[10px] md:text-xs uppercase">Our Machines</span>
             <div className="h-[1px] w-6 bg-red-600 hidden md:block" />
           </div>
-          <h2 className="text-3xl md:text-5xl font-black text-[#0b1042] mb-4 uppercase tracking-tight">Able Heat Press Machines</h2>
-          <p className="text-gray-500 text-base md:text-lg max-w-2xl">Efficient bonding, laminating and sealing solutions for the textile and garment industry.</p>
+          <h2 className="text-[28px] leading-[1.15] md:text-5xl font-black text-[#0b1042] mb-3 md:mb-4 uppercase tracking-tight">Able Heat Press<br className="block md:hidden"/> Machines</h2>
+          <p className="text-gray-500 text-[15px] md:text-lg max-w-2xl leading-[1.6]">Efficient bonding, laminating and sealing solutions for the textile and garment industry.</p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-20">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-center mb-16 md:mb-20">
           {/* LEFT: Image */}
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            className="bg-white rounded-[2rem] p-8 md:p-12 shadow-xl border border-gray-100 flex items-center justify-center relative overflow-hidden group aspect-square md:aspect-auto md:min-h-[500px]"
+            className="bg-white rounded-[2rem] p-6 md:p-12 shadow-xl border border-gray-100 flex items-center justify-center relative overflow-hidden group aspect-[4/3] md:aspect-auto md:min-h-[500px]"
           >
             <div className="absolute inset-0 bg-gradient-to-tr from-gray-50 to-white z-0"></div>
             <div className="absolute inset-0 opacity-[0.02] bg-[radial-gradient(#000_1px,transparent_1px)] [background-size:20px_20px]"></div>
@@ -160,14 +160,14 @@ export default function IndustrialSolutions() {
             viewport={{ once: true }}
             className="flex flex-col"
           >
-            <div className="bg-[#0b1042] rounded-[2rem] p-8 md:p-12 shadow-2xl relative overflow-hidden">
+            <div className="bg-[#0b1042] rounded-[2rem] p-6 md:p-12 shadow-2xl relative overflow-hidden">
               <div className="absolute -right-20 -top-20 w-64 h-64 bg-blue-600/20 blur-[60px] rounded-full pointer-events-none"></div>
               
-              <h4 className="text-white text-2xl font-bold mb-8 flex items-center">
-                <Settings className="mr-4 text-red-500" size={28} /> Machine Uses
+              <h4 className="text-white text-[22px] md:text-2xl font-bold mb-6 md:mb-8 flex items-center">
+                <Settings className="mr-3 md:mr-4 text-red-500" size={24} /> Machine Uses
               </h4>
               
-              <ul className="space-y-5 mb-10">
+              <ul className="space-y-4 md:space-y-5 mb-8 md:mb-10">
                 {[
                   "Bonding fabric to fabric using adhesives, without stitching",
                   "Laminating TPU, PU, adhesives and other compatible materials",
@@ -175,8 +175,8 @@ export default function IndustrialSolutions() {
                   "Attaching logos, labels or patches using heat-activated adhesives"
                 ].map((use, idx) => (
                   <li key={idx} className="flex items-start bg-white/5 p-4 rounded-2xl border border-white/5">
-                    <CheckCircle className="text-cyan-400 mr-4 mt-0.5 shrink-0" size={20} />
-                    <span className="text-gray-300 text-sm md:text-base leading-relaxed">{use}</span>
+                    <CheckCircle className="text-cyan-400 mr-3 md:mr-4 mt-0.5 shrink-0" size={18} />
+                    <span className="text-gray-300 text-[13px] md:text-base leading-[1.6] md:leading-relaxed">{use}</span>
                   </li>
                 ))}
               </ul>
@@ -189,9 +189,9 @@ export default function IndustrialSolutions() {
                   { name: "Labels & Logos", icon: Award },
                   { name: "Laminating TPU", icon: Layers }
                 ].map((app, idx) => (
-                  <div key={idx} className="bg-[#060a2b] border border-white/10 hover:border-cyan-500/50 transition-colors rounded-2xl p-4 flex flex-col items-center justify-center text-center group cursor-default">
-                    <app.icon size={24} className="text-blue-400 mb-3 group-hover:text-cyan-400 transition-colors" />
-                    <span className="text-white text-xs md:text-sm font-semibold tracking-wide">{app.name}</span>
+                  <div key={idx} className="bg-[#060a2b] border border-white/10 hover:border-cyan-500/50 transition-colors rounded-2xl p-3 md:p-4 flex flex-col items-center justify-center text-center group cursor-default">
+                    <app.icon size={20} className="text-blue-400 mb-2 md:mb-3 group-hover:text-cyan-400 transition-colors md:w-6 md:h-6" />
+                    <span className="text-white text-[11px] md:text-sm font-semibold tracking-wide">{app.name}</span>
                   </div>
                 ))}
               </div>
@@ -204,13 +204,13 @@ export default function IndustrialSolutions() {
            initial={{ opacity: 0, y: 30 }}
            whileInView={{ opacity: 1, y: 0 }}
            viewport={{ once: true }}
-           className="bg-white rounded-[2rem] p-6 md:p-12 shadow-xl border border-gray-100"
+           className="bg-white rounded-[2rem] p-5 md:p-12 shadow-xl border border-gray-100"
         >
-          <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
-            <h4 className="text-2xl md:text-3xl font-black text-[#0b1042] flex items-center uppercase tracking-tight">
-              <Settings className="mr-4 text-red-600" size={32} /> Specifications
+          <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 md:mb-8 gap-4">
+            <h4 className="text-[22px] md:text-3xl font-black text-[#0b1042] flex items-center uppercase tracking-tight">
+              <Settings className="mr-3 md:mr-4 text-red-600" size={24} /> Specifications
             </h4>
-            <span className="bg-blue-50 text-blue-700 text-xs font-bold px-3 py-1.5 rounded-lg uppercase tracking-wider border border-blue-100 w-fit">Heat Press Series</span>
+            <span className="bg-blue-50 text-blue-700 text-[10px] md:text-xs font-bold px-3 py-1.5 rounded-lg uppercase tracking-wider border border-blue-100 w-fit">Heat Press Series</span>
           </div>
           
           {/* Mobile Shared Specs Banner */}
@@ -288,19 +288,19 @@ export default function IndustrialSolutions() {
       </section>
 
       {/* 4. SECOND INDUSTRIAL SOLUTION SECTION - MOLDING */}
-      <section className="py-20 md:py-32 bg-[#f4f6fa] border-y border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col items-center md:items-start text-center md:text-left mb-16">
+      <section className="py-16 md:py-24 lg:py-32 bg-[#f4f6fa] border-y border-gray-200">
+        <div className="max-w-7xl mx-auto px-5 md:px-8">
+          <div className="flex flex-col items-center md:items-start text-center md:text-left mb-12 md:mb-16">
             <div className="inline-flex items-center gap-2 mb-3">
               <div className="h-[1px] w-6 bg-red-600 hidden md:block" />
-              <span className="text-red-600 font-bold tracking-widest text-xs uppercase">Specialized Solutions</span>
+              <span className="text-red-600 font-bold tracking-widest text-[10px] md:text-xs uppercase">Specialized Solutions</span>
               <div className="h-[1px] w-6 bg-red-600 hidden md:block" />
             </div>
-            <h2 className="text-3xl md:text-5xl font-black text-[#0b1042] mb-4 uppercase tracking-tight">Fabric & Bra Cup<br className="hidden md:block" /> Molding Machines</h2>
-            <p className="text-gray-500 text-base md:text-lg max-w-2xl">Precision molding solutions engineered for elite fabric and bra cup manufacturing.</p>
+            <h2 className="text-[28px] leading-[1.15] md:text-5xl font-black text-[#0b1042] mb-3 md:mb-4 uppercase tracking-tight">Fabric & Bra Cup<br className="hidden md:block" /> Molding Machines</h2>
+            <p className="text-gray-500 text-[15px] md:text-lg max-w-2xl leading-[1.6]">Precision molding solutions engineered for elite fabric and bra cup manufacturing.</p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-20 flex-col-reverse lg:flex-row-reverse">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-center mb-16 md:mb-20 flex-col-reverse lg:flex-row-reverse">
             {/* RIGHT (Reversed visually): Info Panel */}
             <motion.div
               initial={{ opacity: 0, x: -30 }}
@@ -308,14 +308,14 @@ export default function IndustrialSolutions() {
               viewport={{ once: true }}
               className="flex flex-col"
             >
-              <div className="bg-white rounded-[2rem] p-8 md:p-12 shadow-xl border border-gray-200 relative overflow-hidden">
+              <div className="bg-white rounded-[2rem] p-6 md:p-12 shadow-xl border border-gray-200 relative overflow-hidden">
                 <div className="absolute -left-20 -bottom-20 w-64 h-64 bg-red-600/5 blur-[60px] rounded-full pointer-events-none"></div>
                 
-                <h4 className="text-[#0b1042] text-2xl font-bold mb-8 flex items-center">
-                  <Wrench className="mr-4 text-red-600" size={28} /> Applications
+                <h4 className="text-[#0b1042] text-[22px] md:text-2xl font-bold mb-6 md:mb-8 flex items-center">
+                  <Wrench className="mr-3 md:mr-4 text-red-600" size={24} /> Applications
                 </h4>
                 
-                <ul className="space-y-5 mb-10 relative z-10">
+                <ul className="space-y-4 md:space-y-5 mb-8 md:mb-10 relative z-10">
                   {[
                     "Molding fabric components with precision and consistency",
                     "Bra cup molding for high-quality garment manufacturing",
@@ -323,8 +323,8 @@ export default function IndustrialSolutions() {
                     "Designed for elite durability and long-term performance"
                   ].map((use, idx) => (
                     <li key={idx} className="flex items-start bg-gray-50 p-4 rounded-2xl border border-gray-100">
-                      <CheckCircle className="text-red-500 mr-4 mt-0.5 shrink-0" size={20} />
-                      <span className="text-gray-700 text-sm md:text-base font-medium leading-relaxed">{use}</span>
+                      <CheckCircle className="text-red-500 mr-3 md:mr-4 mt-0.5 shrink-0" size={18} />
+                      <span className="text-gray-700 text-[13px] md:text-base font-medium leading-[1.6] md:leading-relaxed">{use}</span>
                     </li>
                   ))}
                 </ul>
@@ -337,9 +337,9 @@ export default function IndustrialSolutions() {
                     { name: "Garment Parts", icon: Settings },
                     { name: "Custom Shapes", icon: PlusCircle }
                   ].map((app, idx) => (
-                    <div key={idx} className="bg-gray-50 border border-gray-200 hover:border-red-200 transition-colors rounded-2xl p-4 flex flex-col items-center justify-center text-center group cursor-default">
-                      <app.icon size={24} className="text-red-500 mb-3 group-hover:text-[#0b1042] transition-colors" />
-                      <span className="text-[#0b1042] text-xs md:text-sm font-bold tracking-wide">{app.name}</span>
+                    <div key={idx} className="bg-gray-50 border border-gray-200 hover:border-red-200 transition-colors rounded-2xl p-3 md:p-4 flex flex-col items-center justify-center text-center group cursor-default">
+                      <app.icon size={20} className="text-red-500 mb-2 md:mb-3 group-hover:text-[#0b1042] transition-colors md:w-6 md:h-6" />
+                      <span className="text-[#0b1042] text-[11px] md:text-sm font-bold tracking-wide">{app.name}</span>
                     </div>
                   ))}
                 </div>
@@ -351,7 +351,7 @@ export default function IndustrialSolutions() {
               initial={{ opacity: 0, scale: 0.95 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
-              className="bg-white rounded-[2rem] p-8 md:p-12 shadow-xl border border-gray-100 flex items-center justify-center relative overflow-hidden group aspect-square md:aspect-auto md:min-h-[500px]"
+              className="bg-white rounded-[2rem] p-6 md:p-12 shadow-xl border border-gray-100 flex items-center justify-center relative overflow-hidden group aspect-[4/3] md:aspect-auto md:min-h-[500px]"
             >
               <div className="absolute inset-0 bg-gradient-to-tr from-gray-100 to-white z-0"></div>
               <motion.img 
@@ -369,13 +369,13 @@ export default function IndustrialSolutions() {
              initial={{ opacity: 0, y: 30 }}
              whileInView={{ opacity: 1, y: 0 }}
              viewport={{ once: true }}
-             className="bg-white rounded-[2rem] p-6 md:p-12 shadow-xl border border-gray-100"
+             className="bg-white rounded-[2rem] p-5 md:p-12 shadow-xl border border-gray-100"
           >
-            <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
-              <h4 className="text-2xl md:text-3xl font-black text-[#0b1042] flex items-center uppercase tracking-tight">
-                <Settings className="mr-4 text-red-600" size={32} /> Specifications
+            <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 md:mb-8 gap-4">
+              <h4 className="text-[22px] md:text-3xl font-black text-[#0b1042] flex items-center uppercase tracking-tight">
+                <Settings className="mr-3 md:mr-4 text-red-600" size={24} /> Specifications
               </h4>
-              <span className="bg-red-50 text-red-700 text-xs font-bold px-3 py-1.5 rounded-lg uppercase tracking-wider border border-red-100 w-fit">Molding Series</span>
+              <span className="bg-red-50 text-red-700 text-[10px] md:text-xs font-bold px-3 py-1.5 rounded-lg uppercase tracking-wider border border-red-100 w-fit">Molding Series</span>
             </div>
 
             {/* Mobile Shared Specs Banner */}
@@ -450,45 +450,45 @@ export default function IndustrialSolutions() {
       </section>
 
       {/* 6. CALL TO ACTION SECTION */}
-      <section className="bg-[#0b1042] py-24 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-1/2 h-full bg-blue-900/10 skew-x-12 translate-x-1/4" />
-        <div className="absolute bottom-0 left-0 w-1/3 h-full bg-red-600/5 -skew-x-12 -translate-x-1/4" />
+      <section className="bg-[#0b1042] py-16 md:py-24 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-full md:w-1/2 h-full bg-blue-900/10 skew-x-12 translate-x-1/4" />
+        <div className="absolute bottom-0 left-0 w-full md:w-1/3 h-full bg-red-600/5 -skew-x-12 -translate-x-1/4" />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
-            <div className="lg:w-1/2 space-y-8 text-center lg:text-left">
-              <div className="flex items-center justify-center lg:justify-start gap-3">
-                <div className="h-[2px] w-8 bg-red-600" />
-                <span className="text-red-500 font-bold tracking-widest text-xs uppercase">Get Started</span>
+        <div className="max-w-7xl mx-auto px-5 md:px-8 relative z-10">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-10 md:gap-12">
+            <div className="lg:w-1/2 space-y-6 md:space-y-8 text-center lg:text-left">
+              <div className="flex items-center justify-center lg:justify-start gap-2 md:gap-3">
+                <div className="h-[2px] w-6 md:w-8 bg-red-600" />
+                <span className="text-red-500 font-bold tracking-widest text-[10px] md:text-xs uppercase">Get Started</span>
               </div>
-              <h2 className="text-4xl md:text-5xl font-black text-white leading-tight uppercase tracking-tight">
+              <h2 className="text-[32px] leading-[1.1] md:text-5xl font-black text-white uppercase tracking-tight">
                 Need a Custom <br className="hidden md:block" />
                 <span className="text-red-500">Solution?</span>
               </h2>
-              <p className="text-gray-300 text-lg max-w-xl mx-auto lg:mx-0 leading-relaxed">
+              <p className="text-gray-300 text-[15px] md:text-lg max-w-xl mx-auto lg:mx-0 leading-[1.7] md:leading-relaxed">
                 Our elite team is ready to help you find the perfect industrial machinery tailored to your exact production requirements.
               </p>
               <Link 
                 to="/contact"
-                className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white px-10 py-4 rounded-full font-bold transition-all shadow-[0_5px_20px_rgba(220,38,38,0.5)] border border-red-500/50 group hover:-translate-y-1"
+                className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white px-8 py-3.5 md:px-10 md:py-4 rounded-full font-bold transition-all shadow-[0_5px_20px_rgba(220,38,38,0.5)] border border-red-500/50 group hover:-translate-y-1 text-[15px] md:text-base w-full sm:w-auto mt-2"
               >
                 <span>Request a Quote</span>
                 <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
               </Link>
             </div>
             
-            <div className="lg:w-1/2 grid grid-cols-2 gap-4 w-full">
+            <div className="lg:w-1/2 grid grid-cols-2 gap-3 md:gap-4 w-full mt-4 lg:mt-0">
               {[
                 { title: "Technical Consultation", icon: Settings },
                 { title: "Machine Selection", icon: Award },
                 { title: "After-Sales Service", icon: Wrench },
                 { title: "Spare Parts Support", icon: Layers }
               ].map((info, idx) => (
-                <div key={idx} className="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-6 md:p-8 flex flex-col items-center justify-center hover:bg-white/10 transition-colors group">
-                  <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center mb-5 text-red-400 group-hover:scale-110 group-hover:text-cyan-400 transition-all duration-300">
-                    <info.icon size={28} />
+                <div key={idx} className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl md:rounded-3xl p-5 md:p-8 flex flex-col items-center justify-center hover:bg-white/10 transition-colors group">
+                  <div className="w-12 h-12 md:w-14 md:h-14 bg-white/10 rounded-xl md:rounded-2xl flex items-center justify-center mb-3 md:mb-5 text-red-400 group-hover:scale-110 group-hover:text-cyan-400 transition-all duration-300">
+                    <info.icon size={24} className="md:w-7 md:h-7" />
                   </div>
-                  <h4 className="text-white font-bold text-sm md:text-base text-center leading-tight">{info.title}</h4>
+                  <h4 className="text-white font-bold text-[13px] md:text-base text-center leading-[1.3] md:leading-tight">{info.title}</h4>
                 </div>
               ))}
             </div>

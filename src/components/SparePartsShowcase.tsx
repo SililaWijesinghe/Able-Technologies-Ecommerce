@@ -4,54 +4,49 @@ import { ArrowRight, Settings } from 'lucide-react';
 import { motion } from 'motion/react';
 import ProductCard from './shop/ProductCard';
 import { SkeletonProductCard } from './ui/Skeleton';
-import { fetchCategories, fetchProducts } from '../services/api';
 import { useStoreSettings } from '../context/StoreSettingsContext';
+import { useProducts, useCategories } from '../hooks/useCatalogQueries';
 
 const SparePartsShowcase = () => {
   const [products, setProducts] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
   const { settings } = useStoreSettings();
+  
+  const { data: categories = [], isLoading: isLoadingCategories } = useCategories();
+  const { data: allProducts = [], isLoading: isLoadingProducts } = useProducts();
+  
+  const loading = isLoadingCategories || isLoadingProducts;
 
   useEffect(() => {
-    const loadSpareParts = async () => {
-      try {
-        setLoading(true);
-        // First try to find the Spare Parts category
-        const categories = await fetchCategories();
-        const sparePartsCat = categories.find((c: any) => 
-          c.name.toLowerCase().includes('spare parts') || 
-          c.slug?.toLowerCase().includes('spare-parts')
+    if (loading) return;
+
+    try {
+      const sparePartsCat = categories.find((c: any) => 
+        c.name.toLowerCase().includes('spare parts') || 
+        c.slug?.toLowerCase().includes('spare-parts')
+      );
+
+      let fetchedProducts = [];
+      if (sparePartsCat) {
+        fetchedProducts = allProducts.filter((p: any) => p.category_id === sparePartsCat.id);
+      } else {
+        // Fallback: fetch all and filter client side just in case
+        fetchedProducts = allProducts.filter((p: any) => 
+          p.category_name?.toLowerCase().includes('spare parts') || 
+          (p.category && typeof p.category === 'string' && p.category.toLowerCase().includes('spare parts')) ||
+          (p.category && typeof p.category === 'object' && p.category.name?.toLowerCase().includes('spare parts'))
         );
-
-        let fetchedProducts = [];
-        if (sparePartsCat) {
-          fetchedProducts = await fetchProducts({ category: sparePartsCat.id });
-        } else {
-          // Fallback: fetch all and filter client side just in case
-          const allProducts = await fetchProducts();
-          fetchedProducts = allProducts.filter((p: any) => 
-            p.category_name?.toLowerCase().includes('spare parts') || 
-            (p.category && typeof p.category === 'string' && p.category.toLowerCase().includes('spare parts')) ||
-            (p.category && typeof p.category === 'object' && p.category.name?.toLowerCase().includes('spare parts'))
-          );
-        }
-
-        // If no spare parts found, fetch a few default products just to show something in dev
-        if (fetchedProducts.length === 0) {
-           const fallbackProducts = await fetchProducts();
-           fetchedProducts = fallbackProducts.slice(0, 4);
-        }
-
-        setProducts(fetchedProducts.slice(0, 4));
-      } catch (error) {
-        console.error("Failed to load spare parts", error);
-      } finally {
-        setLoading(false);
       }
-    };
 
-    loadSpareParts();
-  }, []);
+      // If no spare parts found, fetch a few default products just to show something in dev
+      if (fetchedProducts.length === 0 && allProducts.length > 0) {
+         fetchedProducts = allProducts.slice(0, 4);
+      }
+
+      setProducts(fetchedProducts.slice(0, 4));
+    } catch (error) {
+      console.error("Failed to load spare parts", error);
+    }
+  }, [categories, allProducts, loading]);
 
   return (
     <section className="py-16 md:py-24 bg-gray-50 border-t border-gray-100">

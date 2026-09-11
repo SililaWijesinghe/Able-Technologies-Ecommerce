@@ -1,17 +1,21 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Phone, Mail, LayoutGrid, Search, User, ChevronRight, X, ArrowUp } from 'lucide-react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Phone, Mail, LayoutGrid, Search, User, ChevronRight, X, ArrowUp, Home, FileText } from 'lucide-react';
 import { WhatsAppIcon } from './icons/WhatsAppIcon';
 import { fetchSettings } from '../services/api';
 import { useScrollDirection } from '../hooks/useScrollDirection';
 import { useAuth } from '../context/AuthContext';
+import MobileSearchModal from './search/MobileSearchModal';
 
 export default function FloatingControls() {
   const [settings, setSettings] = useState<any>(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const { scrollDirection, isAtTop } = useScrollDirection();
   const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const pathname = location.pathname;
 
   useEffect(() => {
     fetchSettings().then(data => data && setSettings(data));
@@ -126,28 +130,50 @@ export default function FloatingControls() {
 
 
 
-      {/* ---------------- MOBILE BOTTOM NAVIGATION (UNCHANGED) ---------------- */}
-      <div className={`md:hidden fixed bottom-0 left-0 w-full bg-white shadow-[0_-4px_15px_rgba(0,0,0,0.05)] z-[50] flex justify-around items-center py-2 pb-safe border-t border-gray-100 transition-transform duration-300 ease-in-out ${scrollDirection === 'down' && !isAtTop ? 'translate-y-full' : 'translate-y-0'}`}>
-        <Link to="/" className="flex flex-col items-center p-2 metallic-red-text">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="url(#metal-red)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-          <span className="text-[10px] font-medium mt-1">Home</span>
-        </Link>
-        <Link to="/shop" className="flex flex-col items-center p-2 text-gray-500 hover:text-gray-900">
-          <LayoutGrid size={20} />
-          <span className="text-[10px] font-medium mt-1">Categories</span>
-        </Link>
-        <Link to="/shop" className="flex flex-col items-center p-2 text-gray-500 hover:text-gray-900">
-          <Search size={20} />
-          <span className="text-[10px] font-medium mt-1">Search</span>
-        </Link>
-        <Link to="/contact" className="flex flex-col items-center p-2 text-gray-500 hover:text-gray-900">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-          <span className="text-[10px] font-medium mt-1">Quote</span>
-        </Link>
-        <button onClick={handleAccountClick} className="flex flex-col items-center p-2 text-gray-500 hover:text-gray-900 cursor-pointer">
-          <User size={20} />
-          <span className="text-[10px] font-medium mt-1">Account</span>
-        </button>
+      {/* ---------------- SUPER MOBILE BOTTOM NAVIGATION ---------------- */}
+      <div className={`md:hidden fixed bottom-4 left-4 right-4 z-[50] transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] ${scrollDirection === 'down' && !isAtTop ? 'translate-y-[150%] opacity-0' : 'translate-y-0 opacity-100'}`}>
+        <div className="bg-[#0b1042]/50 backdrop-blur-2xl shadow-[0_8px_32px_rgba(0,0,0,0.3)] border border-white/20 rounded-3xl flex justify-around items-center px-2 py-2 relative">
+          
+          <Link to="/" className="flex flex-col items-center relative w-14 group">
+            <div className={`absolute inset-0 rounded-xl transition-all duration-300 ${pathname === '/' ? 'bg-white/10 scale-100' : 'bg-transparent scale-90'}`}></div>
+            <Home size={20} className={`relative z-10 transition-colors duration-300 ${pathname === '/' ? 'text-red-500' : 'text-gray-400 group-hover:text-gray-200'}`} />
+            <span className={`text-[9px] font-bold mt-1 relative z-10 transition-colors duration-300 ${pathname === '/' ? 'text-white' : 'text-gray-400'}`}>Home</span>
+            {pathname === '/' && <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 bg-red-500 rounded-full shadow-[0_0_8px_rgba(239,68,68,0.8)]"></div>}
+          </Link>
+          
+          <Link to="/shop" className="flex flex-col items-center relative w-14 group">
+            <div className={`absolute inset-0 rounded-xl transition-all duration-300 ${pathname.startsWith('/shop') ? 'bg-white/10 scale-100' : 'bg-transparent scale-90'}`}></div>
+            <LayoutGrid size={20} className={`relative z-10 transition-colors duration-300 ${pathname.startsWith('/shop') ? 'text-red-500' : 'text-gray-400 group-hover:text-gray-200'}`} />
+            <span className={`text-[9px] font-bold mt-1 relative z-10 transition-colors duration-300 ${pathname.startsWith('/shop') ? 'text-white' : 'text-gray-400'}`}>Products</span>
+            {pathname.startsWith('/shop') && <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 bg-red-500 rounded-full shadow-[0_0_8px_rgba(239,68,68,0.8)]"></div>}
+          </Link>
+          
+          {/* Prominent Search Action */}
+          <button 
+            onClick={() => setIsMobileSearchOpen(true)} 
+            className="flex flex-col items-center relative w-14 group -translate-y-3"
+          >
+            <div className="absolute inset-0 bg-red-600/0 rounded-xl transition-all duration-300"></div>
+            <div className="w-12 h-12 bg-gradient-to-tr from-red-700 to-red-500 rounded-full flex items-center justify-center text-white shadow-[0_8px_20px_rgba(220,38,38,0.4)] border-2 border-white/20 transform transition-transform duration-300 group-active:scale-95 group-hover:-translate-y-1 backdrop-blur-md">
+              <Search size={22} className="drop-shadow-md" />
+            </div>
+            <span className="text-[9px] font-bold mt-1 text-gray-300 tracking-wide">Search</span>
+          </button>
+          
+          <Link to="/contact" className="flex flex-col items-center relative w-14 group">
+            <div className={`absolute inset-0 rounded-xl transition-all duration-300 ${pathname.startsWith('/contact') ? 'bg-white/10 scale-100' : 'bg-transparent scale-90'}`}></div>
+            <FileText size={20} className={`relative z-10 transition-colors duration-300 ${pathname.startsWith('/contact') ? 'text-red-500' : 'text-gray-400 group-hover:text-gray-200'}`} />
+            <span className={`text-[9px] font-bold mt-1 relative z-10 transition-colors duration-300 ${pathname.startsWith('/contact') ? 'text-white' : 'text-gray-400'}`}>Quote</span>
+            {pathname.startsWith('/contact') && <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 bg-red-500 rounded-full shadow-[0_0_8px_rgba(239,68,68,0.8)]"></div>}
+          </Link>
+          
+          <button onClick={handleAccountClick} className="flex flex-col items-center relative w-14 group">
+             <div className={`absolute inset-0 rounded-xl transition-all duration-300 ${pathname.startsWith('/profile') || pathname.startsWith('/admin') ? 'bg-white/10 scale-100' : 'bg-transparent scale-90'}`}></div>
+             <User size={20} className={`relative z-10 transition-colors duration-300 ${pathname.startsWith('/profile') || pathname.startsWith('/admin') ? 'text-red-500' : 'text-gray-400 group-hover:text-gray-200'}`} />
+             <span className={`text-[9px] font-bold mt-1 relative z-10 transition-colors duration-300 ${pathname.startsWith('/profile') || pathname.startsWith('/admin') ? 'text-white' : 'text-gray-400'}`}>Account</span>
+             {(pathname.startsWith('/profile') || pathname.startsWith('/admin')) && <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 bg-red-500 rounded-full shadow-[0_0_8px_rgba(239,68,68,0.8)]"></div>}
+          </button>
+        </div>
       </div>
       
       {/* ---------------- FLOATING METALLIC RED SCROLL-TO-TOP BUTTON (RIGHT) ---------------- */}
@@ -172,6 +198,8 @@ export default function FloatingControls() {
       {/* Spacer for mobile bottom nav */}
       <div className="h-16 md:hidden"></div>
 
+      {/* Mobile Search Modal */}
+      <MobileSearchModal isOpen={isMobileSearchOpen} onClose={() => setIsMobileSearchOpen(false)} />
     </>
   );
 }

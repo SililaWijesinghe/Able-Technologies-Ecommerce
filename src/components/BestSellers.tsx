@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { fetchProducts } from '../services/api';
 import { useCart } from '../context/CartContext';
+import { useProducts } from '../hooks/useCatalogQueries';
 import toolImg from '../assets/Tool1.png';
 import toast from 'react-hot-toast';
 
@@ -59,8 +60,10 @@ export default function BestSellers() {
   const { addToCart } = useCart();
   const { settings } = useStoreSettings();
   const navigate = useNavigate();
+  
+  const { data: apiData = [], isLoading: isQueryLoading } = useProducts();
+  
   const [products, setProducts] = useState<ProductItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [favorites, setFavorites] = useState<Record<string, boolean>>({});
   const [quickViewProduct, setQuickViewProduct] = useState<ProductItem | null>(null);
@@ -162,60 +165,55 @@ export default function BestSellers() {
 
   // Fetch real database products and gracefully merge with rich industrial best-seller schema
   useEffect(() => {
-    setIsLoading(true);
-    fetchProducts().then((apiData: any[]) => {
-      if (apiData && Array.isArray(apiData) && apiData.length > 0) {
-        // Map API records into standard structure
-        const mappedApiProducts: ProductItem[] = apiData.slice(0, 6).map((p, idx) => {
-          const priceVal = typeof p.price === 'number' ? p.price : parseFloat(p.base_price || p.price || '0');
-          const compareVal = typeof p.compare_at_price === 'number' ? p.compare_at_price : (p.compare_at_price ? parseFloat(p.compare_at_price) : undefined);
-          const imgUrl = p.image_urls?.[0] || p.image_url || p.images?.[0]?.image_url || defaultBestSellers[idx % defaultBestSellers.length].image;
+    if (isQueryLoading) return;
+    
+    if (apiData && Array.isArray(apiData) && apiData.length > 0) {
+      // Map API records into standard structure
+      const mappedApiProducts: ProductItem[] = apiData.slice(0, 6).map((p, idx) => {
+        const priceVal = typeof p.price === 'number' ? p.price : parseFloat(p.base_price || p.price || '0');
+        const compareVal = typeof p.compare_at_price === 'number' ? p.compare_at_price : (p.compare_at_price ? parseFloat(p.compare_at_price) : undefined);
+        const imgUrl = p.image_urls?.[0] || p.image_url || p.images?.[0]?.image_url || defaultBestSellers[idx % defaultBestSellers.length].image;
+        
+        const badges: Array<ProductItem['badge']> = [
+          { type: 'top_rated', text: 'TOP RATED' },
+          { type: 'best_value', text: 'BEST VALUE' },
+          { type: 'high_demand', text: 'HIGH DEMAND' },
+          { type: 'popular', text: 'POPULAR' },
+          { type: 'new', text: 'NEW' }
+        ];
+
+        return {
+          id: p.id || defaultBestSellers[idx % defaultBestSellers.length].id,
+          name: p.name || defaultBestSellers[idx % defaultBestSellers.length].name,
+          slug: p.slug || p.id,
+          sku: p.sku || `SKU-${idx + 100}`,
+          category: p.brand || (typeof p.category === 'object' ? p.category?.name : p.category) || defaultBestSellers[idx % defaultBestSellers.length].category,
+          category_name: typeof p.category === 'object' ? p.category?.name : p.category || 'Industrial Equipment',
           
-          const badges: Array<ProductItem['badge']> = [
-            { type: 'top_rated', text: 'TOP RATED' },
-            { type: 'best_value', text: 'BEST VALUE' },
-            { type: 'high_demand', text: 'HIGH DEMAND' },
-            { type: 'popular', text: 'POPULAR' },
-            { type: 'new', text: 'NEW' }
-          ];
+          price: priceVal > 0 ? priceVal : defaultBestSellers[idx % defaultBestSellers.length].price,
+          compare_at_price: compareVal && compareVal > priceVal ? compareVal : defaultBestSellers[idx % defaultBestSellers.length].compare_at_price,
+          image: imgUrl,
+          badge: badges[idx % badges.length],
+          stock_status: p.stock_status || (p.stock_quantity > 0 ? 'IN_STOCK' : 'IN_STOCK'),
+          stock_quantity: p.stock_quantity || 25,
+          short_description: p.short_description || p.description || defaultBestSellers[idx % defaultBestSellers.length].short_description,
+          icon_type: defaultBestSellers[idx % defaultBestSellers.length].icon_type,
+          specifications: p.specifications || defaultBestSellers[idx % defaultBestSellers.length].specifications,
+          attributes: p.attributes || defaultBestSellers[idx % defaultBestSellers.length].attributes,
+          brand: typeof p.brand === 'object' ? p.brand?.name : (p.brand || p.brand_id || defaultBestSellers[idx % defaultBestSellers.length].brand)
+        };
+      });
 
-          return {
-            id: p.id || defaultBestSellers[idx % defaultBestSellers.length].id,
-            name: p.name || defaultBestSellers[idx % defaultBestSellers.length].name,
-            slug: p.slug || p.id,
-            sku: p.sku || `SKU-${idx + 100}`,
-            category: p.brand || (typeof p.category === 'object' ? p.category?.name : p.category) || defaultBestSellers[idx % defaultBestSellers.length].category,
-            category_name: typeof p.category === 'object' ? p.category?.name : p.category || 'Industrial Equipment',
-            
-            price: priceVal > 0 ? priceVal : defaultBestSellers[idx % defaultBestSellers.length].price,
-            compare_at_price: compareVal && compareVal > priceVal ? compareVal : defaultBestSellers[idx % defaultBestSellers.length].compare_at_price,
-            image: imgUrl,
-            badge: badges[idx % badges.length],
-            stock_status: p.stock_status || (p.stock_quantity > 0 ? 'IN_STOCK' : 'IN_STOCK'),
-            stock_quantity: p.stock_quantity || 25,
-            short_description: p.short_description || p.description || defaultBestSellers[idx % defaultBestSellers.length].short_description,
-            icon_type: defaultBestSellers[idx % defaultBestSellers.length].icon_type,
-            specifications: p.specifications || defaultBestSellers[idx % defaultBestSellers.length].specifications,
-            attributes: p.attributes || defaultBestSellers[idx % defaultBestSellers.length].attributes,
-            brand: typeof p.brand === 'object' ? p.brand?.name : (p.brand || p.brand_id || defaultBestSellers[idx % defaultBestSellers.length].brand)
-          };
-        });
-
-        // Ensure at least 3 best sellers are always available for the carousel
-        if (mappedApiProducts.length >= 3) {
-          setProducts(mappedApiProducts);
-        } else {
-          setProducts([...mappedApiProducts, ...defaultBestSellers.slice(mappedApiProducts.length)]);
-        }
+      // Ensure at least 3 best sellers are always available for the carousel
+      if (mappedApiProducts.length >= 3) {
+        setProducts(mappedApiProducts);
       } else {
-        setProducts(defaultBestSellers);
-        setIsLoading(false);
+        setProducts([...mappedApiProducts, ...defaultBestSellers.slice(mappedApiProducts.length)]);
       }
-    }).catch(() => {
+    } else {
       setProducts(defaultBestSellers);
-      setIsLoading(false);
-    });
-  }, [defaultBestSellers]);
+    }
+  }, [apiData, isQueryLoading, defaultBestSellers]);
 
   // Handle responsive items per view
   useEffect(() => {

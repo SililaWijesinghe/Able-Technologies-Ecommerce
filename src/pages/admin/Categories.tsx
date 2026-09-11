@@ -5,9 +5,11 @@ import toast from 'react-hot-toast';
 import { useNavigate } from "react-router-dom";
 import { Plus, Edit, Trash2, LayoutGrid, Loader2, Image as ImageIcon, AlertCircle, Upload, Link as LinkIcon, X } from 'lucide-react';
 import { buildCategoryOptions, getHierarchicalCategories } from '../../utils/categoryUtils';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function Categories() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [categories, setCategories] = useState<any[]>([]);
   const [productCounts, setProductCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
@@ -157,6 +159,7 @@ export default function Categories() {
         throw error;
       }
 
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
       toast.success("Category created successfully!");
       setTimeout(() => navigate("/admin/categories"), 1200);
       setAddForm({ name: '', description: '', slug: '', icon_url: '', parent_id: '' });
@@ -223,6 +226,7 @@ export default function Categories() {
         throw error;
       }
 
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
       toast.success("Category updated successfully!");
       setTimeout(() => navigate("/admin/categories"), 1200);
       setIsModalOpen(false);
@@ -244,6 +248,7 @@ export default function Categories() {
       const { error } = await supabase.from('categories').delete().eq('id', deleteId);
       if (error) throw error;
 
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
       toast.success("Category deleted successfully!");
       setIsDeleteModalOpen(false);
       fetchData();

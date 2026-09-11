@@ -6,10 +6,12 @@ import { Loader2, X, ArrowLeft, Image as ImageIcon, Save, Check, Plus, Trash2, A
 import toast from 'react-hot-toast';
 import { buildCategoryOptions, getHierarchicalCategories } from '../../utils/categoryUtils';
 import { ApplicableFieldsInput } from '../../components/admin/ApplicableFieldsInput';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function EditProduct() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -23,6 +25,8 @@ export default function EditProduct() {
   const [imagesToDelete, setImagesToDelete] = useState<string[]>([]);
   const [newFiles, setNewFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
+  const [existingDownloads, setExistingDownloads] = useState<{name: string, url: string}[]>([]);
+  const [newDownloadFiles, setNewDownloadFiles] = useState<File[]>([]);
 
   useEffect(() => {
     const objectUrls = newFiles.map(file => URL.createObjectURL(file));
@@ -57,6 +61,33 @@ export default function EditProduct() {
   const removeExistingImage = (index: number) => {
     setImagesToDelete(prev => [...prev, existingImages[index]]);
     setExistingImages(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleDownloadFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const files = Array.from(e.target.files) as File[];
+      const validFiles = files.filter(file => {
+        const validTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
+        if (!validTypes.includes(file.type)) {
+          toast.error(file.name + ' is not a valid format (PDF, JPG, PNG, WEBP)');
+          return false;
+        }
+        if (file.size > 10 * 1024 * 1024) {
+          toast.error(file.name + ' exceeds 10MB limit');
+          return false;
+        }
+        return true;
+      });
+      setNewDownloadFiles(prev => [...prev, ...validFiles]);
+    }
+  };
+
+  const removeNewDownloadFile = (index: number) => {
+    setNewDownloadFiles(prev => prev.filter((_, i) => i !== index));
+  };
+  
+  const removeExistingDownload = (index: number) => {
+    setExistingDownloads(prev => prev.filter((_, i) => i !== index));
   };
 
   // Form State
@@ -254,6 +285,9 @@ export default function EditProduct() {
         
         setApplicableFields(Array.isArray(data.applicable_fields) ? data.applicable_fields : []);
 
+        const downloadsArray = Array.isArray(data.downloads) ? data.downloads : [];
+        setExistingDownloads(downloadsArray);
+
         const imgs = data.image_urls || [];
         setExistingImages(imgs);
       } catch (err: any) {
@@ -371,6 +405,29 @@ export default function EditProduct() {
       const finalImageUrls = [...existingImages, ...uploadedUrls];
       const primaryImageUrl = finalImageUrls[0] || '';
 
+      // 0.6 Handle Downloads Upload
+      let uploadedDownloads: {name: string, url: string}[] = [];
+      if (newDownloadFiles.length > 0) {
+        const category = categories.find(c => c.id === formData.category);
+        const folderName = category?.name?.replace(/[^a-zA-Z0-9.\-_]/g, '_') || 'uncategorized';
+        const prodName = formData.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+        
+        const uploadPromises = newDownloadFiles.map(async (file) => {
+          const timestamp = Date.now();
+          const fileName = `${timestamp}_${file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_')}`;
+          const dynamicPath = `${folderName}/${prodName}/${fileName}`;
+          const { error: uploadError } = await supabase.storage.from('product_downloads').upload(dynamicPath, file);
+          
+          if (uploadError) throw new Error('DOWNLOAD_STORAGE_ERROR: ' + uploadError.message);
+          
+          const { data: publicUrlData } = supabase.storage.from('product_downloads').getPublicUrl(dynamicPath);
+          return { name: file.name, url: publicUrlData.publicUrl };
+        });
+        uploadedDownloads = await Promise.all(uploadPromises);
+      }
+      
+      const finalDownloads = [...existingDownloads, ...uploadedDownloads];
+
       // Determine Price and Quote Flags
       const parsedPrice = parseFloat(formData.price);
       const isPriceEmpty = formData.price === '' || isNaN(parsedPrice) || parsedPrice <= 0;
@@ -389,6 +446,7 @@ export default function EditProduct() {
         cost_price: formData.cost_price ? parseFloat(formData.cost_price) : null,
         low_stock_threshold: parseInt(formData.low_stock_threshold) || 5,
         image_urls: finalImageUrls,
+        downloads: finalDownloads,
         
         is_service: formData.is_service,
         is_oeko_tex: formData.is_oeko_tex,
@@ -455,6 +513,8 @@ export default function EditProduct() {
         const { error: variantError } = await supabase.from('product_variants').upsert(variantPayload);
         if (variantError) throw variantError;
       }
+
+      queryClient.invalidateQueries({ queryKey: ['products'] });
 
       const successMsg = 'Product updated successfully!';
       setSuccess(successMsg);
@@ -1010,6 +1070,65 @@ export default function EditProduct() {
                       </div>
                     ))}
                   </div>
+                </div>
+              )}
+            </div>
+
+            <div className="border-t border-gray-100 my-6"></div>
+
+            {/* Downloads */}
+            <div className="space-y-4">
+              <div className="border-2 border-dashed border-white/60 rounded-xl p-6 text-center hover:bg-white/40 transition-colors">
+                <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3 text-emerald-500">
+                  <Save size={24} />
+                </div>
+                <p className="text-sm font-bold text-gray-700 mb-1">Product Downloads (Manuals, Specs)</p>
+                <p className="text-xs text-gray-500 mb-4">Select multiple files (PDF/JPEG/PNG/WEBP, max 10MB)</p>
+                <input 
+                  type="file"
+                  accept="application/pdf,image/jpeg,image/png,image/webp"
+                  multiple
+                  onChange={handleDownloadFileChange}
+                  className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
+                />
+              </div>
+
+              {(existingDownloads.length > 0 || newDownloadFiles.length > 0) && (
+                <div className="mt-4">
+                  <p className="text-xs font-bold text-gray-700 mb-2">Selected Files:</p>
+                  <ul className="space-y-2">
+                    {/* Existing Downloads */}
+                    {existingDownloads.map((file, index) => (
+                      <li key={'ext-dl-'+index} className="flex items-center justify-between bg-white border border-gray-200 rounded-lg p-3 shadow-sm">
+                        <span className="text-sm font-medium text-gray-700 truncate mr-4">{file.name}</span>
+                        <button 
+                          type="button"
+                          onClick={() => removeExistingDownload(index)} 
+                          className="text-gray-400 hover:text-red-500 transition-colors"
+                          title="Remove file"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </li>
+                    ))}
+                    {/* New Download Files */}
+                    {newDownloadFiles.map((file, index) => (
+                      <li key={'new-dl-'+index} className="flex items-center justify-between bg-emerald-50 border border-emerald-200 rounded-lg p-3 shadow-sm">
+                        <div className="flex items-center">
+                          <span className="text-sm font-medium text-emerald-800 truncate mr-2">{file.name}</span>
+                          <span className="bg-emerald-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow whitespace-nowrap">New</span>
+                        </div>
+                        <button 
+                          type="button"
+                          onClick={() => removeNewDownloadFile(index)} 
+                          className="text-emerald-400 hover:text-red-500 transition-colors"
+                          title="Remove file"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               )}
             </div>

@@ -1,19 +1,17 @@
 import { useState, useEffect } from 'react';
-import { fetchProducts } from '../../services/api';
+import { useProducts } from '../../hooks/useCatalogQueries';
 import ProductCard from '../../components/shop/ProductCard';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 export default function RelatedProducts({ currentProductId }: { currentProductId: string }) {
   const [products, setProducts] = useState<any[]>([]);
+  const { data: allProducts = [], isLoading } = useProducts();
 
   useEffect(() => {
-    // Just fetch some products for the "You May Also Like"
-    fetchProducts().then(data => {
-      // Filter out the current product and take 4
-      const related = (data || []).filter((p: any) => p.id !== currentProductId).slice(0, 4);
-      setProducts(related);
-    });
-  }, [currentProductId]);
+    if (isLoading) return;
+    const related = allProducts.filter((p: any) => p.id !== currentProductId).slice(0, 4);
+    setProducts(related);
+  }, [currentProductId, allProducts, isLoading]);
 
   if (products.length === 0) return null;
 

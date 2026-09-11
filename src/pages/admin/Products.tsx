@@ -4,9 +4,10 @@ import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Plus, Search, X, Tag, Box, AlertCircle, Info, Shield, Activity, FileText, List, Filter, Eye, Edit, Trash, Package, CheckCircle, Clock, XCircle, Loader2, Layers } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function Products() {
-  
+  const queryClient = useQueryClient();
   const [viewProduct, setViewProduct] = useState<any>(null);
   const [productToDelete, setProductToDelete] = useState<any>(null);
   const [products, setProducts] = useState<any[]>([]);
@@ -80,6 +81,7 @@ export default function Products() {
       if (!error) {
         setProducts(products.filter(p => p.id !== productToDelete.id));
         setProductToDelete(null);
+        queryClient.invalidateQueries({ queryKey: ['products'] });
         toast.success('Product deleted successfully');
       }
     } catch (err) {

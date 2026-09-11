@@ -6,12 +6,14 @@ import { Loader2, X, ArrowLeft, Image as ImageIcon, Save, Check, Plus, Trash2 } 
 import toast from 'react-hot-toast';
 import { buildCategoryOptions, getHierarchicalCategories } from '../../utils/categoryUtils';
 import { ApplicableFieldsInput } from '../../components/admin/ApplicableFieldsInput';
+import { useQueryClient } from '@tanstack/react-query';
 
 
 const COMMON_SPECS = ['Power Supply', 'Air Pressure', 'Power Consumption', 'Temperature', 'Timmer', 'Piston Diameter', 'Bed Dimensions', 'Net Weight', 'Machine Weight', 'Frequency'];
 
 export default function AddProduct() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [skuError, setSkuError] = useState('');
@@ -20,6 +22,7 @@ export default function AddProduct() {
   const [existingImages, setExistingImages] = useState<string[]>([]);
   const [newFiles, setNewFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
+  const [downloadFiles, setDownloadFiles] = useState<File[]>([]);
 
   useEffect(() => {
     const objectUrls = newFiles.map(file => URL.createObjectURL(file));
@@ -49,6 +52,29 @@ export default function AddProduct() {
 
   const removeNewFile = (index: number) => {
     setNewFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleDownloadFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const files = Array.from(e.target.files) as File[];
+      const validFiles = files.filter(file => {
+        const validTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
+        if (!validTypes.includes(file.type)) {
+          toast.error(file.name + ' is not a valid format (PDF, JPG, PNG, WEBP)');
+          return false;
+        }
+        if (file.size > 10 * 1024 * 1024) {
+          toast.error(file.name + ' exceeds 10MB limit');
+          return false;
+        }
+        return true;
+      });
+      setDownloadFiles(prev => [...prev, ...validFiles]);
+    }
+  };
+
+  const removeDownloadFile = (index: number) => {
+    setDownloadFiles(prev => prev.filter((_, i) => i !== index));
   };
 
   // Form State
@@ -282,6 +308,27 @@ export default function AddProduct() {
       
       const primaryImageUrl = uploadedUrls[0] || '';
 
+      // 0.6 Handle Downloads Upload
+      let uploadedDownloads: {name: string, url: string}[] = [];
+      if (downloadFiles.length > 0) {
+        const category = categories.find(c => c.id === formData.category);
+        const folderName = category?.name?.replace(/[^a-zA-Z0-9.\-_]/g, '_') || 'uncategorized';
+        const prodName = formData.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+        
+        const uploadPromises = downloadFiles.map(async (file) => {
+          const timestamp = Date.now();
+          const fileName = `${timestamp}_${file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_')}`;
+          const dynamicPath = `${folderName}/${prodName}/${fileName}`;
+          const { error: uploadError } = await supabase.storage.from('product_downloads').upload(dynamicPath, file);
+          
+          if (uploadError) throw new Error('DOWNLOAD_STORAGE_ERROR: ' + uploadError.message);
+          
+          const { data: publicUrlData } = supabase.storage.from('product_downloads').getPublicUrl(dynamicPath);
+          return { name: file.name, url: publicUrlData.publicUrl };
+        });
+        uploadedDownloads = await Promise.all(uploadPromises);
+      }
+
       // 1. Determine Price and Quote Flags
       const parsedPrice = parseFloat(formData.price);
       const isPriceEmpty = formData.price === '' || isNaN(parsedPrice) || parsedPrice <= 0;
@@ -302,6 +349,7 @@ export default function AddProduct() {
         low_stock_threshold: parseInt(formData.low_stock_threshold) || 5,
         
         image_urls: uploadedUrls,
+        downloads: uploadedDownloads,
         
         is_service: formData.is_service,
         is_oeko_tex: formData.is_oeko_tex,
@@ -346,6 +394,8 @@ export default function AddProduct() {
           const { error: variantError } = await supabase.from('product_variants').insert(variantPayload);
           if (variantError) throw variantError;
         }
+
+      queryClient.invalidateQueries({ queryKey: ['products'] });
 
       toast.success('🎉 Product published successfully!');
       navigate('/admin/products');
@@ -808,9 +858,10 @@ export default function AddProduct() {
           <div className="bg-white/60 backdrop-blur-xl border border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.05)] rounded-3xl p-6 space-y-5">
             <div className="flex items-center space-x-2 mb-2">
               <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-black">4</span>
-              <h2 className="text-lg font-black text-gray-900">Product Image</h2>
+              <h2 className="text-lg font-black text-gray-900">Product Media</h2>
             </div>
             
+            {/* Images */}
             <div className="space-y-4">
               <div className="border-2 border-dashed border-white/60 rounded-xl p-6 text-center hover:bg-white/40 transition-colors">
                 <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3 text-blue-500">
@@ -852,6 +903,47 @@ export default function AddProduct() {
                       </div>
                     ))}
                   </div>
+                </div>
+              )}
+            </div>
+
+            <div className="border-t border-gray-100 my-6"></div>
+
+            {/* Downloads */}
+            <div className="space-y-4">
+              <div className="border-2 border-dashed border-white/60 rounded-xl p-6 text-center hover:bg-white/40 transition-colors">
+                <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3 text-emerald-500">
+                  <Save size={24} />
+                </div>
+                <p className="text-sm font-bold text-gray-700 mb-1">Product Downloads (Manuals, Specs)</p>
+                <p className="text-xs text-gray-500 mb-4">Select multiple files (PDF/JPEG/PNG/WEBP, max 10MB)</p>
+                <input 
+                  type="file"
+                  accept="application/pdf,image/jpeg,image/png,image/webp"
+                  multiple
+                  onChange={handleDownloadFileChange}
+                  className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
+                />
+              </div>
+
+              {downloadFiles.length > 0 && (
+                <div className="mt-4">
+                  <p className="text-xs font-bold text-gray-700 mb-2">Selected Files:</p>
+                  <ul className="space-y-2">
+                    {downloadFiles.map((file, index) => (
+                      <li key={index} className="flex items-center justify-between bg-white border border-gray-200 rounded-lg p-3 shadow-sm">
+                        <span className="text-sm font-medium text-gray-700 truncate mr-4">{file.name}</span>
+                        <button 
+                          type="button"
+                          onClick={() => removeDownloadFile(index)} 
+                          className="text-gray-400 hover:text-red-500 transition-colors"
+                          title="Remove file"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               )}
             </div>

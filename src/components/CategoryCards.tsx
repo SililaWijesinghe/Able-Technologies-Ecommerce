@@ -2,7 +2,7 @@ import { Settings, Globe, Wrench, Gauge, Droplet, ArrowRight, LayoutGrid, Image 
 import { motion } from 'motion/react';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { fetchCategories } from '../services/api';
+import { useCategories } from '../hooks/useCatalogQueries';
 import { Skeleton } from './ui/Skeleton';
 import allCategoriesImg from '../assets/allCategories.png';
 
@@ -31,12 +31,11 @@ export default function CategoryCards() {
     { title: 'Machine Services', name: 'Machine Services', slug: 'machine-services', icon: Gauge, icon_url: imageMap['machine-services'] },
   ];
 
+  const { data, isLoading } = useCategories();
   const [categories, setCategories] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    setIsLoading(true);
-    fetchCategories().then(data => {
+    if (!isLoading) {
       if (data && data.length > 0) {
         // Filter out sub-categories (only keep those where parent_id is null)
         const parentCategories = data.filter((cat: any) => !cat.parent_id);
@@ -54,9 +53,8 @@ export default function CategoryCards() {
       } else {
         setCategories(fallbackCategories);
       }
-      setIsLoading(false);
-    });
-  }, []);
+    }
+  }, [data, isLoading]);
 
   // Always append 'All Categories' with the static image asset
   const displayCards: any[] = [

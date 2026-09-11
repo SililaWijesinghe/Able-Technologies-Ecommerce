@@ -24,35 +24,220 @@
   </head>
   <body>
     <div id="root">
-      <div style="display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #0b1042; flex-direction: column;">
+      <div id="app-preloader" class="preloader-wrapper">
         <style>
-          .spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid rgba(255, 75, 75, 0.2);
+          .preloader-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+            background: radial-gradient(circle at center, #0B1B3D 0%, #04081c 100%);
+            flex-direction: column;
+            overflow: hidden;
+            position: fixed;
+            top: 0; left: 0;
+            z-index: 9999;
+            perspective: 1000px;
+          }
+          
+          .preloader-scene {
+            position: relative;
+            transform-style: preserve-3d;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 0.1s ease-out;
+            z-index: 10;
+          }
+
+          .core-container {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin-bottom: 40px;
+            transform-style: preserve-3d;
+          }
+
+          .ring {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
             border-radius: 50%;
-            border-top-color: #ff4b4b;
-            animation: spin 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-            margin-bottom: 20px;
+            border: 2px solid transparent;
           }
-          @keyframes spin {
-            to { transform: rotate(360deg); }
+
+          .ring.outer {
+            border-top: 2px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            border-left: 2px solid #E02424;
+            border-right: 2px solid #E02424;
+            animation: rotate-3d 3s linear infinite;
+            box-shadow: 0 0 20px rgba(224, 36, 36, 0.2), inset 0 0 20px rgba(224, 36, 36, 0.2);
           }
-          .loading-text {
+
+          .ring.middle {
+            top: 15px; left: 15px; width: 90px; height: 90px;
+            border-left: 2px solid rgba(255, 255, 255, 0.1);
+            border-right: 2px solid rgba(255, 255, 255, 0.1);
+            border-top: 2px solid #3b82f6;
+            border-bottom: 2px solid #3b82f6;
+            animation: rotate-3d-reverse 2s linear infinite;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
+          }
+
+          .ring.inner {
+            top: 35px; left: 35px; width: 50px; height: 50px;
+            background: radial-gradient(circle, #E02424 0%, transparent 70%);
+            animation: pulse-core 1.5s ease-in-out infinite alternate;
+          }
+
+          .crosshair {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 160px; height: 160px;
+            border: 1px dashed rgba(255,255,255,0.15);
+            border-radius: 50%;
+            animation: rotate-slow 15s linear infinite;
+          }
+
+          .loading-brand {
             color: #ffffff;
             font-family: 'Poppins', sans-serif;
-            font-size: 14px;
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: 6px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            text-shadow: 0 0 10px rgba(255,255,255,0.2);
+          }
+          
+          .loading-brand span {
+            color: #E02424;
+            text-shadow: 0 0 10px rgba(224, 36, 36, 0.4);
+          }
+
+          .progress-container {
+            width: 240px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+            border-radius: 2px;
+          }
+
+          .progress-bar {
+            position: absolute;
+            top: 0; left: 0; height: 100%;
+            width: 0%;
+            background: #E02424;
+            box-shadow: 0 0 10px #E02424;
+            animation: fill-bar 2s cubic-bezier(0.77, 0, 0.175, 1) infinite;
+          }
+
+          .status-text {
+            margin-top: 16px;
+            color: #64748b;
+            font-family: 'Inter', sans-serif;
+            font-size: 10px;
             letter-spacing: 3px;
             text-transform: uppercase;
-            animation: pulse 1.5s ease-in-out infinite;
+            animation: blink 1.5s infinite;
           }
-          @keyframes pulse {
-            0%, 100% { opacity: 0.5; }
+
+          @keyframes rotate-3d {
+            0% { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
+            100% { transform: rotateX(360deg) rotateY(180deg) rotateZ(360deg); }
+          }
+
+          @keyframes rotate-3d-reverse {
+            0% { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
+            100% { transform: rotateX(-180deg) rotateY(-360deg) rotateZ(-360deg); }
+          }
+          
+          @keyframes rotate-slow {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+          }
+
+          @keyframes pulse-core {
+            0% { transform: scale(0.8); opacity: 0.5; filter: blur(2px); }
+            100% { transform: scale(1.2); opacity: 1; filter: blur(0px); box-shadow: 0 0 30px #E02424; }
+          }
+
+          @keyframes fill-bar {
+            0% { width: 0%; left: 0%; }
+            50% { width: 100%; left: 0%; }
+            100% { width: 0%; left: 100%; }
+          }
+
+          @keyframes blink {
+            0%, 100% { opacity: 0.4; }
             50% { opacity: 1; }
           }
+          
+          /* Background grid for depth */
+          .bg-grid {
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background-image: 
+              linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            transform: perspective(600px) rotateX(60deg) translateY(0) translateZ(-200px);
+            animation: grid-move 10s linear infinite;
+            z-index: 1;
+            pointer-events: none;
+          }
+
+          @keyframes grid-move {
+            0% { transform: perspective(600px) rotateX(60deg) translateY(0) translateZ(-200px); }
+            100% { transform: perspective(600px) rotateX(60deg) translateY(40px) translateZ(-200px); }
+          }
         </style>
-        <div class="spinner"></div>
-        <div class="loading-text">Loading...</div>
+        
+        <div class="bg-grid"></div>
+        <div class="preloader-scene" id="preloader-scene">
+          <div class="core-container">
+            <div class="crosshair"></div>
+            <div class="ring outer"></div>
+            <div class="ring middle"></div>
+            <div class="ring inner"></div>
+          </div>
+          <div class="loading-brand">ABLE<span>TECH</span></div>
+          <div class="progress-container">
+            <div class="progress-bar"></div>
+          </div>
+          <div class="status-text" id="status-text">Initializing Systems...</div>
+        </div>
+        
+        <script>
+          // Interactive 3D parallax effect on mouse move
+          document.addEventListener('mousemove', function(e) {
+            const scene = document.getElementById('preloader-scene');
+            if (scene) {
+              const x = (window.innerWidth / 2 - e.clientX) / 25;
+              const y = (window.innerHeight / 2 - e.clientY) / 25;
+              scene.style.transform = `rotateY(${x}deg) rotateX(${y}deg)`;
+            }
+          });
+
+          // Simulate loading phases for interactivity
+          const statuses = ['Loading Core Modules...', 'Syncing Database...', 'Connecting Securely...', 'Almost Ready...'];
+          let statusIdx = 0;
+          const statusEl = document.getElementById('status-text');
+          if (statusEl) {
+            setInterval(() => {
+              if (statusIdx < statuses.length) {
+                statusEl.innerText = statuses[statusIdx];
+                statusIdx++;
+              }
+            }, 800);
+          }
+        </script>
       </div>
     </div>
     <script type="module" src="/src/main.tsx"></script>

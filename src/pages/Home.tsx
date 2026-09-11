@@ -90,6 +90,8 @@ export default function Home() {
                 transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
                 src={slide.image} 
                 alt="Industrial Machinery" 
+                width="800"
+                height="800"
                 className="h-full w-auto object-contain relative z-10 drop-shadow-[-25px_15px_25px_rgba(0,0,0,0.6)]"
               />
               {/* Ground Shadow for Base */}

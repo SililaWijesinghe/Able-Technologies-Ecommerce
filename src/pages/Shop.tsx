@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { fetchProducts, fetchCategories } from '../services/api';
+import { useProducts, useCategories } from '../hooks/useCatalogQueries';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
@@ -48,10 +48,12 @@ export default function Shop() {
   const location = useLocation();
   const navigate = useNavigate();
   
-  const [allProducts, setAllProducts] = useState<any[]>([]);
+  const { data: allProducts = [], isLoading: isProductsLoading } = useProducts();
+  const { data: dbCategories = [], isLoading: isCategoriesLoading } = useCategories();
+  
+  const isLoading = isProductsLoading || isCategoriesLoading;
+
   const [filteredProducts, setFilteredProducts] = useState<any[]>([]);
-  const [dbCategories, setDbCategories] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
 
   // Dynamic maximum catalog price calculation
   const maxCatalogPrice = useMemo(() => {
@@ -75,22 +77,6 @@ export default function Shop() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   const itemsPerPage = 12;
-
-  // 1. Fetch ALL products and categories once on mount
-  useEffect(() => {
-    setIsLoading(true);
-    Promise.all([fetchProducts(), fetchCategories()])
-      .then(([productsData, categoriesData]) => {
-        setAllProducts(productsData || []);
-        setDbCategories(categoriesData || []);
-      })
-      .catch((err) => {
-        console.error('Failed to load shop catalog:', err);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  }, []);
 
   // Sync initial dynamic max price once products arrive
   useEffect(() => {

@@ -66,7 +66,7 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
         {/* Image */}
         <div className="w-full h-48 bg-white/50 rounded-2xl mb-2 flex items-center justify-center p-4 group-hover/link:bg-white/80 transition-colors overflow-hidden mix-blend-multiply border border-white/50">
           {mainImage ? (
-            <img src={mainImage} alt={product.name} className="w-full h-full object-contain group-hover/link:scale-105 transition-transform duration-500" />
+            <img src={mainImage} alt={product.name} width="400" height="400" className="w-full h-full object-contain group-hover/link:scale-105 transition-transform duration-500" />
           ) : (
             <div className="w-full h-full border-2 border-dashed border-slate-200 rounded-xl flex items-center justify-center text-slate-400 text-xs text-center">
               No Image

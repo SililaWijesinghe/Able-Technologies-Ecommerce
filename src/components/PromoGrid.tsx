@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { 
@@ -15,7 +15,7 @@ import {
   ChevronLeft, 
   ChevronRight 
 } from 'lucide-react';
-import { fetchCategories, fetchProducts } from '../services/api';
+import { useCategories, useProducts } from '../hooks/useCatalogQueries';
 
 interface PromoBannerItem {
   id: string;
@@ -40,29 +40,20 @@ interface PromoBannerItem {
 export default function PromoGrid() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [activeSlide, setActiveSlide] = useState(0);
-  const [categories, setCategories] = useState<any[]>([]);
-  const [productCounts, setProductCounts] = useState<{ [key: string]: number }>({});
+  
+  const { data: categories = [] } = useCategories();
+  const { data: products = [] } = useProducts();
 
-  useEffect(() => {
-    fetchCategories().then(cats => {
-      if (cats && Array.isArray(cats)) {
-        setCategories(cats);
+  const productCounts = useMemo(() => {
+    const counts: { [key: string]: number } = { total: products.length };
+    products.forEach((p: any) => {
+      const catId = p.category_id || p.category?.id || p.category?.slug;
+      if (catId) {
+        counts[catId] = (counts[catId] || 0) + 1;
       }
     });
-
-    fetchProducts().then(products => {
-      if (products && Array.isArray(products)) {
-        const counts: { [key: string]: number } = { total: products.length };
-        products.forEach(p => {
-          const catId = p.category_id || p.category?.id || p.category?.slug;
-          if (catId) {
-            counts[catId] = (counts[catId] || 0) + 1;
-          }
-        });
-        setProductCounts(counts);
-      }
-    });
-  }, []);
+    return counts;
+  }, [products]);
 
   // Match category slugs dynamically if available from DB
   const getCategoryLink = (slugOrName: string, fallbackParam: string) => {
@@ -322,6 +313,8 @@ export default function PromoGrid() {
                   <img 
                     src={banner.image} 
                     alt={banner.imageAlt}
+                    width="400"
+                    height="300"
                     className="max-h-full max-w-full object-contain filter drop-shadow-[0_12px_20px_rgba(15,23,42,0.14)] transition-all duration-500 ease-out group-hover:scale-105 group-hover:-translate-y-2"
                     loading="lazy"
                   />

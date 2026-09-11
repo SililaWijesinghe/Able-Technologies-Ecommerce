@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react';
 import toast from 'react-hot-toast';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { fetchSettings, fetchCategories } from '../services/api';
+import { fetchSettings } from '../services/api';
+import { useCategories } from '../hooks/useCatalogQueries';
 import { useScrollDirection } from '../hooks/useScrollDirection';
 import { useCart } from '../context/CartContext';
 import { useStoreSettings } from '../context/StoreSettingsContext';
@@ -159,7 +160,7 @@ export default function Header() {
   const navigate = useNavigate();
   const location = useLocation();
   
-  const [categories, setCategories] = useState<any[]>([]);
+  const { data: categories = [] } = useCategories();
   const [isMobileCategoriesOpen, setIsMobileCategoriesOpen] = useState(false);
   
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
@@ -190,16 +191,6 @@ export default function Header() {
 
     const handleOpenLoginModal = () => setIsLoginModalOpen(true);
     window.addEventListener('open-login-modal', handleOpenLoginModal);
-
-    const loadCategories = async () => {
-      try {
-        const data = await fetchCategories();
-        setCategories(data || []);
-      } catch (err) {
-        console.error('Failed to load categories', err);
-      }
-    };
-    loadCategories();
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
@@ -321,7 +312,7 @@ export default function Header() {
               <Menu size={24} />
             </button>
             <Link to="/">
-              <img src={whiteAbleLogo} alt="Able Technologies" className="h-8 object-contain drop-shadow-md" />
+              <img src={whiteAbleLogo} alt="Able Technologies" width="120" height="32" className="h-8 w-auto object-contain drop-shadow-md" />
             </Link>
             <div className="flex items-center gap-3">
               <button onClick={handleAccountClick} className="text-white hover:text-cyan-400 transition-colors">
@@ -430,7 +421,7 @@ export default function Header() {
                           className="text-white hover:bg-white/10 transition-colors border-b border-white/10 p-3 flex items-center gap-3 cursor-pointer group"
                         >
                           <div className="w-10 h-10 bg-white/10 rounded-lg overflow-hidden shrink-0 border border-white/20 shadow-sm flex items-center justify-center p-1">
-                            <img src={imgUrl} alt={item.name} className="w-full h-full object-cover rounded-md" />
+                            <img src={imgUrl} alt={item.name} width="40" height="40" className="w-full h-full object-cover rounded-md" />
                           </div>
                           <div className="flex-1 min-w-0">
                             <h4 className="text-slate-100 font-semibold text-xs truncate group-hover:text-cyan-300 transition-colors">{item.name}</h4>
@@ -619,7 +610,7 @@ export default function Header() {
             {/* Logo */}
             <div className="pl-2 pr-6 shrink-0 relative z-10">
               <Link to="/">
-                <img src={whiteAbleLogo} alt="Able Technologies Logo" className="h-12 lg:h-14 w-auto object-contain drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]" />
+                <img src={whiteAbleLogo} alt="Able Technologies Logo" width="200" height="56" className="h-12 lg:h-14 w-auto object-contain drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]" />
               </Link>
             </div>
 
@@ -668,7 +659,7 @@ export default function Header() {
                           >
                             <div className="w-12 h-12 bg-white/5 rounded-xl overflow-hidden shrink-0 border border-white/10 shadow-sm flex items-center justify-center p-1">
                               {imgUrl ? (
-                                <img src={imgUrl} alt={item.name} className="w-full h-full object-cover rounded-lg" />
+                                <img src={imgUrl} alt={item.name} width="48" height="48" className="w-full h-full object-cover rounded-lg" />
                               ) : (
                                 <Package size={20} className="text-slate-400" />
                               )}

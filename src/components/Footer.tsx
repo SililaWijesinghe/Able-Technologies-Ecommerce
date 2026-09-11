@@ -267,7 +267,9 @@ export default function Footer() {
                 <img 
                   src={whiteAbleLogo} 
                   alt="Able Technologies Logo" 
-                  className="h-12 md:h-14 object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]" 
+                  width="200"
+                  height="56"
+                  className="h-12 md:h-14 w-auto object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]" 
                 />
               </Link>
               <p className="text-blue-100/60 text-sm mb-8 leading-relaxed font-medium">
